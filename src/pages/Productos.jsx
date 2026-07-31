@@ -1,8 +1,19 @@
 import { Link } from 'react-router-dom'
-import { ROOT, getChildren } from '../data/categories'
+import { ROOT, getChildren, categories } from '../data/categories'
+import { useProducts } from '../context/ProductsContext'
+import ProductCard from '../components/ProductCard'
 
 export default function Productos() {
   const cats = getChildren(ROOT.slug)
+  const { products } = useProducts()
+
+  const byCategory = {}
+  products.forEach((p) => {
+    if (!byCategory[p.category]) byCategory[p.category] = []
+    byCategory[p.category].push(p)
+  })
+
+  const orderedCategories = categories.filter((c) => byCategory[c.slug]?.length)
 
   return (
     <>
@@ -35,6 +46,46 @@ export default function Productos() {
             </Link>
           ))}
         </div>
+
+        {orderedCategories.length > 0 && (
+          <div style={{ marginTop: 56 }}>
+            <div className="section-head" style={{ textAlign: 'left', marginBottom: 32 }}>
+              <span className="tag">Catálogo completo</span>
+              <h2>Todos los productos por categoría</h2>
+              <p>
+                Cada producto se asigna a una categoría. Explora cada sección o usa el menú de
+                Productos para navegar.
+              </p>
+            </div>
+
+            {orderedCategories.map((cat) => (
+              <div key={cat.slug} style={{ marginBottom: 40 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    gap: 10,
+                    flexWrap: 'wrap',
+                    marginBottom: 18,
+                  }}
+                >
+                  <h3 style={{ margin: 0, fontSize: '1.3rem' }}>{cat.name}</h3>
+                  <span className="muted" style={{ fontSize: '0.88rem' }}>
+                    {byCategory[cat.slug].length} producto{byCategory[cat.slug].length === 1 ? '' : 's'}
+                  </span>
+                  <Link to={`/categoria/${cat.slug}`} style={{ fontSize: '0.88rem' }}>
+                    Ver categoría →
+                  </Link>
+                </div>
+                <div className="grid grid-4">
+                  {byCategory[cat.slug].map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="section-head mt-3" style={{ marginTop: 56 }}>
           <span className="tag">Catálogo completo</span>

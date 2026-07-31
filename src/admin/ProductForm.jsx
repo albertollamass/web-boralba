@@ -1,9 +1,41 @@
 import { useState } from 'react'
-import { getLeafCategories } from '../data/categories'
+import {
+  getChildren,
+  getCategoryPathLabel,
+  getDescendantSlugs,
+  ROOT,
+} from '../data/categories'
+
+function fileToDataUrl(file, maxDim = 900, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * scale)
+        canvas.height = Math.round(img.height * scale)
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        const supportsWebp = canvas.toDataURL('image/webp').startsWith('data:image/webp')
+        const format = supportsWebp ? 'image/webp' : 'image/jpeg'
+        resolve(canvas.toDataURL(format, quality))
+      }
+      img.onerror = reject
+      img.src = reader.result
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
 
 export default function ProductForm({ initial, onSubmit, onCancel }) {
   const [product, setProduct] = useState(initial)
-  const leaves = getLeafCategories()
+  const [uploading, setUploading] = useState(false)
+  const [fileKey, setFileKey] = useState(0)
+
+  const topCats = getChildren(ROOT.slug)
 
   const set = (key) => (e) => setProduct((p) => ({ ...p, [key]: e.target.value }))
   const setCheck = (key) => (e) => setProduct((p) => ({ ...p, [key]: e.target.checked }))
@@ -23,6 +55,21 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
     setProduct((p) => ({ ...p, specs: p.specs.filter((_, idx) => idx !== i) }))
   }
 
+  const onFileSelected = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const dataUrl = await fileToDataUrl(file)
+      setProduct((p) => ({ ...p, image: dataUrl }))
+    } catch {
+      alert('No se pudo procesar la imagen.')
+    } finally {
+      setUploading(false)
+      setFileKey((k) => k + 1)
+    }
+  }
+
   const submit = (e) => {
     e.preventDefault()
     if (!product.name || !product.category) {
@@ -37,6 +84,8 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
     }
     onSubmit(clean)
   }
+
+  const isDataUrl = (img) => typeof img === 'string' && img.startsWith('data:')
 
   return (
     <form className="form" onSubmit={submit}>
@@ -56,20 +105,40 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
           <label>Categoría *</label>
           <select value={product.category} onChange={set('category')} required>
             <option value="">Selecciona una categoría...</option>
-            {leaves.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.name}
-              </option>
+            {topCats.map((top) => (
+              <optgroup key={top.slug} label={top.name}>
+                {getDescendantSlugs(top.slug).map((s) => (
+                  <option key={s} value={s}>
+                    {getCategoryPathLabel(s)}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+            Se muestra la ruta completa (ej. Tiras LED › Tiras LED 24V › CRI80).
+          </span>
         </div>
         <div>
-          <label>Imagen (URL)</label>
+          <label>Imagen</label>
           <input
-            value={product.image}
-            onChange={set('image')}
-            placeholder="/images/producto.jpg o https://..."
+            type="file"
+            accept="image/*"
+            key={fileKey}
+            onChange={onFileSelected}
+            style={{ padding: 8 }}
           />
+          <input
+            value={isDataUrl(product.image) ? '' : product.image}
+            onChange={set('image')}
+            placeholder="o pega una URL: /images/xxx.jpg o https://..."
+            style={{ marginTop: 8 }}
+          />
+          {uploading && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+              Procesando imagen...
+            </span>
+          )}
         </div>
       </div>
 

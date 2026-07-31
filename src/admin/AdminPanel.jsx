@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
-import { getCategory } from '../data/categories'
+import { getCategory, getCategoryPathLabel } from '../data/categories'
 import ProductForm from './ProductForm'
 
 const emptyProduct = () => ({
@@ -37,10 +37,7 @@ export default function AdminPanel() {
     return matchSearch && matchCat
   })
 
-  const catName = (slug) => {
-    const c = getCategory(slug)
-    return c ? c.name : slug
-  }
+  const catName = (slug) => getCategoryPathLabel(slug)
 
   const handleSubmit = (data) => {
     if (editing) {

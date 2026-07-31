@@ -374,6 +374,12 @@ export function getBreadcrumb(slug) {
   return trail
 }
 
+export function getCategoryPathLabel(slug) {
+  return getBreadcrumb(slug)
+    .map((c) => c.name)
+    .join(' › ')
+}
+
 export function getLeafCategories() {
   return categories.filter((c) => !c.children || c.children.length === 0)
 }

@@ -1,19 +1,20 @@
 :root {
   --color-bg: #ffffff;
-  --color-surface: #f5f7fa;
-  --color-surface-2: #eef1f5;
-  --color-text: #1c2530;
-  --color-text-muted: #5c6b7a;
-  --color-primary: #0a2f5a;
-  --color-primary-dark: #071f3d;
-  --color-accent: #f6a821;
-  --color-accent-dark: #e09213;
+  --color-surface: #f7f3f2;
+  --color-surface-2: #f1e8e7;
+  --color-text: #1c2026;
+  --color-text-muted: #5f6269;
+  --color-primary: #ce3025;
+  --color-primary-dark: #8f1f17;
+  --color-primary-deeper: #5e130d;
+  --color-accent: #ffb13d;
+  --color-accent-dark: #e69317;
   --color-success: #1a9c5c;
-  --color-danger: #d64545;
+  --color-danger: #b3261e;
   --radius: 12px;
   --radius-sm: 8px;
-  --shadow: 0 2px 12px rgba(10, 47, 90, 0.08);
-  --shadow-lg: 0 12px 40px rgba(10, 47, 90, 0.14);
+  --shadow: 0 2px 12px rgba(142, 28, 20, 0.1);
+  --shadow-lg: 0 12px 40px rgba(142, 28, 20, 0.18);
   --font-sans: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
 }
 
@@ -322,7 +323,7 @@ p {
 
 /* ---------- Hero ---------- */
 .hero {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 60%, #123f74 100%);
+  background: linear-gradient(135deg, var(--color-primary-deeper) 0%, var(--color-primary-dark) 55%, var(--color-primary) 100%);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -839,7 +840,7 @@ p {
 
 /* ---------- Footer ---------- */
 .footer {
-  background: var(--color-primary-dark);
+  background: var(--color-primary-deeper);
   color: rgba(255, 255, 255, 0.75);
   padding: 48px 0 0;
   margin-top: 64px;

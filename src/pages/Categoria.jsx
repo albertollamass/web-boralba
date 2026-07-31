@@ -1,5 +1,11 @@
 import { Link, useParams, Navigate } from 'react-router-dom'
-import { getCategory, getChildren, getBreadcrumb, getDescendantSlugs, getLeafCategories } from '../data/categories'
+import {
+  getCategory,
+  getChildren,
+  getBreadcrumb,
+  getDescendantSlugs,
+  getLeafCategories,
+} from '../data/categories'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard from '../components/ProductCard'
 
@@ -14,13 +20,16 @@ export default function Categoria() {
   const leaf = children.length === 0
   const trail = getBreadcrumb(slug)
 
-  let categoryProducts
-  if (leaf) {
-    categoryProducts = products.filter((p) => p.category === slug)
-  } else {
-    const slugs = getDescendantSlugs(slug)
-    categoryProducts = products.filter((p) => slugs.includes(p.category))
-  }
+  const productsIn = (catSlug) =>
+    products.filter((p) => getDescendantSlugs(catSlug).includes(p.category))
+
+  const directProducts = products.filter((p) => p.category === slug)
+  const groups = children
+    .map((child) => ({ cat: child, items: productsIn(child.slug) }))
+    .filter((g) => g.items.length > 0)
+
+  const hasSections = children.length > 0 && (directProducts.length > 0 || groups.length > 0)
+  const totalCount = productsIn(slug).length
 
   const subCats =
     children.length > 0
@@ -68,18 +77,58 @@ export default function Categoria() {
           </>
         )}
 
-        <div className="section-head" style={{ textAlign: 'left', marginBottom: 28 }}>
-          <h3 style={{ marginBottom: 4 }}>
-            {leaf ? `Productos en ${category.name}` : `Productos de ${category.name}`}
-          </h3>
-          <span className="muted">
-            {categoryProducts.length} producto{categoryProducts.length === 1 ? '' : 's'}
-          </span>
-        </div>
+        {totalCount > 0 && (
+          <div className="section-head" style={{ textAlign: 'left', marginBottom: 28 }}>
+            <h3 style={{ marginBottom: 4 }}>
+              {leaf ? `Productos en ${category.name}` : `Productos de ${category.name}`}
+            </h3>
+            <span className="muted">
+              {totalCount} producto{totalCount === 1 ? '' : 's'}
+            </span>
+          </div>
+        )}
 
-        {categoryProducts.length > 0 ? (
+        {hasSections ? (
+          <>
+            {directProducts.length > 0 && (
+              <div style={{ marginBottom: 36 }}>
+                <h4 style={{ marginBottom: 14, color: 'var(--color-text-muted)' }}>
+                  {category.name} (general)
+                </h4>
+                <div className="grid grid-4">
+                  {directProducts.map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
+                </div>
+              </div>
+            )}
+            {groups.map((g) => (
+              <div key={g.cat.slug} style={{ marginBottom: 36 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    gap: 10,
+                    flexWrap: 'wrap',
+                    marginBottom: 14,
+                  }}
+                >
+                  <h4 style={{ margin: 0 }}>{g.cat.name}</h4>
+                  <span className="muted" style={{ fontSize: '0.85rem' }}>
+                    {g.items.length} producto{g.items.length === 1 ? '' : 's'}
+                  </span>
+                </div>
+                <div className="grid grid-4">
+                  {g.items.map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </>
+        ) : totalCount > 0 ? (
           <div className="grid grid-4">
-            {categoryProducts.map((p) => (
+            {productsIn(slug).map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
