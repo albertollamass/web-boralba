@@ -72,7 +72,7 @@ export default function Servicios() {
 
         <div className="split mt-3" style={{ marginTop: 48 }}>
           <div className="split-img">
-            <img src="/images/tridonic.png" alt="Tridonic" />
+            <img src="images/tridonic.png" alt="Tridonic" />
           </div>
           <div className="split-text">
             <span className="tag">Partner tecnológico</span>

@@ -6,7 +6,7 @@ export const seedProducts = [
     category: 'tiras-led-cri-80',
     price: 18.5,
     unit: 'rollo 5m',
-    image: '/images/cri80.png',
+    image: 'images/cri80.png',
     description:
       'Tira LED de 5 metros a 24V con reproducción cromática CRI80. Luz uniforme y colores naturales para crear ambientes modernos, eficientes y agradables.',
     specs: [
@@ -27,7 +27,7 @@ export const seedProducts = [
     category: 'tiras-led-cri-80',
     price: 35.9,
     unit: 'rollo 10m',
-    image: '/images/cri80.png',
+    image: 'images/cri80.png',
     description:
       'Tira LED de 10 metros a 24V con CRI80 para instalaciones largas con luz uniforme y estable.',
     specs: [
@@ -45,7 +45,7 @@ export const seedProducts = [
     category: 'cri-90-iluminacion-led',
     price: 26.4,
     unit: 'rollo 5m',
-    image: '/images/cri90.webp',
+    image: 'images/cri90.webp',
     description:
       'Tira LED de 5 metros a 24V con CRI90. Reproducción de color alta y más precisa, resaltando mejor los tonos reales de los objetos.',
     specs: [
@@ -65,7 +65,7 @@ export const seedProducts = [
     category: 'tira-led-cob-cri-90',
     price: 32.0,
     unit: 'rollo 5m',
-    image: '/images/cob-cri90.webp',
+    image: 'images/cob-cri90.webp',
     description:
       'Tira LED COB CRI90 que proporciona una línea de luz continua sin puntos visibles y alta fidelidad de color, con un acabado limpio y natural.',
     specs: [
@@ -85,7 +85,7 @@ export const seedProducts = [
     category: 'monocolor',
     price: 19.9,
     unit: 'rollo 5m',
-    image: '/images/monocolor.webp',
+    image: 'images/monocolor.webp',
     description:
       'Tira LED monocolor de color intenso y uniforme. Disponible en rojo, verde, azul y amarillo.',
     specs: [
@@ -102,7 +102,7 @@ export const seedProducts = [
     category: 'rgb-y-rgb-cob',
     price: 24.5,
     unit: 'rollo 5m',
-    image: '/images/rgb.webp',
+    image: 'images/rgb.webp',
     description:
       'Tira LED RGB que permite crear iluminación multicolor combinando rojo, verde y azul con efectos de color versátiles.',
     specs: [
@@ -120,7 +120,7 @@ export const seedProducts = [
     category: 'tira-led-cct',
     price: 28.7,
     unit: 'rollo 5m',
-    image: '/images/cct.webp',
+    image: 'images/cct.webp',
     description:
       'Tira LED CCT que permite cambiar entre blanco cálido y blanco frío, ajustando la temperatura de color según la necesidad del espacio.',
     specs: [
@@ -138,7 +138,7 @@ export const seedProducts = [
     category: 'cri-80-2',
     price: 15.2,
     unit: 'rollo 50m',
-    image: '/images/cri80.png',
+    image: 'images/cri80.png',
     description:
       'Tira LED que funciona conectada directamente a la red eléctrica de 220V, permitiendo instalaciones largas sin necesidad de fuente de alimentación.',
     specs: [
@@ -157,7 +157,7 @@ export const seedProducts = [
     category: 'cri-90-2',
     price: 21.9,
     unit: 'rollo 50m',
-    image: '/images/cri90.webp',
+    image: 'images/cri90.webp',
     description:
       'Tira LED de red 220V con CRI90 para grandes instalaciones donde la fidelidad de color es importante.',
     specs: [
@@ -175,7 +175,7 @@ export const seedProducts = [
     category: 'flex',
     price: 45.0,
     unit: 'rollo 5m',
-    image: '/images/neon.png',
+    image: 'images/neon.png',
     description:
       'Tira de neón flex con línea de luz uniforme y difusa, similar al neón tradicional pero con tecnología LED más eficiente y flexible. Ideal para decoración, señalización y diseños creativos.',
     specs: [
@@ -194,7 +194,7 @@ export const seedProducts = [
     category: 'rgb',
     price: 55.0,
     unit: 'rollo 5m',
-    image: '/images/rgb.webp',
+    image: 'images/rgb.webp',
     description:
       'Neón flex RGB con efecto neón continuo y color dinámico multicolor.',
     specs: [
@@ -211,7 +211,7 @@ export const seedProducts = [
     category: 'superficie',
     price: 8.9,
     unit: 'unidad',
-    image: '/images/perfiles.png',
+    image: 'images/perfiles.png',
     description:
       'Perfil de aluminio anodizado de 2 metros para montaje en superficie de tiras LED. Incluye difusor y tapas.',
     specs: [
@@ -229,7 +229,7 @@ export const seedProducts = [
     category: 'empotrar',
     price: 9.5,
     unit: 'unidad',
-    image: '/images/perfiles.png',
+    image: 'images/perfiles.png',
     description:
       'Perfil de aluminio para empotrar en pared o techo, con difusor opal para luz uniforme.',
     specs: [
@@ -246,7 +246,7 @@ export const seedProducts = [
     category: 'esquina',
     price: 9.9,
     unit: 'unidad',
-    image: '/images/perfiles.png',
+    image: 'images/perfiles.png',
     description: 'Perfil de aluminio en forma de esquina para iluminación en ángulos.',
     specs: [
       { label: 'Longitud', value: '2 m' },
@@ -261,7 +261,7 @@ export const seedProducts = [
     category: 'colgante',
     price: 12.4,
     unit: 'unidad',
-    image: '/images/perfiles.png',
+    image: 'images/perfiles.png',
     description: 'Perfil de aluminio para instalaciones colgantes con sistema de suspensión.',
     specs: [
       { label: 'Longitud', value: '2 m' },
@@ -276,7 +276,7 @@ export const seedProducts = [
     category: 'neon',
     price: 11.0,
     unit: 'unidad',
-    image: '/images/neon.png',
+    image: 'images/neon.png',
     description: 'Perfil específico para instalación de tiras de neón LED.',
     specs: [
       { label: 'Longitud', value: '2 m' },
@@ -291,7 +291,7 @@ export const seedProducts = [
     category: 'normal-ip20',
     price: 24.0,
     unit: 'unidad',
-    image: '/images/fuentes-drivers.png',
+    image: 'images/fuentes-drivers.png',
     description:
       'Fuente de alimentación 24V 100W clase II para interior. Ideal para alimentar tiras LED.',
     specs: [
@@ -309,7 +309,7 @@ export const seedProducts = [
     category: 'dali-ip20',
     price: 38.5,
     unit: 'unidad',
-    image: '/images/fuentes-drivers.png',
+    image: 'images/fuentes-drivers.png',
     description:
       'Driver con protocolo DALI para regulación digital de tiras LED, compatible con sistemas de control DALI.',
     specs: [
@@ -326,7 +326,7 @@ export const seedProducts = [
     category: 'normal-ip67',
     price: 42.0,
     unit: 'unidad',
-    image: '/images/fuentes-drivers.png',
+    image: 'images/fuentes-drivers.png',
     description:
       'Fuente de alimentación estanca IP67 para exterior y zonas húmedas. 24V 150W.',
     specs: [
@@ -343,7 +343,7 @@ export const seedProducts = [
     category: 'proyectores',
     price: 29.5,
     unit: 'unidad',
-    image: '/images/proyectores.png',
+    image: 'images/proyectores.png',
     description:
       'Proyector LED 50W para exterior con protección IP65. Ideal para fachadas, jardines y zonas de seguridad.',
     specs: [
@@ -361,7 +361,7 @@ export const seedProducts = [
     category: 'proyectores',
     price: 49.0,
     unit: 'unidad',
-    image: '/images/proyectores.png',
+    image: 'images/proyectores.png',
     description: 'Proyector LED 100W IP65 de alto flujo luminoso para exteriores.',
     specs: [
       { label: 'Potencia', value: '100W' },
@@ -377,7 +377,7 @@ export const seedProducts = [
     category: 'downlight-led',
     price: 16.8,
     unit: 'unidad',
-    image: '/images/downlight.png',
+    image: 'images/downlight.png',
     description:
       'Downlight LED empotrable de 15W para iluminación general de hogares y locales comerciales.',
     specs: [
@@ -396,7 +396,7 @@ export const seedProducts = [
     category: 'downlight-led',
     price: 13.9,
     unit: 'unidad',
-    image: '/images/downlight.png',
+    image: 'images/downlight.png',
     description: 'Downlight LED 9W regulable con CRI90 para ambientes de calidad.',
     specs: [
       { label: 'Potencia', value: '9W' },
@@ -412,7 +412,7 @@ export const seedProducts = [
     category: 'panel-led',
     price: 22.9,
     unit: 'unidad',
-    image: '/images/panel-led.png',
+    image: 'images/panel-led.png',
     description:
       'Panel LED de techo 60x60 de 36W con luz uniforme y diseño fino. Ideal para oficinas y espacios comerciales.',
     specs: [
@@ -431,7 +431,7 @@ export const seedProducts = [
     category: 'panel-led',
     price: 26.5,
     unit: 'unidad',
-    image: '/images/panel-led.png',
+    image: 'images/panel-led.png',
     description: 'Panel LED slim 30x120 de 36W para iluminación lineal elegante.',
     specs: [
       { label: 'Medidas', value: '295 x 1195 mm' },
@@ -447,7 +447,7 @@ export const seedProducts = [
     category: 'apliques',
     price: 18.9,
     unit: 'unidad',
-    image: '/images/apliques.png',
+    image: 'images/apliques.png',
     description: 'Aplique de pared LED para exterior con protección IP54.',
     specs: [
       { label: 'Potencia', value: '10W' },
@@ -463,7 +463,7 @@ export const seedProducts = [
     category: 'pantalla-estanca',
     price: 21.0,
     unit: 'unidad',
-    image: '/images/pantalla-estanca.png',
+    image: 'images/pantalla-estanca.png',
     description:
       'Pantalla estanca LED de 40W para naves industriales, garajes y zonas con humedad.',
     specs: [
@@ -480,7 +480,7 @@ export const seedProducts = [
     category: 'pantalla-estanca',
     price: 28.0,
     unit: 'unidad',
-    image: '/images/pantalla-estanca.png',
+    image: 'images/pantalla-estanca.png',
     description: 'Pantalla estanca LED 60W de alto rendimiento para naves industriales.',
     specs: [
       { label: 'Potencia', value: '60W' },
@@ -488,5 +488,104 @@ export const seedProducts = [
       { label: 'Lúmenes', value: '6600 lm' },
       { label: 'Carcasa', value: 'Policarbonato' },
     ],
+  },
+  {
+    id: 'p29',
+    name: 'Tira 17W/m 24V CRI80',
+    ref: '28117( )71',
+    category: 'tiras-led-cri-80',
+    price: 49.9,
+    unit: 'rollo 5m',
+    image: 'images/tira-28117-1.png',
+    gallery: ['images/tira-28117-1.png', 'images/tira-28117-2.png'],
+    icons: [
+      'images/badge-temp.png',
+      'images/badge-ip.png',
+      'images/badge-cri80.png',
+      'images/badge-smd.png',
+      'images/badge-rohs.png',
+    ],
+    datasheet: 'https://led-iluminacion.es/?attachment_id=1873',
+    description:
+      'Tira LED flexible 24V 17W/m (85W/5m) con 120 LED/m SMD 2835 y CRI80. Disponible en 2200K a 6500K. Versiones IP20 e IP65 para iluminación lineal decorativa.',
+    tags: [
+      'iluminación lineal',
+      'tira led 120 leds metro',
+      'tira led 17w metro',
+      'tira led 24v',
+      'tira led 5 metros',
+      'tira led cri80',
+      'tira led ip20',
+      'tira led ip65',
+    ],
+    variants: [
+      {
+        title: 'IP 20',
+        items: [
+          '28117(2022)71 - 2200k',
+          '28117(2032)71 - 2600-2800k',
+          '28117(2040)71 - 4000-4200k',
+          '28117(2060)71 - 6000-6500k',
+        ],
+      },
+      {
+        title: 'IP 65',
+        items: [
+          '28117(6522)71 - 2200k',
+          '28117(6532)71 - 2600-2800k',
+          '28117(6540)71 - 4000-4200k',
+          '28117(6560)71 - 6000-6500k',
+        ],
+      },
+    ],
+    longDescription: [
+      'La **tira LED 24V 17W/m 5 metros** es una solución profesional de iluminación lineal de alta potencia diseñada para proyectos decorativos y arquitectónicos que requieren mayor intensidad lumínica y buena reproducción cromática (CRI80).',
+      'Disponible en temperaturas de color **2200K, 2600-2800K, 4000-4200K y 6000-6500K**, permite crear distintos ambientes de iluminación en espacios comerciales, oficinas, viviendas y proyectos arquitectónicos.',
+      'Equipada con **chip LED SMD 2835 - 120 LED/m EDISON**, proporciona una iluminación potente, uniforme y estable a 24V en tensión constante, garantizando eficiencia energética y larga vida útil.',
+      'Su diseño flexible y recortable facilita la instalación en perfiles de aluminio, mobiliario, techos, estanterías y sistemas de iluminación indirecta.',
+      'Disponible en versiones **IP20 (uso interior)** e **IP65 (protección contra polvo y humedad, apta para exteriores protegidos)**.',
+    ],
+    features: [
+      'Longitud del rollo: **5 metros**',
+      'Potencia: **17W/m (85W total)**',
+      'Tensión de alimentación: **24V DC**',
+      'Tipo de LED: **SMD 2835 - 120 LED/m**',
+      'Índice de reproducción cromática: **CRI80**',
+      'Flujo luminoso: hasta **9250 lúmenes** según temperatura de color',
+      'Ángulo de apertura: **120°**',
+      'Vida útil: **30.000 horas**',
+      'Temperatura de trabajo: **-20°C a +40°C (Tc máx. 60°C)**',
+      'Flexible y recortable',
+      'Certificaciones: CE y RoHS',
+      'Garantía: **3 años**',
+    ],
+    applications: [
+      'Mercados, oficinas y armarios',
+      'Decoración de esquinas y contornos',
+      'Festivales, eventos y espectáculos',
+      'Iluminación decorativa arquitectónica',
+      'Proyectos de interiorismo',
+      'Iluminación exterior protegida (IP65)',
+    ],
+    advantages: [
+      'Alta potencia lumínica (hasta 9250 lm)',
+      'Iluminación uniforme con 120 LED/m',
+      'Buena reproducción cromática CRI80',
+      'Funcionamiento estable a 24V',
+      'Fácil instalación en perfiles de aluminio',
+      'Disponible en versiones IP20 e IP65',
+    ],
+    specs: [
+      { label: 'Tensión', value: '24V DC' },
+      { label: 'Potencia', value: '17 W/m (85W / 5m)' },
+      { label: 'Tipo de LED', value: 'SMD 2835 - 120 LED/m' },
+      { label: 'Flujo luminoso', value: 'hasta 9250 lm' },
+      { label: 'CRI', value: '80' },
+      { label: 'Temperatura de color', value: '2200K - 6500K' },
+      { label: 'Ángulo de apertura', value: '120°' },
+      { label: 'Protección', value: 'IP20 / IP65' },
+      { label: 'Vida útil', value: '30.000 horas' },
+    ],
+    featured: true,
   },
 ]

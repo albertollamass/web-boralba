@@ -49,7 +49,7 @@ export default function Productos() {
 
         {orderedCategories.length > 0 && (
           <div style={{ marginTop: 56 }}>
-            <div className="section-head" style={{ textAlign: 'left', marginBottom: 32 }}>
+            <div className="section-head left" style={{ marginBottom: 32 }}>
               <span className="tag">Catálogo completo</span>
               <h2>Todos los productos por categoría</h2>
               <p>

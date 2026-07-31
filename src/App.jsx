@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Productos from './pages/Productos'
@@ -11,10 +11,27 @@ import Contacto from './pages/Contacto'
 import Legal from './pages/Legal'
 import AdminLogin from './admin/AdminLogin'
 import AdminPanel from './admin/AdminPanel'
+import { useAuth } from './context/AuthContext'
+import { isSupabaseConfigured } from './lib/supabase'
+import ScrollToTop from './components/ScrollToTop'
+
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth()
+  if (!isSupabaseConfigured || loading) {
+    return (
+      <div style={{ padding: '80px 20px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+        Cargando...
+      </div>
+    )
+  }
+  if (!user) return <Navigate to="/admin/login" replace />
+  return children
+}
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
@@ -28,11 +45,18 @@ export default function App() {
           <Route path="/legal/:slug" element={<Legal />} />
         </Route>
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminPanel />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPanel />
+            </AdminRoute>
+          }
+        />
         <Route path="*" element={<Layout />}>
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

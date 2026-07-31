@@ -27,7 +27,7 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-img">
-            <img src="/images/lobby.png" alt="Proyecto de iluminación LED" />
+            <img src="images/lobby.png" alt="Proyecto de iluminación LED" />
           </div>
         </div>
       </section>
@@ -91,13 +91,13 @@ export default function Home() {
               </Link>
             </div>
             <div className="split-img">
-              <img src="/images/asesoramiento.png" alt="Asesoramiento en iluminación" />
+              <img src="images/asesoramiento.png" alt="Asesoramiento en iluminación" />
             </div>
           </div>
 
           <div className="split reverse">
             <div className="split-img">
-              <img src="/images/eslogan.png" alt="Controla la iluminación" />
+              <img src="images/eslogan.png" alt="Controla la iluminación" />
             </div>
             <div className="split-text">
               <span className="tag">Smart Lighting</span>
@@ -130,7 +130,7 @@ export default function Home() {
               </a>
             </div>
             <div className="split-img">
-              <img src="/images/tridonic.png" alt="Tridonic" />
+              <img src="images/tridonic.png" alt="Tridonic" />
             </div>
           </div>
         </div>

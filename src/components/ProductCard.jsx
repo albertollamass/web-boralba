@@ -5,7 +5,7 @@ export default function ProductCard({ product }) {
     <div className="card">
       <div className="card-img">
         <Link to={`/producto/${product.id}`}>
-          <img src={product.image || '/images/placeholder.svg'} alt={product.name} loading="lazy" />
+          <img src={product.image || 'images/placeholder.svg'} alt={product.name} loading="lazy" />
         </Link>
       </div>
       <div className="card-body">

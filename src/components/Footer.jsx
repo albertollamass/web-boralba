@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="footer-grid">
           <div>
             <div className="logo">
-              <img src="/images/logo.png" alt="Boralba Lighting" />
+              <img src="images/logo.png" alt="Boralba Lighting" />
             </div>
             <p>
               Boralba Lighting, S.L. Soluciones de iluminación profesional para proyectos

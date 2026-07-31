@@ -60,7 +60,7 @@ export default function Categoria() {
       <div className="container section" style={{ paddingTop: 0 }}>
         {children.length > 0 && (
           <>
-            <div className="section-head" style={{ textAlign: 'left', marginBottom: 28 }}>
+            <div className="section-head left">
               <h3 style={{ marginBottom: 4 }}>Subcategorías</h3>
             </div>
             <div className="grid grid-3">
@@ -78,7 +78,7 @@ export default function Categoria() {
         )}
 
         {totalCount > 0 && (
-          <div className="section-head" style={{ textAlign: 'left', marginBottom: 28 }}>
+          <div className="section-head left">
             <h3 style={{ marginBottom: 4 }}>
               {leaf ? `Productos en ${category.name}` : `Productos de ${category.name}`}
             </h3>
@@ -147,7 +147,7 @@ export default function Categoria() {
 
         {leaf && (
           <div style={{ marginTop: 48 }}>
-            <div className="section-head" style={{ textAlign: 'left', marginBottom: 24 }}>
+            <div className="section-head left">
               <h3>Otras categorías</h3>
             </div>
             <div className="grid grid-3">

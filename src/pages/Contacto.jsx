@@ -51,7 +51,7 @@ export default function Contacto() {
       </div>
 
       <div className="container section" style={{ paddingTop: 0 }}>
-        <div className="section-head" style={{ textAlign: 'left' }}>
+        <div className="section-head left">
           <h2>Cuéntanos tu proyecto</h2>
           <p>Te ayudamos a encontrar la mejor solución.</p>
         </div>

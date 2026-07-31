@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
+import { useAuth } from '../context/AuthContext'
 import { getCategory, getCategoryPathLabel } from '../data/categories'
 import ProductForm from './ProductForm'
 
@@ -12,21 +13,31 @@ const emptyProduct = () => ({
   unit: '',
   image: '',
   description: '',
+  longDescription: '',
+  features: '',
+  applications: '',
+  advantages: '',
+  tags: '',
+  gallery: '',
+  icons: '',
+  datasheet: '',
+  variants: [],
   specs: [],
   featured: false,
   outlet: false,
 })
 
 export default function AdminPanel() {
-  const { products, addProduct, updateProduct, deleteProduct, resetProducts, isAdmin, logout } =
+  const { products, addProduct, updateProduct, deleteProduct, resetProducts, pushToCloud, syncStatus, cloudEnabled } =
     useProducts()
+  const { user, signOut } = useAuth()
   const [view, setView] = useState('products')
   const [editing, setEditing] = useState(null)
   const [creating, setCreating] = useState(false)
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState('')
 
-  if (!isAdmin) return <Navigate to="/admin/login" replace />
+  if (!user) return <Navigate to="/admin/login" replace />
 
   const filtered = products.filter((p) => {
     const matchSearch =
@@ -61,9 +72,9 @@ export default function AdminPanel() {
             <span style={{ opacity: 0.8, fontSize: '0.85rem' }}>Panel de administración</span>
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-            <Link to="/" onClick={logout}>
+            <button className="btn btn-ghost btn-sm" onClick={signOut}>
               Salir
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -104,7 +115,34 @@ export default function AdminPanel() {
                   {products.length} en total · {filtered.length} mostrados
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                {cloudEnabled && (
+                  <span
+                    className={`sync-badge sync-${syncStatus}`}
+                    title={
+                      syncStatus === 'cloud'
+                        ? 'Los productos se guardan en Supabase'
+                        : syncStatus === 'cloud-empty'
+                          ? 'La nube está vacía: sube el catálogo'
+                          : syncStatus === 'error'
+                            ? 'Error guardando en la nube'
+                            : 'Sin conexión a la nube (modo local)'
+                    }
+                  >
+                    {syncStatus === 'cloud' ? '☁ En la nube' : syncStatus === 'error' ? '⚠ Error de sincronización' : '⚠ Sin sincronizar'}
+                  </span>
+                )}
+                {cloudEnabled && syncStatus !== 'cloud' && (
+                  <button
+                    className="btn btn-outline btn-sm"
+                    onClick={async () => {
+                      const ok = await pushToCloud()
+                      alert(ok ? 'Catálogo subido a la nube.' : 'No se pudo subir a la nube.')
+                    }}
+                  >
+                    Subir catálogo a la nube
+                  </button>
+                )}
                 <button
                   className="btn btn-outline btn-sm"
                   onClick={() => {
@@ -160,7 +198,7 @@ export default function AdminPanel() {
                     {filtered.map((p) => (
                       <tr key={p.id}>
                         <td>
-                          <img src={p.image || '/images/placeholder.svg'} alt={p.name} />
+                          <img src={p.image || 'images/placeholder.svg'} alt={p.name} />
                         </td>
                         <td>
                           <strong>{p.name}</strong>

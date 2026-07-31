@@ -30,6 +30,21 @@ function fileToDataUrl(file, maxDim = 900, quality = 0.82) {
   })
 }
 
+const splitLines = (s) =>
+  (s || '')
+    .split(/\n/)
+    .map((x) => x.trim())
+    .filter(Boolean)
+
+const splitComma = (s) =>
+  (s || '')
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean)
+
+const linesToText = (v) => (Array.isArray(v) ? v.join('\n') : v || '')
+const commaToText = (v) => (Array.isArray(v) ? v.join(', ') : v || '')
+
 export default function ProductForm({ initial, onSubmit, onCancel }) {
   const [product, setProduct] = useState(initial)
   const [uploading, setUploading] = useState(false)
@@ -53,6 +68,23 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
 
   const removeSpec = (i) => {
     setProduct((p) => ({ ...p, specs: p.specs.filter((_, idx) => idx !== i) }))
+  }
+
+  const addVariant = () => {
+    setProduct((p) => ({ ...p, variants: [...(p.variants || []), { title: '', items: '' }] }))
+  }
+
+  const updateVariant = (i, key) => (e) => {
+    setProduct((p) => {
+      const variants = (p.variants || []).map((v, idx) =>
+        idx === i ? { ...v, [key]: e.target.value } : v,
+      )
+      return { ...p, variants }
+    })
+  }
+
+  const removeVariant = (i) => {
+    setProduct((p) => ({ ...p, variants: (p.variants || []).filter((_, idx) => idx !== i) }))
   }
 
   const onFileSelected = async (e) => {
@@ -80,7 +112,17 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
       ...product,
       price: product.price === '' || product.price == null ? null : Number(product.price),
       specs: product.specs.filter((s) => s.label || s.value),
-      image: product.image || '/images/placeholder.svg',
+      image: product.image || 'images/placeholder.svg',
+      longDescription: splitLines(product.longDescription),
+      features: splitLines(product.features),
+      applications: splitLines(product.applications),
+      advantages: splitLines(product.advantages),
+      tags: splitComma(product.tags),
+      gallery: splitComma(product.gallery),
+      icons: splitComma(product.icons),
+      variants: (product.variants || [])
+        .filter((v) => v.title || splitComma(v.items).length)
+        .map((v) => ({ title: v.title, items: splitComma(v.items) })),
     }
     onSubmit(clean)
   }
@@ -131,7 +173,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
           <input
             value={isDataUrl(product.image) ? '' : product.image}
             onChange={set('image')}
-            placeholder="o pega una URL: /images/xxx.jpg o https://..."
+            placeholder="o pega una URL: images/xxx.jpg o https://..."
             style={{ marginTop: 8 }}
           />
           {uploading && (
@@ -167,8 +209,81 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
       </div>
 
       <div>
-        <label>Descripción</label>
+        <label>Descripción (resumen, se muestra arriba)</label>
         <textarea value={product.description} onChange={set('description')} />
+      </div>
+
+      <div>
+        <label>Descripción larga (una línea por párrafo, puedes usar **negrita**)</label>
+        <textarea value={linesToText(product.longDescription)} onChange={set('longDescription')} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div>
+          <label>Características principales (una por línea)</label>
+          <textarea value={linesToText(product.features)} onChange={set('features')} />
+        </div>
+        <div>
+          <label>Aplicaciones recomendadas (una por línea)</label>
+          <textarea value={linesToText(product.applications)} onChange={set('applications')} />
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div>
+          <label>Ventajas técnicas (una por línea)</label>
+          <textarea value={linesToText(product.advantages)} onChange={set('advantages')} />
+        </div>
+        <div>
+          <label>Etiquetas (separadas por comas)</label>
+          <input value={commaToText(product.tags)} onChange={set('tags')} placeholder="tira led 24v, tira led cri80..." />
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div>
+          <label>Galería de imágenes (URLs separadas por comas)</label>
+          <input value={commaToText(product.gallery)} onChange={set('gallery')} placeholder="images/tira-1.png, images/tira-2.png" />
+        </div>
+        <div>
+          <label>Iconos/badges (URLs separadas por comas)</label>
+          <input value={commaToText(product.icons)} onChange={set('icons')} placeholder="images/badge-cri80.png, images/badge-rohs.png" />
+        </div>
+      </div>
+
+      <div>
+        <label>Ficha técnica (URL)</label>
+        <input
+          value={product.datasheet || ''}
+          onChange={set('datasheet')}
+          placeholder="https://.../ficha.pdf"
+        />
+      </div>
+
+      <div>
+        <label>Variantes (tabla de modelos)</label>
+        {(product.variants || []).map((v, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+            <input
+              value={v.title}
+              onChange={updateVariant(i, 'title')}
+              placeholder="Título (ej. IP 20)"
+              style={{ flex: 1 }}
+            />
+            <input
+              value={Array.isArray(v.items) ? v.items.join(', ') : v.items || ''}
+              onChange={updateVariant(i, 'items')}
+              placeholder="Modelos separados por comas"
+              style={{ flex: 2 }}
+            />
+            <button type="button" className="btn btn-danger btn-sm" onClick={() => removeVariant(i)}>
+              ✕
+            </button>
+          </div>
+        ))}
+        <button type="button" className="btn btn-ghost btn-sm" onClick={addVariant}>
+          + Añadir variante
+        </button>
       </div>
 
       <div>
