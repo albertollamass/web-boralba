@@ -22,13 +22,17 @@ así que no damos nada por sabido.
 9. [Crear el proyecto en Supabase](#9-crear-el-proyecto-en-supabase)
 10. [Crear las tablas y las políticas de seguridad (SQL)](#10-crear-las-tablas-y-las-políticas-de-seguridad-sql)
 11. [Crear el usuario administrador](#11-crear-el-usuario-administrador)
-12. [Conseguir las claves de conexión](#12-conseguir-las-claves-de-conexión)
-13. [Crear el archivo `.env`](#13-crear-el-archivo-env)
-14. [Arrancar la web en local](#14-arrancar-la-web-en-local)
-15. [Probar la web y el panel de administración](#15-probar-la-web-y-el-panel-de-administración)
-16. [Compilar la versión de producción](#16-compilar-la-versión-de-producción)
-17. [Publicar la web en internet](#17-publicar-la-web-en-internet)
-18. [Solución de problemas](#18-solución-de-problemas)
+12. [Marcar al usuario como administrador (y añadir/quitar más)](#12-marcar-al-usuario-como-administrador-y-añadirquitar-más)
+13. [Conseguir las claves de conexión](#13-conseguir-las-claves-de-conexión)
+14. [Crear el archivo `.env`](#14-crear-el-archivo-env)
+15. [Arrancar la web en local](#15-arrancar-la-web-en-local)
+16. [Probar la web y el panel de administración](#16-probar-la-web-y-el-panel-de-administración)
+17. [Compilar la versión de producción](#17-compilar-la-versión-de-producción)
+18. [Publicar la web en internet (GitHub Pages)](#18-publicar-la-web-en-internet-github-pages)
+19. [Cómo se actualiza la web](#19-cómo-se-actualiza-la-web)
+20. [Integración de Supabase con GitHub (opcional)](#20-opcional-integración-de-supabase-con-github-para-migraciones)
+21. [Trabajar con OpenCode (asistente de IA gratuito)](#21-trabajar-con-opencode-asistente-de-ia-en-la-terminal)
+22. [Solución de problemas](#22-solución-de-problemas)
 
 ---
 
@@ -265,13 +269,19 @@ Qué hace ese script:
 
 ## 11. Crear el usuario administrador
 
-Ahora creamos la cuenta con la que entrarás en el panel `/admin`:
+Ahora creamos la cuenta con la que entrarás en el panel (`#/admin`):
 
 1. En Supabase, menú de la izquierda → **Authentication** → **Users** → **Add user**.
 2. Rellena con un **email tuyo** y una **contraseña fuerte** (la que usarás para entrar en
    el panel). Pulsa **Create user**.
 3. En la lista de usuarios, aparecerá tu usuario con un **UUID** (una serie de números y
    letras). **Cópialo**, lo necesitamos en el siguiente paso.
+
+> **Ojo con la confirmación de email.** Por defecto Supabase envía un correo de
+> confirmación y el usuario **no puede iniciar sesión hasta que lo confirme** (da el error
+> "email o contraseña incorrectos" aunque sean correctos). Si quieres que el acceso sea
+> inmediato, desactiva la confirmación en **Authentication → Providers → Email** →
+> desmarca **"Confirm email"**. El usuario debe tener status **Active** en la lista.
 
 ---
 
@@ -288,6 +298,35 @@ La web solo deja escribir a los usuarios que están en la tabla `profiles` con r
    ```
 
 3. Pulsa **Run**. Debe decir "Success".
+
+### Añadir otro administrador
+
+La web **no necesita redesplegarse** para esto; se hace todo en Supabase y es inmediato.
+
+1. En **Authentication → Users → Add user** crea el nuevo usuario (email + contraseña).
+2. Copia su **UUID** y ejecuta en el SQL Editor:
+
+   ```sql
+   insert into public.profiles (id, role) values ('EL-UUID-DEL-USUARIO', 'admin')
+   on conflict (id) do nothing;
+   ```
+
+3. Ese usuario ya puede entrar en `https://TU_USUARIO.github.io/web-boralba/#/admin`
+   con su email y contraseña.
+
+> Recuerda el tema de la **confirmación de email** (paso 11): si el usuario está
+> "Unconfirmed", no podrá iniciar sesión hasta confirmar el correo (o desactivar la
+> confirmación).
+
+### Quitar a un administrador
+
+Borra su fila de la tabla `profiles`:
+
+```sql
+delete from public.profiles where id = 'EL-UUID-DEL-USUARIO';
+```
+
+Puede seguir iniciando sesión en `#/admin`, pero **no podrá modificar nada**.
 
 ---
 
@@ -351,7 +390,7 @@ Abre tu navegador y entra en **http://localhost:5173** → ¡ya está la web fun
 
 ## 16. Probar la web y el panel de administración
 
-1. En el navegador entra en **http://localhost:5173/admin**.
+1. En el navegador entra en **http://localhost:5173/#/admin**.
 2. Te pedirá **email y contraseña**: los del usuario que creaste en Supabase (paso 11).
 3. Dentro del panel verás el listado de productos y, arriba a la derecha, el botón
    **"Subir catálogo a la nube"**. Púlsalo: copia los productos iniciales a Supabase.
@@ -380,40 +419,216 @@ Abre http://localhost:4173/ para verla.
 
 ---
 
-## 18. Publicar la web en internet
+## 18. Publicar la web en internet (GitHub Pages)
 
-Elige una de estas opciones (todas tienen plan gratis). La más sencilla para empezar es
-**Vercel**.
+Esta web **ya está publicada** en GitHub Pages en
+**https://albertollamass.github.io/web-boralba/** y se actualiza sola con cada `git push`.
+Estas son las piezas que lo hacen posible (por si hay que replicarlo en otro proyecto).
 
-### Opción A — Vercel (recomendada)
+### Por qué el proyecto está preparado para GitHub Pages
 
-1. Crea cuenta en https://vercel.com (puedes usar tu cuenta de GitHub).
-2. Pulsa **Add New → Project** e **Import** tu repositorio `web-boralba`.
-3. Vercel detecta automáticamente que es un proyecto Vite:
-   - **Framework Preset:** Vite
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-4. Importante: en **Environment Variables** añade las dos variables del paso 14
-   (`VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`). Sin esto la web no sabrá
-   dónde está Supabase.
-5. Pulsa **Deploy**. Cuando termine te dará una URL tipo `https://web-boralba.vercel.app`.
-6. Cada vez que subas cambios a GitHub (`git push`), Vercel vuelve a publicar solo.
+GitHub Pages sirve la web dentro de una subcarpeta
+(`https://TU_USUARIO.github.io/web-boralba/`). Para que imágenes, estilos y rutas carguen
+bien ahí, el proyecto usa:
 
-### Opción B — Netlify
+- **Rutas relativas** en las imágenes (`images/...` en vez de `/images/...`).
+- **`base: './'`** en `vite.config.js`.
+- **HashRouter**: las rutas llevan un `#/` delante (`#/productos`, `#/admin`…). Así GitHub
+  Pages nunca da error 404 al refrescar una página interna, cosa que sí pasa con las rutas
+  normales de React.
 
-1. Crea cuenta en https://www.netlify.com.
-2. **Add new site → Import an existing project** → elige tu repositorio.
-3. Build command: `npm run build` · Publish directory: `dist`.
-4. Añade las mismas variables de entorno que en Vercel y **Deploy**.
+### Requisito: repositorio público
 
-### Opción C — GitHub Pages
+GitHub Pages en el plan gratuito solo funciona con repositorios **públicos**. El de este
+proyecto es `https://github.com/albertollamass/web-boralba` (público).
 
-Sirve para alojar estáticamente, pero requiere configurar el enrutado de React.
-Es más incómodo para una web con varias páginas; si eres nuevo, usa Vercel o Netlify.
+### Despliegue automático con GitHub Actions
+
+El archivo `.github/workflows/deploy.yml` hace que cada `push` a la rama `main`:
+
+1. Instale las dependencias y compile el proyecto (`npm run build`).
+2. Suba el resultado (carpeta `dist/`) como artefacto.
+3. Lo publique en GitHub Pages.
+
+### Variables de entorno en GitHub
+
+El build necesita saber dónde está Supabase. Están guardadas en el repositorio en
+**Settings → Secrets and variables → Actions → Variables**:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+(son los mismos valores del paso 13). Si algún día cambian, actualízalas ahí y haz un push.
+
+### Activar GitHub Pages (solo una vez)
+
+**Settings → Pages → Source:** elige **GitHub Actions** y guarda. La primera vez que se
+complete un despliegue, la web queda disponible en `https://TU_USUARIO.github.io/web-boralba/`.
+
+### Subir una actualización
+
+```powershell
+git add .
+git commit -m "qué he cambiado"
+git push
+```
+
+GitHub compila y publica solo en ~1 minuto. Puedes seguir el proceso en la pestaña
+**Actions** del repositorio.
+
+### Alternativas (Vercel / Netlify)
+
+Funcionan igual de bien si algún día quieres otra URL:
+
+**Vercel** — https://vercel.com → **Add New → Project** → importa el repositorio.
+*Framework Preset:* Vite · *Build Command:* `npm run build` · *Output:* `dist`. Añade las
+dos variables de entorno y **Deploy**.
+
+**Netlify** — https://www.netlify.com → **Add new site → Import an existing project**.
+Build command: `npm run build` · Publish directory: `dist`. Añade las variables y **Deploy**.
 
 ---
 
-## Solución de problemas
+## 19. Cómo se actualiza la web
+
+Depende del tipo de cambio:
+
+- **Código** (diseño, páginas, funcionalidad): con `git push` se compila y redespliega
+  solo (paso 18). No hay que hacer nada más.
+- **Productos (datos)**: la web los lee de Supabase en cada carga de página. Si añades,
+  editas o borras un producto desde el panel `#/admin`, se ve en la web al recargar. Tampoco
+  requiere redesplegar.
+- **Usuarios administradores**: se gestionan en Supabase (paso 12), sin tocar la web.
+- **Base de datos** (tablas, políticas de seguridad): se cambia con SQL en el dashboard, o
+  automáticamente con la integración del paso 20 (opcional).
+
+---
+
+## 20. (Opcional) Integración de Supabase con GitHub para migraciones
+
+Para no copiar/pegar SQL en el dashboard, Supabase puede aplicar automáticamente los
+ficheros SQL de la carpeta `supabase/migrations/` del repositorio cuando haces push.
+
+**Qué es una migración:** un fichero SQL con nombre numerado (p. ej.
+`20260731120000_cambios.sql`).
+
+**Cómo funciona:** con la integración activada, al hacer push a `main`, Supabase aplica las
+migraciones nuevas que encuentre en `supabase/migrations/`.
+
+**Qué NO cubre:**
+
+- Crear/borrar **usuarios de Auth** (los admins se siguen gestionando en Authentication).
+- Los **datos** (productos): eso va por la web/panel.
+
+**Riesgos:**
+
+- Se aplica a la base de datos de **producción**: una migración con errores puede romperla.
+- Si editas la base de datos a mano en el dashboard, el repositorio se desincroniza
+  ("deriva"): las migraciones deben ser la única fuente de verdad.
+- Antes de activarla hay que hacer un "snapshot" del estado actual (`supabase db pull`)
+  para que no intente re-aplicar lo que ya existe.
+
+**Pasos (avanzado):**
+
+1. Instala la CLI de Supabase: `npm.cmd install -g supabase`.
+2. `supabase login` (abre el navegador para autorizar).
+3. `supabase link --project-ref TU_PROJECT_REF` (el código de tu proyecto, p. ej.
+   `hbpyxjjqgqmyhcrqoban`).
+4. `supabase db pull` para capturar el esquema actual como migración inicial.
+5. En el dashboard: **Database → Migrations → Connect GitHub repository** y elige tu repo.
+6. A partir de ahí, cada cambio de base de datos se escribe en un fichero
+   `supabase/migrations/` y se aplica solo al hacer push.
+
+> Recomendación: usa esta integración solo cuando necesites cambiar la estructura de la
+> base de datos. Para productos y administradores, lo que ya está montado es suficiente.
+
+---
+
+## 21. Trabajar con OpenCode (asistente de IA en la terminal)
+
+OpenCode es un asistente de IA que se usa desde la terminal: le pides cosas en lenguaje
+normal (en español funciona perfecto) y él **lee, edita y ejecuta comandos en el proyecto**
+por ti. Así se ha construido esta web. Para que el asistente solo te ayude de forma
+**gratuita**, se usan los modelos "Free" de OpenCode Zen.
+
+### 21.1 Instalarlo
+
+Con Node instalado (paso 3):
+
+```powershell
+npm.cmd install -g opencode-ai
+```
+
+También puedes instalarlo con el instalador oficial
+(`curl -fsSL https://opencode.ai/install | bash`) o con Scoop/Chocolatey
+(`scoop install opencode`, `choco install opencode`).
+
+### 21.2 Configurar un modelo gratuito (OpenCode Zen)
+
+1. Abre una terminal en la carpeta del proyecto y escribe:
+
+   ```powershell
+   opencode
+   ```
+
+2. Dentro de OpenCode, ejecuta el comando `/connect`, elige **opencode** (OpenCode Zen) y
+   abre **https://opencode.ai/auth** para iniciar sesión y copiar tu API key.
+   > Crearás una cuenta en OpenCode Zen. Puede pedirte datos de facturación, pero los
+   > modelos "Free" no cobran nada (coste 0).
+3. Pega la API key cuando OpenCode te la pida.
+4. Ejecuta `/models` y selecciona un modelo **gratuito**, por ejemplo:
+   `opencode/deepseek-v4-flash-free` (es el que se ha usado para construir esta web).
+
+> El formato del modelo es `proveedor/modelo`. Con Zen, el proveedor es `opencode`.
+
+Modelos gratuitos de Zen disponibles por ahora (algunos por tiempo limitado):
+DeepSeek V4 Flash Free, MiMo-V2.5 Free, Laguna S 2.1 Free, Ling-3.0-flash Free,
+North Mini Code Free, Nemotron 3 Ultra Free y Big Pickle.
+
+Para que OpenCode arranque siempre con tu modelo gratuito, crea un archivo `opencode.json`
+en la raíz del proyecto:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/deepseek-v4-flash-free"
+}
+```
+
+### 21.3 Cómo trabajar con él (como con esta web)
+
+1. **Arranca en el proyecto:** `cd web-boralba` y después `opencode`.
+2. **Pídele las cosas en lenguaje normal**, describiendo qué quieres y dónde. Cuanta más
+   información, mejor (p. ej. "en la ficha de producto haz que la galería tenga
+   miniaturas clicables").
+3. **Él usa herramientas solo:** lee archivos, busca en el código, edita, ejecuta
+   `npm.cmd run build` para comprobar que no se rompe nada y reinicia el servidor si hace falta.
+4. **Modo Plan vs. Modo Build:** pulsa **Tab** para alternar entre "solo proponer" (te
+   explica cómo lo haría sin tocar nada) y "ejecutar" (hace los cambios).
+5. **Referenciar archivos:** escribe `@` + el nombre para que lo tenga en cuenta
+   (p. ej. `@src/pages/ProductoDetalle.jsx`).
+6. **Deshacer/rehacer:** `/undo` y `/redo` si no te convence un cambio.
+7. **Revisar antes de publicar:** comprueba lo que ha cambiado con `git status` y `git diff`,
+   y sube los cambios solo cuando estés de acuerdo:
+
+   ```powershell
+   git add .
+   git commit -m "lo que he cambiado"
+   git push
+   ```
+
+   (El `git push` también publica la web sola, como en el paso 18.)
+
+**Consejos:**
+
+- Pide cambios **pequeños y concretos**; es más fácil revisarlos y corregirlos.
+- Si algo falla, copia el mensaje de error y pídele que lo arregle.
+- Nunca subas a GitHub sin revisar: **tú decides qué se publica**.
+- Documentación oficial: https://opencode.ai/docs
+
+---
+
+## 22. Solución de problemas
 
 **`npm` no se reconoce como comando**
 → Usa `npm.cmd` en vez de `npm`, o reinstala Node.js.
@@ -440,13 +655,15 @@ las claves correctas.
 
 **El panel dice "No se pudo subir a la nube"**
 → Casi siempre es un problema de permisos:
-   1. ¿Estás logueado en `/admin` con el usuario correcto?
+   1. ¿Estás logueado en `#/admin` con el usuario correcto?
    2. ¿Ejecutaste el `insert` del paso 12 con el UUID correcto?
    3. ¿Ejecutaste el script completo del paso 10?
 
-**Error al iniciar sesión en `/admin`**
+**Error al iniciar sesión en `#/admin` ("email o contraseña incorrectos")**
 → Confirma que el usuario existe en **Authentication → Users** y que la contraseña es la
-que pusiste al crearlo.
+que pusiste al crearlo. Si el status del usuario no es **Active** (aparece "Unconfirmed" o
+"Invited"), es la **confirmación de email**: desactívala en **Authentication → Providers →
+Email → Confirm email** o haz que el usuario confirme el correo.
 
 **En otro ordenador la web muestra el catálogo de fábrica y no mis cambios**
 → Es normal si ese ordenador no tiene `.env`. Crea el `.env` con las claves de Supabase

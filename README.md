@@ -16,8 +16,17 @@ con los productos guardados en la nube (**Supabase**).
 - **Ficha de producto** con galería, badges, precio, referencia, variantes, ficha técnica,
   descripción larga, características, aplicaciones y ventajas.
 - **Outlet**, **Proyectos**, **Servicios**, **Contacto** (con formulario y validación) y páginas legales.
-- **Modo administrador** (`/admin`): crear, editar y eliminar productos sin tocar código.
+- **Modo administrador** (`#/admin`): crear, editar y eliminar productos sin tocar código.
   El acceso es con **Supabase Auth** (email + contraseña) y solo un perfil admin puede escribir.
+
+## Web publicada
+
+Desplegada automáticamente en **GitHub Pages**: https://albertollamass.github.io/web-boralba/
+
+- Cada `git push` a `main` compila y publica solo (GitHub Actions).
+- Los **productos** se leen en vivo de Supabase: los cambios del panel se ven al recargar,
+  sin redesplegar.
+- Detalles en `docs/GUIA-COMPLETA.md` (sección 18).
 
 ## Puesta en marcha (resumen)
 
@@ -34,7 +43,7 @@ npm install
 npm run dev        # -> http://localhost:5173
 
 # 4. Panel de administración
-#    http://localhost:5173/admin  (login con el usuario admin de Supabase)
+#    http://localhost:5173/#/admin  (login con el usuario admin de Supabase)
 ```
 
 Otros comandos:
