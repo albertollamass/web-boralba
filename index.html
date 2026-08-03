@@ -18,6 +18,17 @@
       content="Soluciones profesionales en iluminación LED. Boralba Lighting - réplica local."
     />
     <title>Soluciones de Iluminación LED Profesional - Boralba Lighting</title>
+    <script>
+      ;(function () {
+        try {
+          var redirect = sessionStorage.getItem('redirect')
+          if (redirect) {
+            sessionStorage.removeItem('redirect')
+            window.history.replaceState(null, '', redirect)
+          }
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
