@@ -32,7 +32,7 @@ export default function AdminPanel() {
   const { products, addProduct, updateProduct, deleteProduct, resetProducts, syncStatus, cloudEnabled } =
     useProducts()
   const categoriesCtx = useCategories()
-  const { user, signOut } = useAuth()
+  const { user, isAdmin, signOut } = useAuth()
   const [view, setView] = useState('products')
   const [editing, setEditing] = useState(null)
   const [creating, setCreating] = useState(false)
@@ -41,6 +41,7 @@ export default function AdminPanel() {
   const [catForm, setCatForm] = useState({ open: false, editing: null })
 
   if (!user) return <Navigate to="/admin/login" replace />
+  if (!isAdmin) return <Navigate to="/" replace />
 
   const filtered = products.filter((p) => {
     const matchSearch =

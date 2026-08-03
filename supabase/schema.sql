@@ -65,6 +65,33 @@ create policy "Perfil propio"
   on public.profiles for select
   using (id = auth.uid());
 
+-- === LOGS ===
+
+-- Registro de errores enviados desde la app (login, sincronización, RLS denegado...).
+-- Cualquiera puede INSERTAR (la app lo hace sin sesión, p.ej. intentos de login),
+-- pero solo los administradores pueden LEER los logs.
+create table if not exists public.logs (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  context text not null,
+  message text not null,
+  user_id uuid,
+  details jsonb
+);
+
+alter table public.logs enable row level security;
+
+drop policy if exists "Insertar logs" on public.logs;
+drop policy if exists "Leer logs solo administradores" on public.logs;
+
+create policy "Insertar logs"
+  on public.logs for insert
+  with check (true);
+
+create policy "Leer logs solo administradores"
+  on public.logs for select
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
 -- === CREAR TU USUARIO ADMIN ===
 -- 1) Dashboard > Authentication > Users > "Add user" y crea el admin con tu email y una
 --    contraseña fuerte. Copia el UUID que se genera.

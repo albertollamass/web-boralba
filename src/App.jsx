@@ -19,7 +19,7 @@ import ScrollToTop from './components/ScrollToTop'
 const BASENAME = import.meta.env.PROD ? '/web-boralba' : '/'
 
 function AdminRoute({ children }) {
-  const { user, loading } = useAuth()
+  const { user, isAdmin, loading } = useAuth()
   if (!isSupabaseConfigured || loading) {
     return (
       <div style={{ padding: '80px 20px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
@@ -28,6 +28,7 @@ function AdminRoute({ children }) {
     )
   }
   if (!user) return <Navigate to="/admin/login" replace />
+  if (!isAdmin) return <Navigate to="/" replace />
   return children
 }
 

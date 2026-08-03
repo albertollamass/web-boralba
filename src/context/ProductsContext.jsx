@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { logError } from '../lib/logger'
 
 const TABLE = 'products'
 
@@ -34,8 +35,9 @@ export function ProductsProvider({ children }) {
         if (cancelled) return
         setProducts(remote)
         setSyncStatus('cloud')
-      } catch {
+      } catch (error) {
         if (cancelled) return
+        logError('products/fetch', error)
         setProducts([])
         setSyncStatus('error')
       }
@@ -59,7 +61,10 @@ export function ProductsProvider({ children }) {
         .from(TABLE)
         .upsert({ id: newProduct.id, data: newProduct, created_at: new Date().toISOString() })
         .then(() => setSyncStatus('cloud'))
-        .catch(() => setSyncStatus('error'))
+        .catch((error) => {
+          logError('products/insert', error, { id: newProduct.id })
+          setSyncStatus('error')
+        })
     }
     return newProduct
   }
@@ -72,7 +77,10 @@ export function ProductsProvider({ children }) {
         .from(TABLE)
         .upsert({ id, data: merged, created_at: new Date().toISOString() })
         .then(() => setSyncStatus('cloud'))
-        .catch(() => setSyncStatus('error'))
+        .catch((error) => {
+          logError('products/update', error, { id })
+          setSyncStatus('error')
+        })
     }
   }
 
@@ -84,7 +92,10 @@ export function ProductsProvider({ children }) {
         .delete()
         .eq('id', id)
         .then(() => setSyncStatus('cloud'))
-        .catch(() => setSyncStatus('error'))
+        .catch((error) => {
+          logError('products/delete', error, { id })
+          setSyncStatus('error')
+        })
     }
   }
 
@@ -93,6 +104,7 @@ export function ProductsProvider({ children }) {
     setSyncStatus('loading')
     const { error } = await supabase.from(TABLE).delete().neq('id', '')
     if (error) {
+      logError('products/reset', error)
       setSyncStatus('error')
       return
     }

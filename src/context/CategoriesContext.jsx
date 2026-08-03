@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { buildCategoryIndex, ROOT } from '../data/categories'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { logError } from '../lib/logger'
 
 const TABLE = 'categories'
 const CategoriesContext = createContext(null)
@@ -30,8 +31,9 @@ export function CategoriesProvider({ children }) {
         if (cancelled) return
         setCategories(remote)
         setSyncStatus('cloud')
-      } catch {
+      } catch (error) {
         if (cancelled) return
+        logError('categories/fetch', error)
         setCategories([])
         setSyncStatus('error')
       }
@@ -53,7 +55,10 @@ export function CategoriesProvider({ children }) {
         .from(TABLE)
         .upsert({ id: newCat.slug, data: newCat, created_at: new Date().toISOString() })
         .then(() => setSyncStatus('cloud'))
-        .catch(() => setSyncStatus('error'))
+        .catch((error) => {
+          logError('categories/insert', error, { slug: newCat.slug })
+          setSyncStatus('error')
+        })
     }
     return newCat
   }
@@ -69,7 +74,10 @@ export function CategoriesProvider({ children }) {
         .from(TABLE)
         .upsert({ id: slug, data: merged, created_at: new Date().toISOString() })
         .then(() => setSyncStatus('cloud'))
-        .catch(() => setSyncStatus('error'))
+        .catch((error) => {
+          logError('categories/update', error, { slug })
+          setSyncStatus('error')
+        })
     }
   }
 
@@ -81,7 +89,10 @@ export function CategoriesProvider({ children }) {
         .delete()
         .eq('id', slug)
         .then(() => setSyncStatus('cloud'))
-        .catch(() => setSyncStatus('error'))
+        .catch((error) => {
+          logError('categories/delete', error, { slug })
+          setSyncStatus('error')
+        })
     }
   }
 
