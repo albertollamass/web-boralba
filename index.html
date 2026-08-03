@@ -21,10 +21,11 @@
     <script>
       ;(function () {
         try {
-          var redirect = sessionStorage.getItem('redirect')
-          if (redirect) {
-            sessionStorage.removeItem('redirect')
-            window.history.replaceState(null, '', redirect)
+          var m = window.location.search.match(/[?&]spa=([^&]+)/)
+          if (m) {
+            var path = decodeURIComponent(m[1]) || '/'
+            if (path.indexOf('/web-boralba') !== 0) path = '/web-boralba' + path
+            window.history.replaceState(null, '', path)
           }
         } catch (e) {}
       })()
