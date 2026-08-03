@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 const BASE = `${import.meta.env.BASE_URL}images/proyectos/`
 
 const ambitos = [
-  { label: 'Arquitectura interior y exterior', image: `${BASE}entrada_torre_consuegra.webp` },
-  { label: 'Espacios de trabajo', image: `${BASE}oficinas.webp` },
-  { label: 'Hogar', image: `${BASE}decoracion_hogar.webp` },
-  { label: 'Eventos', image: `${BASE}centro_eventos.webp` },
-  { label: 'Comercio', image: `${BASE}senalizacion.webp` },
+  { label: 'Arquitectura interior y exterior', image: `${BASE}entrada_torre_consuegra.jpg` },
+  { label: 'Espacios de trabajo', image: `${BASE}oficinas.jpg` },
+  { label: 'Hogar', image: `${BASE}decoracion_hogar.jpg` },
+  { label: 'Eventos', image: `${BASE}centro_eventos.jpg` },
+  { label: 'Comercio', image: `${BASE}senalizacion.jpg` },
 ]
 
 const proyectos = [
@@ -16,51 +16,51 @@ const proyectos = [
     title: 'Hotel Rural Torre de Consuegra',
     type: 'Bañadores de pared',
     images: [
-      `${BASE}torre_consuerga_1.webp`,
-      `${BASE}torre_consuerga_4.webp`,
-      `${BASE}torre_consuerga_2.webp`,
+      `${BASE}torre_consuerga_1.jpg`,
+      `${BASE}torre_consuerga_4.jpg`,
+      `${BASE}torre_consuerga_2.jpg`,
     ],
   },
   {
     title: 'Túnel Calle Damas',
     type: 'Bañadores de pared',
     images: [
-      `${BASE}tunel_calle_damas_azul.webp`,
-      `${BASE}tunel_calle_damas_2.webp`,
-      `${BASE}tunel_calle_damas_3.webp`,
+      `${BASE}tunel_calle_damas_azul.jpg`,
+      `${BASE}tunel_calle_damas_2.jpg`,
+      `${BASE}tunel_calle_damas_3.jpg`,
     ],
   },
   {
     title: 'Centro Médico',
     type: 'Tiras LED y perfiles',
     images: [
-      `${BASE}centro_medico_3.webp`,
-      `${BASE}centro_medico_2.webp`,
-      `${BASE}centro_medico_1.webp`,
+      `${BASE}centro_medico_3.jpg`,
+      `${BASE}centro_medico_2.jpg`,
+      `${BASE}centro_medico_1.jpg`,
     ],
   },
   {
     title: 'Centro Cultural Antonio López',
     type: 'Neón flex LED',
     images: [
-      `${BASE}centro_cultural_antonio_lopez_1.webp`,
-      `${BASE}centro_cultural_antonio_lopez_3.webp`,
-      `${BASE}centro_cultural_antonio_lopez_2.webp`,
+      `${BASE}centro_cultural_antonio_lopez_1.jpg`,
+      `${BASE}centro_cultural_antonio_lopez_3.jpg`,
+      `${BASE}centro_cultural_antonio_lopez_2.jpg`,
     ],
   },
   {
     title: 'Centro Comercial Madrid Sur',
     type: 'Bañadores de pared',
     images: [
-      `${BASE}Madrid-Sur_2.webp`,
-      `${BASE}Madrid-Sur1.webp`,
-      `${BASE}Madrid-Sur_3.webp`,
+      `${BASE}Madrid-Sur_2.jpg`,
+      `${BASE}Madrid-Sur1.jpg`,
+      `${BASE}Madrid-Sur_3.jpg`,
     ],
   },
   {
     title: 'Hotel JC Santo Domingo (A Coruña)',
     type: 'Bañadores de pared',
-    images: [`${BASE}jc-santo-domingo-1.webp`],
+    images: [`${BASE}jc-santo-domingo-1.jpg`],
   },
 ]
 
