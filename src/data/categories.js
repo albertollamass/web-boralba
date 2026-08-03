@@ -352,49 +352,57 @@ export const ROOT = {
   ],
 }
 
-const bySlug = Object.fromEntries(categories.map((c) => [c.slug, c]))
+// Helpers para el árbol de categorías.
+// Operan sobre cualquier lista (la de la nube o la de seed) y usan el campo
+// `parent` como fuente de verdad de la jerarquía (más robusto para editar).
+export const buildCategoryIndex = (list) => {
+  const bySlug = Object.fromEntries((list || []).map((c) => [c.slug, c]))
 
-export function getCategory(slug) {
-  return bySlug[slug]
-}
+  const getCategory = (slug) => bySlug[slug]
 
-export function getChildren(slug) {
-  const cat = slug === ROOT.slug ? ROOT : bySlug[slug]
-  if (!cat || !cat.children) return []
-  return cat.children.map((s) => bySlug[s]).filter(Boolean)
-}
-
-export function getBreadcrumb(slug) {
-  const trail = []
-  let current = bySlug[slug]
-  while (current) {
-    trail.unshift(current)
-    current = bySlug[current.parent]
+  const getChildren = (slug) => {
+    const parentSlug = slug === ROOT.slug ? ROOT.slug : slug
+    return (list || []).filter((c) => c.parent === parentSlug)
   }
-  return trail
-}
 
-export function getCategoryPathLabel(slug) {
-  return getBreadcrumb(slug)
-    .map((c) => c.name)
-    .join(' › ')
-}
+  const getBreadcrumb = (slug) => {
+    const trail = []
+    let current = bySlug[slug]
+    while (current) {
+      trail.unshift(current)
+      current = bySlug[current.parent]
+    }
+    return trail
+  }
 
-export function getLeafCategories() {
-  return categories.filter((c) => !c.children || c.children.length === 0)
-}
+  const getCategoryPathLabel = (catSlug) =>
+    getBreadcrumb(catSlug)
+      .map((c) => c.name)
+      .join(' › ')
 
-export function getDescendantSlugs(slug) {
-  const result = [slug]
-  const visit = (s) => {
-    const cat = bySlug[s]
-    if (cat && cat.children) {
-      cat.children.forEach((child) => {
-        result.push(child)
-        visit(child)
+  const getLeafCategories = () =>
+    (list || []).filter((c) => !(list || []).some((child) => child.parent === c.slug))
+
+  const getDescendantSlugs = (slug) => {
+    const result = [slug]
+    const visit = (s) => {
+      getChildren(s).forEach((child) => {
+        result.push(child.slug)
+        visit(child.slug)
       })
     }
+    visit(slug)
+    return result
   }
-  visit(slug)
-  return result
+
+  return { getCategory, getChildren, getBreadcrumb, getCategoryPathLabel, getLeafCategories, getDescendantSlugs, bySlug }
 }
+
+// Índice construido sobre la lista de seed (por defecto / sin nube).
+const seedIndex = buildCategoryIndex(categories)
+export const getCategory = seedIndex.getCategory
+export const getChildren = seedIndex.getChildren
+export const getBreadcrumb = seedIndex.getBreadcrumb
+export const getCategoryPathLabel = seedIndex.getCategoryPathLabel
+export const getLeafCategories = seedIndex.getLeafCategories
+export const getDescendantSlugs = seedIndex.getDescendantSlugs

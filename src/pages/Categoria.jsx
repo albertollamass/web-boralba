@@ -1,16 +1,12 @@
 import { Link, useParams, Navigate } from 'react-router-dom'
-import {
-  getCategory,
-  getChildren,
-  getBreadcrumb,
-  getDescendantSlugs,
-  getLeafCategories,
-} from '../data/categories'
+import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard from '../components/ProductCard'
 
 export default function Categoria() {
   const { slug } = useParams()
+  const { getCategory, getChildren, getBreadcrumb, getDescendantSlugs, getLeafCategories } =
+    useCategories()
   const { products } = useProducts()
   const category = getCategory(slug)
 

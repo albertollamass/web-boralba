@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
-import { ROOT, getChildren } from '../data/categories'
+import { useCategories } from '../context/CategoriesContext'
 
 export default function Footer() {
+  const { getChildren, ROOT } = useCategories()
   const cats = getChildren(ROOT.slug)
   const year = new Date().getFullYear()
 

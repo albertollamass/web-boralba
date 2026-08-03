@@ -1,6 +1,7 @@
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
+import Buscar from './pages/Buscar'
 import Productos from './pages/Productos'
 import Categoria from './pages/Categoria'
 import ProductoDetalle from './pages/ProductoDetalle'
@@ -14,6 +15,8 @@ import AdminPanel from './admin/AdminPanel'
 import { useAuth } from './context/AuthContext'
 import { isSupabaseConfigured } from './lib/supabase'
 import ScrollToTop from './components/ScrollToTop'
+
+const BASENAME = import.meta.env.PROD ? '/web-boralba' : '/'
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth()
@@ -30,11 +33,12 @@ function AdminRoute({ children }) {
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter basename={BASENAME}>
       <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/buscar" element={<Buscar />} />
           <Route path="/productos" element={<Productos />} />
           <Route path="/categoria/:slug" element={<Categoria />} />
           <Route path="/producto/:id" element={<ProductoDetalle />} />
@@ -57,6 +61,6 @@ export default function App() {
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   )
 }

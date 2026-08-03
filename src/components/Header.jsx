@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ROOT, getChildren } from '../data/categories'
+import { useCategories } from '../context/CategoriesContext'
 
-function buildTree(slug) {
+function buildTree(categories, getChildren, slug) {
   return getChildren(slug).map((cat) => ({
     ...cat,
-    children: buildTree(cat.slug),
+    children: buildTree(categories, getChildren, cat.slug),
   }))
 }
 
@@ -113,25 +113,48 @@ function ProductsMenu({ tree }) {
   )
 }
 
-export default function Header() {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const tree = buildTree(ROOT.slug)
+function MobileNode({ node, depth = 0, onNavigate }) {
+  const [open, setOpen] = useState(false)
+  const hasChildren = node.children.length > 0
 
-  const renderMobileNode = (nodes) =>
-    nodes.map((node) => (
-      <div key={node.slug}>
+  return (
+    <div className="mobile-node">
+      {hasChildren ? (
+        <button
+          className="mobile-toggle sub-toggle"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          style={{ paddingLeft: 16 + depth * 18 }}
+        >
+          <span>{node.name}</span>
+          <span className="caret">{open ? '▴' : '▾'}</span>
+        </button>
+      ) : (
         <Link
           to={`/categoria/${node.slug}`}
-          onClick={() => setMenuOpen(false)}
-          style={{ display: 'inline-block' }}
+          onClick={onNavigate}
+          className="sub leaf"
+          style={{ paddingLeft: 16 + depth * 18 }}
         >
           {node.name}
         </Link>
-        {node.children.length > 0 && (
-          <div className="sub-block">{renderMobileNode(node.children)}</div>
-        )}
-      </div>
-    ))
+      )}
+      {open && (
+        <div className="sub-block">
+          {node.children.map((child) => (
+            <MobileNode key={child.slug} node={child} depth={depth + 1} onNavigate={onNavigate} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function Header() {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [productosOpen, setProductosOpen] = useState(false)
+  const { categories, getChildren, ROOT } = useCategories()
+  const tree = buildTree(categories, getChildren, ROOT.slug)
 
   return (
     <>
@@ -169,6 +192,21 @@ export default function Header() {
             <Link to="/contacto" className="nav-link">
               Contacto
             </Link>
+            <Link to="/buscar" className="nav-link nav-search" aria-label="Buscar productos" title="Buscar productos">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </Link>
           </nav>
 
           <button
@@ -184,21 +222,49 @@ export default function Header() {
           <Link to="/" onClick={() => setMenuOpen(false)}>
             Home
           </Link>
-          <Link to="/productos" onClick={() => setMenuOpen(false)}>
-            Productos
+          <Link to="/buscar" className="mobile-search" onClick={() => setMenuOpen(false)}>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            Buscar productos
           </Link>
-          {tree.map((node) => (
-            <div key={node.slug}>
+          <button
+            className="mobile-toggle"
+            onClick={() => setProductosOpen((o) => !o)}
+            aria-expanded={productosOpen}
+          >
+            <span>Productos</span>
+            <span className="caret">{productosOpen ? '▴' : '▾'}</span>
+          </button>
+          {productosOpen && (
+            <div className="mobile-submenu">
               <Link
-                to={`/categoria/${node.slug}`}
+                to="/productos"
                 onClick={() => setMenuOpen(false)}
-                style={{ display: 'inline-block' }}
+                className="sub all"
+                style={{ paddingLeft: 16 }}
               >
-                {node.name}
+                Ver todos los productos
               </Link>
-              {node.children.length > 0 && <div>{renderMobileNode(node.children)}</div>}
+              {tree.map((node) => (
+                <MobileNode
+                  key={node.slug}
+                  node={node}
+                  onNavigate={() => setMenuOpen(false)}
+                />
+              ))}
             </div>
-          ))}
+          )}
           <Link to="/outlet" onClick={() => setMenuOpen(false)}>
             Outlet
           </Link>

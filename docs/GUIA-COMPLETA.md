@@ -1,8 +1,9 @@
-# GUÍA COMPLETA: de cero a tener la web Boralba funcionando
+# GUÍA COMPLETA: tener la web Boralba funcionando en tu ordenador
 
 Esta guía explica **todos los pasos** para montar la web de Boralba en tu ordenador y
-publicarla en internet. Está pensada para **alguien que nunca ha usado estas herramientas**,
-así que no damos nada por sabido.
+publicarla en internet. El proyecto **ya existe en GitHub**: aquí verás cómo **clonarlo**
+(bajarlo a tu máquina), configurarlo y trabajar con él. Está pensada para **alguien que
+nunca ha usado estas herramientas**, así que no damos nada por sabido.
 
 > Se usa **Windows** con la terminal **PowerShell**. Si usas otro sistema, los conceptos
 > son los mismos; cambian solo algunos comandos.
@@ -16,8 +17,8 @@ así que no damos nada por sabido.
 3. [Instalar Node.js](#3-instalar-nodejs)
 4. [Instalar Git](#4-instalar-git)
 5. [Configurar Git por primera vez](#5-configurar-git-por-primera-vez)
-6. [Conseguir el proyecto en tu ordenador](#6-conseguir-el-proyecto-en-tu-ordenador)
-7. [Subir el proyecto a GitHub](#7-subir-el-proyecto-a-github)
+6. [Bajarte el proyecto con `git clone`](#6-bajarte-el-proyecto-con-git-clone)
+7. [Conectarte a GitHub para subir cambios](#7-conectarte-a-github-para-subir-cambios)
 8. [Instalar las dependencias del proyecto](#8-instalar-las-dependencias-del-proyecto)
 9. [Crear el proyecto en Supabase](#9-crear-el-proyecto-en-supabase)
 10. [Crear las tablas y las políticas de seguridad (SQL)](#10-crear-las-tablas-y-las-políticas-de-seguridad-sql)
@@ -122,62 +123,65 @@ git config --global user.email "tu@email.com"
 
 ---
 
-## 6. Conseguir el proyecto en tu ordenador
+## 6. Bajarte el proyecto con `git clone`
 
-Tienes el proyecto en una carpeta. Antes de trabajar con Git, la carpeta no es todavía un
-"repositorio" (Git no la está vigilando). Lo convertimos en repositorio:
+El proyecto **ya está en GitHub** (`https://github.com/albertollamass/web-boralba`), así que
+no hace falta crearlo desde cero: lo **clonas** (te bajas una copia con todo su historial)
+y ya tienes el código listo para trabajar.
 
 1. Abre PowerShell.
-2. Ve a la carpeta del proyecto:
+2. Ve a la carpeta donde quieras que viva el proyecto (por ejemplo, el Escritorio):
 
    ```powershell
-   cd "C:\Users\TU_USUARIO\Desktop\...\web-boralba"
+   cd "$HOME\Desktop"
    ```
 
-   > Truco: escribe `cd `, arrastra la carpeta dentro de la ventana de PowerShell y pulsa
-   > Enter. Así se escribe la ruta sola.
-
-3. Inicializa el repositorio:
+3. Clona el repositorio:
 
    ```powershell
-   git init
-   git add .
-   git commit -m "Primera versión de la web"
+   git clone https://github.com/albertollamass/web-boralba.git
    ```
 
-   - `git init` → crea el repositorio vacío.
-   - `git add .` → marca todos los archivos para guardarlos.
-   - `git commit` → los guarda con un mensaje (una "foto" del proyecto).
+   Se descarga todo dentro de una carpeta llamada `web-boralba`.
 
-> El archivo `.gitignore` le dice a Git qué NO debe guardar (por ejemplo `node_modules`
-> y `.env`, que contiene tus claves secretas). No lo borres.
+4. Entra en la carpeta del proyecto:
+
+   ```powershell
+   cd web-boralba
+   ```
+
+> **Qué hace `git clone`:**
+> - Descarga una copia del proyecto **con todo su historial** de cambios.
+> - Deja configurado el *remote* `origin`: el enlace con GitHub. **No hace falta
+>   añadirlo a mano**; cuando hagas `git push`, los cambios subirán ahí solos.
+> - **No** descarga `node_modules` (se genera con `npm.cmd install`, paso 8) ni `.env`
+>   (contiene tus claves; se crea en el paso 14). El archivo `.gitignore` le dice a Git
+>   qué no debe guardar. No lo borres.
+
+> **Si ya tienes la carpeta sin Git:** si te bajaste el proyecto en un ZIP (o tienes una
+> copia de una carpeta sin historial), lo más limpio es **borrarla y hacer `git clone`**
+> como en este paso. Como el proyecto ya vive en GitHub, lo normal es partir siempre de
+> un clon y no de `git init`.
 
 ---
 
-## 7. Subir el proyecto a GitHub
+## 7. Conectarte a GitHub para subir cambios
 
-GitHub es opcional, pero es la **copia de seguridad** de tu código y además permite
-instalarlo en otro ordenador con un solo comando.
+Con el clon ya puedes **leer y modificar** el código, pero para **subir** tus cambios de
+vuelta a GitHub (y con ello publicar la web, paso 18) hace falta que GitHub sepa quién eres.
+El paso 5 ya le dijo a Git tu nombre y email; ahora conectamos tu ordenador con tu cuenta
+de GitHub.
 
-### 7.1 Crear la cuenta
+### 7.1 Crear la cuenta (si aún no la tienes)
 
 1. Abre https://github.com y pulsa **Sign up**.
 2. Rellena el formulario y confirma tu email.
 
-### 7.2 Crear el repositorio
+### 7.2 Iniciar sesión desde la terminal con `gh`
 
-1. Pulsa el botón **"+"** (arriba a la derecha) → **New repository**.
-2. **Repository name:** `web-boralba`.
-3. Déjalo en **Private** (privado) o **Public** (público) según prefieras.
-4. **No** marques ninguna casilla de "Add a README / .gitignore / license" (el proyecto ya
-   tiene los suyos). Pulsa **Create repository**.
+La herramienta oficial `gh` te deja identificarte cómodamente desde PowerShell:
 
-### 7.3 Conectar tu ordenador con GitHub (login desde la terminal)
-
-Cuando ejecutes el comando de subida, GitHub te pedirá usuario y contraseña. Para que sea
-más cómodo, instala la herramienta oficial `gh`:
-
-1. Abre https://cli.github.com/ y descarga el instalador para Windows. Instálalo.
+1. Descarga e instala https://cli.github.com/ (instalador para Windows).
 2. En PowerShell:
 
    ```powershell
@@ -187,29 +191,26 @@ más cómodo, instala la herramienta oficial `gh`:
 3. Sigue los pasos: elige **GitHub.com** → **HTTPS** → **Login with a web browser** y pulsa
    Enter. Se abrirá el navegador; confirma y vuelve a la terminal.
 
-### 7.4 Subir el proyecto
+### 7.3 Subir una actualización
 
-En la página de tu repositorio recién creado, GitHub muestra unos comandos. Los que nos
-interesan son los de "…or push an existing repository from the command line". En PowerShell:
-
-```powershell
-git remote add origin https://github.com/TU_USUARIO/web-boralba.git
-git branch -M main
-git push -u origin main
-```
-
-Recarga la página de GitHub: verás todos los archivos del proyecto.
-
-### 7.5 (Opcional) Instalar el proyecto en otro ordenador
-
-En el ordenador nuevo, con Node y Git instalados:
+Cuando hayas modificado algo y quieras guardarlo en GitHub:
 
 ```powershell
-git clone https://github.com/TU_USUARIO/web-boralba.git
-cd web-boralba
+git add .
+git commit -m "qué he cambiado"
+git push
 ```
 
-Después sigue desde el paso 8 (recuerda que necesitarás crear tu `.env` local, paso 13).
+- `git add .` → marca los archivos modificados para guardarlos.
+- `git commit -m "..."` → los guarda con un mensaje (una "foto" del momento).
+- `git push` → sube esa foto a GitHub (la rama principal es `main`).
+
+Como el clon ya trae el *remote* `origin` configurado, no hace falta escribir nada más.
+Recarga la página de GitHub y verás tus cambios. Si la web está publicada en GitHub Pages
+(paso 18), ese `git push` también la actualiza automáticamente.
+
+Después de clonar, **sigue desde el paso 8** (recuerda que tendrás que crear tu `.env`
+local en el paso 13/14).
 
 ---
 

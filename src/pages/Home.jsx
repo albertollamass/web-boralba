@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
-import { ROOT, getChildren } from '../data/categories'
+import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard from '../components/ProductCard'
 
 export default function Home() {
   const { products } = useProducts()
+  const { getChildren, ROOT } = useCategories()
   const cats = getChildren(ROOT.slug)
   const featured = products.filter((p) => p.featured).slice(0, 4)
   const outletCount = products.filter((p) => p.outlet).length
@@ -15,8 +16,8 @@ export default function Home() {
         <div className="container hero-inner">
           <div>
             <span className="hero-badge">+ de 30 años en el sector</span>
-            <h1>Soluciones profesionales en iluminación LED</h1>
-            <p>Diseñamos la luz que transforma tus proyectos.</p>
+            <h1>Iluminación LED profesional para arquitectura</h1>
+            <p>Soluciones lumínicas diseñadas para dar forma a tus espacios y elevar cada proyecto.</p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <Link to="/productos" className="btn btn-accent">
                 Ver productos
@@ -36,8 +37,8 @@ export default function Home() {
         <div className="container">
           <div className="section-head">
             <span className="tag">Nuestro catálogo</span>
-            <h2>Categorías de productos</h2>
-            <p>Todo lo que necesitas para tus proyectos de iluminación LED.</p>
+            <h2>Familias de productos para cada proyecto</h2>
+            <p>Todo lo que necesitas para tus proyectos de iluminación arquitectónica y LED profesional.</p>
           </div>
           <div className="grid grid-4">
             {cats.map((cat) => (
@@ -83,8 +84,8 @@ export default function Home() {
                 distribución.
               </p>
               <p>
-                ¿Necesitas asesoramiento en iluminación? Nuestro equipo puede ayudarte a elegir la
-                mejor solución para tu proyecto.
+                Acompañamos a arquitectos e interioristas en el diseño técnico de la luz:
+                cálculos fotométricos, control DALI y soluciones a medida para cada espacio.
               </p>
               <Link to="/contacto" className="btn btn-primary">
                 Solicitar asesoramiento

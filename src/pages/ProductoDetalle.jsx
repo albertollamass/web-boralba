@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
-import { getCategory } from '../data/categories'
+import { useCategories } from '../context/CategoriesContext'
 
 export default function ProductoDetalle() {
   const { id } = useParams()
   const { getProduct, products } = useProducts()
+  const { getCategory } = useCategories()
   const product = getProduct(id)
 
   if (!product) return <Navigate to="/productos" replace />
 
   const category = getCategory(product.category)
-  const gallery = product.gallery?.length ? product.gallery : [product.image]
+  const gallery = [product.image, ...(product.gallery || [])].filter(Boolean)
   const related = products
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4)

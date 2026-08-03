@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
-import { ROOT, getChildren, categories } from '../data/categories'
+import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard from '../components/ProductCard'
 
 export default function Productos() {
+  const { getChildren, ROOT, categories } = useCategories()
   const cats = getChildren(ROOT.slug)
   const { products } = useProducts()
 

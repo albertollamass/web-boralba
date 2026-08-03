@@ -1,10 +1,5 @@
 import { useState } from 'react'
-import {
-  getChildren,
-  getCategoryPathLabel,
-  getDescendantSlugs,
-  ROOT,
-} from '../data/categories'
+import { useCategories } from '../context/CategoriesContext'
 
 function fileToDataUrl(file, maxDim = 900, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -46,11 +41,15 @@ const linesToText = (v) => (Array.isArray(v) ? v.join('\n') : v || '')
 const commaToText = (v) => (Array.isArray(v) ? v.join(', ') : v || '')
 
 export default function ProductForm({ initial, onSubmit, onCancel }) {
+  const { getChildren, getCategoryPathLabel, getDescendantSlugs, ROOT } = useCategories()
   const [product, setProduct] = useState(initial)
   const [uploading, setUploading] = useState(false)
-  const [fileKey, setFileKey] = useState(0)
+  const [mainImgKey, setMainImgKey] = useState(0)
+  const [detailKeys, setDetailKeys] = useState([])
 
   const topCats = getChildren(ROOT.slug)
+
+  const galleryItems = Array.isArray(product.gallery) ? product.gallery : splitComma(product.gallery)
 
   const set = (key) => (e) => setProduct((p) => ({ ...p, [key]: e.target.value }))
   const setCheck = (key) => (e) => setProduct((p) => ({ ...p, [key]: e.target.checked }))
@@ -87,7 +86,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
     setProduct((p) => ({ ...p, variants: (p.variants || []).filter((_, idx) => idx !== i) }))
   }
 
-  const onFileSelected = async (e) => {
+  const onMainFileSelected = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
@@ -98,7 +97,45 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
       alert('No se pudo procesar la imagen.')
     } finally {
       setUploading(false)
-      setFileKey((k) => k + 1)
+      setMainImgKey((k) => k + 1)
+    }
+  }
+
+  const Gallery = galleryItems.map((src, i) => ({ src, id: i }))
+
+  const addGallerySlot = () => {
+    if (galleryItems.length >= 4) return
+    setProduct((p) => ({ ...p, gallery: [...galleryItems, ''] }))
+  }
+
+  const updateGallerySrc = (i, src) => {
+    setProduct((p) => {
+      const next = [...galleryItems]
+      next[i] = src
+      return { ...p, gallery: next }
+    })
+  }
+
+  const removeGalleryItem = (i) => {
+    setProduct((p) => ({ ...p, gallery: galleryItems.filter((_, idx) => idx !== i) }))
+  }
+
+  const onGalleryFileSelected = async (e, i) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const dataUrl = await fileToDataUrl(file)
+      updateGallerySrc(i, dataUrl)
+    } catch {
+      alert('No se pudo procesar la imagen.')
+    } finally {
+      setUploading(false)
+      setDetailKeys((ks) => {
+        const next = [...ks]
+        next[i] = (next[i] || 0) + 1
+        return next
+      })
     }
   }
 
@@ -118,7 +155,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
       applications: splitLines(product.applications),
       advantages: splitLines(product.advantages),
       tags: splitComma(product.tags),
-      gallery: splitComma(product.gallery),
+      gallery: galleryItems.filter((g) => g && g.trim()).slice(0, 4),
       icons: splitComma(product.icons),
       variants: (product.variants || [])
         .filter((v) => v.title || splitComma(v.items).length)
@@ -142,8 +179,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div>
+      <div>
           <label>Categoría *</label>
           <select value={product.category} onChange={set('category')} required>
             <option value="">Selecciona una categoría...</option>
@@ -160,28 +196,84 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
           <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
             Se muestra la ruta completa (ej. Tiras LED › Tiras LED 24V › CRI80).
           </span>
-        </div>
-        <div>
-          <label>Imagen</label>
+      </div>
+
+      <div>
+        <label>Imagen principal *</label>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
           <input
             type="file"
             accept="image/*"
-            key={fileKey}
-            onChange={onFileSelected}
-            style={{ padding: 8 }}
+            key={mainImgKey}
+            onChange={onMainFileSelected}
+            style={{ padding: 8, flex: 1 }}
           />
-          <input
-            value={isDataUrl(product.image) ? '' : product.image}
-            onChange={set('image')}
-            placeholder="o pega una URL: images/xxx.jpg o https://..."
-            style={{ marginTop: 8 }}
-          />
-          {uploading && (
-            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-              Procesando imagen...
-            </span>
+          <div style={{ flex: 2 }}>
+            <input
+              value={isDataUrl(product.image) ? '' : product.image || ''}
+              onChange={set('image')}
+              placeholder="o pega una URL: images/xxx.jpg o https://..."
+              style={{ width: '100%' }}
+            />
+          </div>
+          {product.image && (
+            <img
+              src={product.image}
+              alt="Principal"
+              style={{ width: 90, aspectRatio: '4/3', objectFit: 'cover', borderRadius: 6, border: '1px solid #e2e8f0' }}
+            />
           )}
         </div>
+        {uploading && (
+          <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            Procesando imagen...
+          </span>
+        )}
+        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+          Es la foto que se muestra en tarjetas, listados y como primera imagen de la galería.
+        </span>
+      </div>
+
+      <div>
+        <label>
+          Imágenes de detalle (hasta 4, para la galería de la ficha){' '}
+          {galleryItems.length}/4
+        </label>
+        {Gallery.map((item, i) => (
+          <div
+            key={item.id}
+            style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 10 }}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              key={detailKeys[i] || 0}
+              onChange={(e) => onGalleryFileSelected(e, i)}
+              style={{ padding: 8, flex: 1 }}
+            />
+            <input
+              value={isDataUrl(item.src) ? '' : item.src}
+              onChange={(e) => updateGallerySrc(i, e.target.value)}
+              placeholder="o pega una URL"
+              style={{ flex: 2, padding: 8 }}
+            />
+            {item.src && (
+              <img
+                src={item.src}
+                alt={`detalle ${i + 1}`}
+                style={{ width: 70, aspectRatio: '4/3', objectFit: 'cover', borderRadius: 6, border: '1px solid #e2e8f0' }}
+              />
+            )}
+            <button type="button" className="btn btn-danger btn-sm" onClick={() => removeGalleryItem(i)}>
+              ✕
+            </button>
+          </div>
+        ))}
+        {galleryItems.length < 4 && (
+          <button type="button" className="btn btn-ghost btn-sm" onClick={addGallerySlot}>
+            + Añadir imagen de detalle
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
@@ -240,15 +332,9 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div>
-          <label>Galería de imágenes (URLs separadas por comas)</label>
-          <input value={commaToText(product.gallery)} onChange={set('gallery')} placeholder="images/tira-1.png, images/tira-2.png" />
-        </div>
-        <div>
-          <label>Iconos/badges (URLs separadas por comas)</label>
-          <input value={commaToText(product.icons)} onChange={set('icons')} placeholder="images/badge-cri80.png, images/badge-rohs.png" />
-        </div>
+      <div>
+        <label>Iconos/badges (URLs separadas por comas)</label>
+        <input value={commaToText(product.icons)} onChange={set('icons')} placeholder="images/badge-cri80.png, images/badge-rohs.png" />
       </div>
 
       <div>
@@ -305,17 +391,6 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
           + Añadir especificación
         </button>
       </div>
-
-      {product.image && (
-        <div>
-          <label>Vista previa</label>
-          <img
-            src={product.image}
-            alt="Vista previa"
-            style={{ width: 180, aspectRatio: '4/3', objectFit: 'cover', borderRadius: 8 }}
-          />
-        </div>
-      )}
 
       <div style={{ display: 'flex', gap: 10 }}>
         <button type="submit" className="btn btn-primary">

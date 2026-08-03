@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
+import { useCategories } from '../context/CategoriesContext'
 import { useAuth } from '../context/AuthContext'
-import { getCategory, getCategoryPathLabel } from '../data/categories'
+import { ROOT } from '../data/categories'
 import ProductForm from './ProductForm'
 
 const emptyProduct = () => ({
@@ -28,14 +29,16 @@ const emptyProduct = () => ({
 })
 
 export default function AdminPanel() {
-  const { products, addProduct, updateProduct, deleteProduct, resetProducts, pushToCloud, syncStatus, cloudEnabled } =
+  const { products, addProduct, updateProduct, deleteProduct, resetProducts, syncStatus, cloudEnabled } =
     useProducts()
+  const categoriesCtx = useCategories()
   const { user, signOut } = useAuth()
   const [view, setView] = useState('products')
   const [editing, setEditing] = useState(null)
   const [creating, setCreating] = useState(false)
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState('')
+  const [catForm, setCatForm] = useState({ open: false, editing: null })
 
   if (!user) return <Navigate to="/admin/login" replace />
 
@@ -48,7 +51,8 @@ export default function AdminPanel() {
     return matchSearch && matchCat
   })
 
-  const catName = (slug) => getCategoryPathLabel(slug)
+  const catName = (slug) =>
+    categoriesCtx.getCategoryPathLabel ? categoriesCtx.getCategoryPathLabel(slug) : slug
 
   const handleSubmit = (data) => {
     if (editing) {
@@ -60,6 +64,10 @@ export default function AdminPanel() {
     setCreating(false)
     setView('products')
   }
+
+  const openNewCategory = () => setCatForm({ open: true, editing: null })
+  const openEditCategory = (cat) => setCatForm({ open: true, editing: cat })
+  const closeCatForm = () => setCatForm({ open: false, editing: null })
 
   return (
     <div className="admin-layout">
@@ -93,7 +101,16 @@ export default function AdminPanel() {
         </div>
 
         {view === 'categorias' ? (
-          <CategoriesView />
+          catForm.open ? (
+            <CategoryForm
+              initial={catForm.editing}
+              ctx={categoriesCtx}
+              onCancel={closeCatForm}
+              onSaved={closeCatForm}
+            />
+          ) : (
+            <CategoriesView ctx={categoriesCtx} onNew={openNewCategory} onEdit={openEditCategory} />
+          )
         ) : creating || editing ? (
           <div>
             <h2 style={{ marginBottom: 16 }}>{editing ? 'Editar producto' : 'Nuevo producto'}</h2>
@@ -122,36 +139,27 @@ export default function AdminPanel() {
                     title={
                       syncStatus === 'cloud'
                         ? 'Los productos se guardan en Supabase'
-                        : syncStatus === 'cloud-empty'
-                          ? 'La nube está vacía: sube el catálogo'
-                          : syncStatus === 'error'
-                            ? 'Error guardando en la nube'
-                            : 'Sin conexión a la nube (modo local)'
+                        : syncStatus === 'error'
+                          ? 'Error guardando en la nube'
+                          : 'Cargando productos de la nube…'
                     }
                   >
-                    {syncStatus === 'cloud' ? '☁ En la nube' : syncStatus === 'error' ? '⚠ Error de sincronización' : '⚠ Sin sincronizar'}
+                    {syncStatus === 'cloud'
+                      ? '☁ En la nube'
+                      : syncStatus === 'error'
+                        ? '⚠ Error de sincronización'
+                        : '⏳ Cargando…'}
                   </span>
-                )}
-                {cloudEnabled && syncStatus !== 'cloud' && (
-                  <button
-                    className="btn btn-outline btn-sm"
-                    onClick={async () => {
-                      const ok = await pushToCloud()
-                      alert(ok ? 'Catálogo subido a la nube.' : 'No se pudo subir a la nube.')
-                    }}
-                  >
-                    Subir catálogo a la nube
-                  </button>
                 )}
                 <button
                   className="btn btn-outline btn-sm"
                   onClick={() => {
-                    if (confirm('¿Restaurar el catálogo por defecto? Se perderán los cambios.')) {
+                    if (confirm('¿Vaciar el catálogo? Se eliminarán todos los productos de la nube.')) {
                       resetProducts()
                     }
                   }}
                 >
-                  Restaurar catálogo
+                  Vaciar catálogo
                 </button>
                 <button className="btn btn-primary btn-sm" onClick={() => setCreating(true)}>
                   + Nuevo producto
@@ -247,53 +255,321 @@ export default function AdminPanel() {
   )
 }
 
-function CategoriesView() {
+function CategoriesView({ ctx, onNew, onEdit }) {
+  const { categories, getChildren, getCategoryPathLabel, deleteCategory } = ctx
   const { products } = useProducts()
-  const leafs = products.reduce((acc, p) => {
+
+  const countByCat = products.reduce((acc, p) => {
     acc[p.category] = (acc[p.category] || 0) + 1
     return acc
   }, {})
-  const cats = Object.keys(leafs)
-    .map((slug) => getCategory(slug))
-    .filter(Boolean)
+
+  const tree = getChildren(ROOT.slug)
 
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>Categorías</h2>
-      <p className="muted">
-        Las categorías se definen en <code>src/data/categories.js</code>. Puedes navegar a cada una
-        desde el sitio público.
-      </p>
-      {cats.length === 0 ? (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 12,
+          marginBottom: 18,
+        }}
+      >
+        <div>
+          <h2 style={{ margin: 0 }}>Categorías</h2>
+          <span className="muted" style={{ fontSize: '0.88rem' }}>
+            {categories.length} en total · se guardan en Supabase
+          </span>
+        </div>
+        <button className="btn btn-primary btn-sm" onClick={onNew}>
+          + Nueva categoría
+        </button>
+      </div>
+
+      {tree.length === 0 ? (
         <div className="empty-state">
-          <h3>Aún no hay productos asignados a categorías</h3>
+          <h3>Aún no hay categorías</h3>
+          <p>
+            Crea la primera categoría y después asigna productos a ella desde el formulario de
+            producto.
+          </p>
+          <button className="btn btn-primary" onClick={onNew}>
+            Crear categoría
+          </button>
         </div>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Categoría</th>
-              <th>Productos</th>
-              <th>Enlace</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cats.map((c) => (
-              <tr key={c.slug}>
-                <td>
-                  <strong>{c.name}</strong>
-                </td>
-                <td>{leafs[c.slug]}</td>
-                <td>
-                  <Link to={`/categoria/${c.slug}`} target="_blank">
-                    Ver →
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <CategoryList
+          nodes={tree}
+          getChildren={getChildren}
+          getCategoryPathLabel={getCategoryPathLabel}
+          countByCat={countByCat}
+          onEdit={onEdit}
+          onDelete={deleteCategory}
+        />
       )}
     </div>
   )
 }
+
+function CategoryList({ nodes, getChildren, getCategoryPathLabel, countByCat, onEdit, onDelete }) {
+  return (
+    <table className="admin-table">
+      <thead>
+        <tr>
+          <th>Categoría</th>
+          <th>Ruta</th>
+          <th>Subcategorías</th>
+          <th>Productos</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {nodes.map((node) => (
+          <NodeRow
+            key={node.slug}
+            node={node}
+            depth={0}
+            getChildren={getChildren}
+            getCategoryPathLabel={getCategoryPathLabel}
+            countByCat={countByCat}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+function NodeRow({ node, depth, getChildren, getCategoryPathLabel, countByCat, onEdit, onDelete }) {
+  const children = getChildren(node.slug)
+  const total = (countByCat[node.slug] || 0) + totalDescendants(children, countByCat, getChildren)
+
+  return (
+    <>
+      <tr>
+        <td style={depth > 0 ? { paddingLeft: 32 + depth * 24 } : undefined}>
+          <strong>{node.name}</strong>
+        </td>
+        <td>
+          <span className="muted" style={{ fontSize: '0.84rem' }}>
+            {getCategoryPathLabel(node.slug)}
+          </span>
+        </td>
+        <td>{children.length}</td>
+        <td>{total || '—'}</td>
+        <td>
+          <div className="actions">
+            <button className="btn-edit" onClick={() => onEdit(node)}>
+              Editar
+            </button>
+            <button
+              className="btn-del"
+              onClick={() => {
+                if (confirm(`¿Eliminar la categoría "${node.name}"?`)) onDelete(node.slug)
+              }}
+            >
+              Eliminar
+            </button>
+          </div>
+        </td>
+      </tr>
+      {children.map((child) => (
+        <NodeRow
+          key={child.slug}
+          node={child}
+          depth={depth + 1}
+          getChildren={getChildren}
+          getCategoryPathLabel={getCategoryPathLabel}
+          countByCat={countByCat}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      ))}
+    </>
+  )
+}
+
+const totalDescendants = (cats, countBy, getChildren) =>
+  cats.reduce(
+    (acc, c) =>
+      acc + (countBy[c.slug] || 0) + totalDescendants(getChildren(c.slug), countBy, getChildren),
+    0,
+  )
+
+function CategoryForm({ initial, ctx, onCancel, onSaved }) {
+  const { addCategory, updateCategory, categories, getChildren } = ctx
+  const [form, setForm] = useState(() => ({
+    name: initial?.name || '',
+    tagline: initial?.tagline || '',
+    description: initial?.description || '',
+    image: initial?.image || '',
+    parent: initial && initial.parent !== ROOT.slug ? initial.parent : '',
+  }))
+  const [fileKey, setFileKey] = useState(0)
+  const [uploading, setUploading] = useState(false)
+  const isEdit = Boolean(initial)
+  const originalSlug = initial?.slug
+
+  const topCats = getChildren(ROOT.slug)
+
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+
+  const handleImage = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const dataUrl = await fileToDataUrl(file)
+      setForm((f) => ({ ...f, image: dataUrl }))
+    } catch {
+      alert('No se pudo procesar la imagen.')
+    } finally {
+      setUploading(false)
+      setFileKey((k) => k + 1)
+    }
+  }
+
+  const submit = (e) => {
+    e.preventDefault()
+    if (!form.name.trim()) {
+      alert('El nombre es obligatorio.')
+      return
+    }
+    const slug = (initial?.slug || generateSlug(form.name)).toLowerCase()
+    if (!isEdit && categories.some((c) => c.slug === slug)) {
+      alert('Ya existe una categoría con ese slug.')
+      return
+    }
+    const payload = {
+      slug,
+      name: form.name.trim(),
+      tagline: form.tagline.trim() || '',
+      description: form.description.trim() || '',
+      image: form.image || 'images/placeholder.svg',
+      parent: form.parent || ROOT.slug,
+    }
+    if (isEdit) {
+      updateCategory(originalSlug, payload)
+    } else {
+      addCategory(payload)
+    }
+    onSaved()
+  }
+
+  return (
+    <form className="form" onSubmit={submit}>
+      <h2 style={{ marginBottom: 16 }}>{isEdit ? 'Editar categoría' : 'Nueva categoría'}</h2>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div>
+          <label>Nombre *</label>
+          <input value={form.name} onChange={set('name')} required />
+        </div>
+        <div>
+          <label>Categoría padre</label>
+          <select value={form.parent} onChange={set('parent')}>
+            <option value="">{ROOT.name}</option>
+            {topCats.map((top) => (
+              <optgroup key={top.slug} label={top.name}>
+                {getChildren(top.slug).map((sub) => (
+                  <option key={sub.slug} value={sub.slug}>
+                    {sub.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+            Mete la categoría dentro de otra si es una subcategoría.
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <label>Tagline (frase corta)</label>
+        <input value={form.tagline} onChange={set('tagline')} />
+      </div>
+
+      <div>
+        <label>Descripción</label>
+        <textarea value={form.description} onChange={set('description')} />
+      </div>
+
+      <div>
+        <label>Imagen</label>
+        <input
+          type="file"
+          accept="image/*"
+          key={fileKey}
+          onChange={handleImage}
+          style={{ padding: 8 }}
+        />
+        <input
+          value={form.image?.startsWith('data:') ? '' : form.image}
+          onChange={set('image')}
+          placeholder="o pega una URL: images/xxx.jpg o https://..."
+          style={{ marginTop: 8 }}
+        />
+        {uploading && (
+          <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            Procesando imagen...
+          </span>
+        )}
+        {form.image && (
+          <div style={{ marginTop: 8 }}>
+            <img
+              src={form.image}
+              alt="Vista previa"
+              style={{ width: 180, aspectRatio: '4/3', objectFit: 'cover', borderRadius: 8 }}
+            />
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button type="submit" className="btn btn-primary">
+          {isEdit ? 'Guardar cambios' : 'Crear categoría'}
+        </button>
+        <button type="button" className="btn btn-outline" onClick={onCancel}>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function fileToDataUrl(file, maxDim = 900, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * scale)
+        canvas.height = Math.round(img.height * scale)
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        const supportsWebp = canvas.toDataURL('image/webp').startsWith('data:image/webp')
+        const format = supportsWebp ? 'image/webp' : 'image/jpeg'
+        resolve(canvas.toDataURL(format, quality))
+      }
+      img.onerror = reject
+      img.src = reader.result
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+const generateSlug = (name) =>
+  name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')

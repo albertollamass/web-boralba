@@ -16,8 +16,11 @@ con los productos guardados en la nube (**Supabase**).
 - **Ficha de producto** con galería, badges, precio, referencia, variantes, ficha técnica,
   descripción larga, características, aplicaciones y ventajas.
 - **Outlet**, **Proyectos**, **Servicios**, **Contacto** (con formulario y validación) y páginas legales.
+- **Buscador de productos** (`#/buscar`): busca por descripción, código de referencia o potencia (ej. `50W`).
 - **Modo administrador** (`#/admin`): crear, editar y eliminar productos sin tocar código.
   El acceso es con **Supabase Auth** (email + contraseña) y solo un perfil admin puede escribir.
+- **Solo nube**: el catálogo se lee y escribe únicamente en Supabase. No hay datos locales:
+  si la tabla `products` está vacía, la web no muestra ningún producto.
 
 ## Web publicada
 
@@ -33,6 +36,10 @@ Desplegada automáticamente en **GitHub Pages**: https://albertollamass.github.i
 Requisitos: **Node.js** (LTS) y **Git** instalados.
 
 ```bash
+# 0. Clonar el proyecto (una vez)
+git clone https://github.com/albertollamass/web-boralba.git
+cd web-boralba
+
 # 1. Instalar dependencias
 npm install
 
@@ -74,10 +81,10 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 src/
 ├── admin/            # Login + panel + formulario de producto
 ├── components/       # Header, Footer, Layout, ProductCard, ScrollToTop, CookieBanner
-├── context/          # ProductsContext (catálogo + Supabase) y AuthContext (login)
-├── data/             # categories.js (árbol) y products.js (catálogo inicial)
-├── lib/              # supabase.js (cliente Supabase)
-└── pages/            # Home, Productos, Categoría, Producto, Outlet, Proyectos, Servicios, Contacto, Legal
+├── context/          # ProductsContext (catálogo solo desde Supabase) y AuthContext (login)
+├── data/             # categories.js (árbol); products.js solo de referencia, ya no se carga
+├── lib/              # supabase.js (cliente Supabase) y search.js (buscador)
+└── pages/            # Home, Productos, Categoría, Producto, Buscar, Outlet, Proyectos, Servicios, Contacto, Legal
 supabase/schema.sql   # SQL para crear las tablas y políticas de seguridad en Supabase
 docs/GUIA-COMPLETA.md # Guía paso a paso para principiantes
 ```

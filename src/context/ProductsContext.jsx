@@ -1,29 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { seedProducts } from '../data/products'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-const STORAGE_KEY = 'boralba_products_v1'
 const TABLE = 'products'
 
 const ProductsContext = createContext(null)
-
-function loadLocal() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw)
-  } catch {
-    // ignore
-  }
-  return seedProducts
-}
-
-function saveLocal(products) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(products))
-  } catch {
-    // ignore
-  }
-}
 
 async function fetchRemoteProducts() {
   const { data, error } = await supabase
@@ -34,18 +14,8 @@ async function fetchRemoteProducts() {
   return (data || []).map((row) => ({ id: row.id, ...row.data }))
 }
 
-async function pushAll(products) {
-  const rows = products.map((p, i) => ({
-    id: p.id,
-    data: p,
-    created_at: new Date(Date.now() - i * 1000).toISOString(),
-  }))
-  const { error } = await supabase.from(TABLE).upsert(rows)
-  if (error) throw error
-}
-
 export function ProductsProvider({ children }) {
-  const [products, setProducts] = useState(seedProducts)
+  const [products, setProducts] = useState([])
   const [hydrated, setHydrated] = useState(false)
   const [syncStatus, setSyncStatus] = useState('loading')
 
@@ -54,26 +24,20 @@ export function ProductsProvider({ children }) {
 
     async function init() {
       if (!isSupabaseConfigured) {
-        setProducts(loadLocal())
-        setSyncStatus('local')
+        setProducts([])
+        setSyncStatus('error')
         setHydrated(true)
         return
       }
       try {
         const remote = await fetchRemoteProducts()
         if (cancelled) return
-        if (remote.length > 0) {
-          setProducts(remote)
-          saveLocal(remote)
-          setSyncStatus('cloud')
-        } else {
-          setProducts(seedProducts)
-          setSyncStatus('cloud-empty')
-        }
+        setProducts(remote)
+        setSyncStatus('cloud')
       } catch {
         if (cancelled) return
-        setProducts(loadLocal())
-        setSyncStatus('local-error')
+        setProducts([])
+        setSyncStatus('error')
       }
       setHydrated(true)
     }
@@ -84,10 +48,6 @@ export function ProductsProvider({ children }) {
     }
   }, [])
 
-  useEffect(() => {
-    if (hydrated) saveLocal(products)
-  }, [products, hydrated])
-
   const addProduct = (product) => {
     const newProduct = {
       ...product,
@@ -95,7 +55,6 @@ export function ProductsProvider({ children }) {
     }
     setProducts((prev) => [newProduct, ...prev])
     if (supabase) {
-      setSyncStatus((s) => (s === 'cloud-empty' || s === 'cloud' ? 'cloud' : s))
       supabase
         .from(TABLE)
         .upsert({ id: newProduct.id, data: newProduct, created_at: new Date().toISOString() })
@@ -130,32 +89,15 @@ export function ProductsProvider({ children }) {
   }
 
   const resetProducts = async () => {
-    setProducts(seedProducts)
-    if (supabase) {
-      const { error } = await supabase.from(TABLE).delete().neq('id', '')
-      if (error) {
-        setSyncStatus('error')
-        return
-      }
-      try {
-        await pushAll(seedProducts)
-        setSyncStatus('cloud')
-      } catch {
-        setSyncStatus('error')
-      }
-    }
-  }
-
-  const pushToCloud = async () => {
-    if (!supabase) return false
-    try {
-      await pushAll(products)
-      setSyncStatus('cloud')
-      return true
-    } catch {
+    if (!supabase) return
+    setSyncStatus('loading')
+    const { error } = await supabase.from(TABLE).delete().neq('id', '')
+    if (error) {
       setSyncStatus('error')
-      return false
+      return
     }
+    setProducts([])
+    setSyncStatus('cloud')
   }
 
   const getProduct = (id) => products.find((p) => p.id === id)
@@ -166,7 +108,6 @@ export function ProductsProvider({ children }) {
     updateProduct,
     deleteProduct,
     resetProducts,
-    pushToCloud,
     getProduct,
     hydrated,
     syncStatus,
