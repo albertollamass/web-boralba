@@ -415,7 +415,17 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
   const isEdit = Boolean(initial)
   const originalSlug = initial?.slug
 
-  const topCats = getChildren(ROOT.slug)
+  const excluded = isEdit ? new Set(getDescendantSlugs(originalSlug)) : new Set()
+  const catOptions = []
+  const collectOptions = (slug, depth) => {
+    getChildren(slug).forEach((child) => {
+      if (!excluded.has(child.slug)) {
+        catOptions.push({ slug: child.slug, name: child.name, depth })
+      }
+      collectOptions(child.slug, depth + 1)
+    })
+  }
+  collectOptions(ROOT.slug, 0)
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
@@ -474,14 +484,11 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
           <label>Categoría padre</label>
           <select value={form.parent} onChange={set('parent')}>
             <option value="">{ROOT.name}</option>
-            {topCats.map((top) => (
-              <optgroup key={top.slug} label={top.name}>
-                {getChildren(top.slug).map((sub) => (
-                  <option key={sub.slug} value={sub.slug}>
-                    {sub.name}
-                  </option>
-                ))}
-              </optgroup>
+            {catOptions.map((opt) => (
+              <option key={opt.slug} value={opt.slug}>
+                {'\u00A0'.repeat(opt.depth * 2)}
+                {opt.name}
+              </option>
             ))}
           </select>
           <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
