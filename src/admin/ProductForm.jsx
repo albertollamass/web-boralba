@@ -26,15 +26,13 @@ function fileToDataUrl(file, maxDim = 900, quality = 0.82) {
 }
 
 const splitLines = (s) =>
-  (s || '')
-    .split(/\n/)
-    .map((x) => x.trim())
+  (Array.isArray(s) ? s : (s || '').split(/\n/))
+    .map((x) => (x == null ? '' : String(x).trim()))
     .filter(Boolean)
 
 const splitComma = (s) =>
-  (s || '')
-    .split(',')
-    .map((x) => x.trim())
+  (Array.isArray(s) ? s : (s || '').split(','))
+    .map((x) => (x == null ? '' : String(x).trim()))
     .filter(Boolean)
 
 const linesToText = (v) => (Array.isArray(v) ? v.join('\n') : v || '')
