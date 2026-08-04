@@ -50,17 +50,19 @@ export function CategoriesProvider({ children }) {
   const addCategory = (cat) => {
     const newCat = { ...cat }
     setCategories((prev) => [...prev, newCat])
-    if (supabase) {
-      supabase
-        .from(TABLE)
-        .upsert({ id: newCat.slug, data: newCat, created_at: new Date().toISOString() })
-        .then(() => setSyncStatus('cloud'))
-        .catch((error) => {
-          logError('categories/insert', error, { slug: newCat.slug })
-          setSyncStatus('error')
-        })
-    }
-    return newCat
+    if (!supabase) return Promise.resolve(newCat)
+    return supabase
+      .from(TABLE)
+      .upsert({ id: newCat.slug, data: newCat, created_at: new Date().toISOString() })
+      .then(() => {
+        setSyncStatus('cloud')
+        return newCat
+      })
+      .catch((error) => {
+        logError('categories/insert', error, { slug: newCat.slug })
+        setSyncStatus('error')
+        throw error
+      })
   }
 
   const updateCategory = (slug, updates) => {
@@ -69,16 +71,19 @@ export function CategoriesProvider({ children }) {
       const exists = prev.some((c) => c.slug === slug)
       return exists ? prev.map((c) => (c.slug === slug ? merged : c)) : [...prev, merged]
     })
-    if (supabase) {
-      supabase
-        .from(TABLE)
-        .upsert({ id: slug, data: merged, created_at: new Date().toISOString() })
-        .then(() => setSyncStatus('cloud'))
-        .catch((error) => {
-          logError('categories/update', error, { slug })
-          setSyncStatus('error')
-        })
-    }
+    if (!supabase) return Promise.resolve(merged)
+    return supabase
+      .from(TABLE)
+      .upsert({ id: slug, data: merged, created_at: new Date().toISOString() })
+      .then(() => {
+        setSyncStatus('cloud')
+        return merged
+      })
+      .catch((error) => {
+        logError('categories/update', error, { slug })
+        setSyncStatus('error')
+        throw error
+      })
   }
 
   const deleteCategory = (slug) => {

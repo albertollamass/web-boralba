@@ -412,6 +412,7 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
   }))
   const [fileKey, setFileKey] = useState(0)
   const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const isEdit = Boolean(initial)
   const originalSlug = initial?.slug
 
@@ -444,8 +445,9 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
     }
   }
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
+    if (saving) return
     if (!form.name.trim()) {
       alert('El nombre es obligatorio.')
       return
@@ -463,12 +465,19 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
       image: form.image || 'images/placeholder.svg',
       parent: form.parent || ROOT.slug,
     }
-    if (isEdit) {
-      updateCategory(originalSlug, payload)
-    } else {
-      addCategory(payload)
+    setSaving(true)
+    try {
+      if (isEdit) {
+        await updateCategory(originalSlug, payload)
+      } else {
+        await addCategory(payload)
+      }
+      onSaved()
+    } catch {
+      alert('No se pudo guardar en la nube. Revisa tu conexión o los permisos de Supabase.')
+    } finally {
+      setSaving(false)
     }
-    onSaved()
   }
 
   return (
@@ -539,10 +548,10 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
       </div>
 
       <div style={{ display: 'flex', gap: 10 }}>
-        <button type="submit" className="btn btn-primary">
-          {isEdit ? 'Guardar cambios' : 'Crear categoría'}
+        <button type="submit" className="btn btn-primary" disabled={saving}>
+          {saving ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear categoría'}
         </button>
-        <button type="button" className="btn btn-outline" onClick={onCancel}>
+        <button type="button" className="btn btn-outline" onClick={onCancel} disabled={saving}>
           Cancelar
         </button>
       </div>
