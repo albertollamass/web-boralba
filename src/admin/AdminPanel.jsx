@@ -402,7 +402,7 @@ const totalDescendants = (cats, countBy, getChildren) =>
   )
 
 function CategoryForm({ initial, ctx, onCancel, onSaved }) {
-  const { addCategory, updateCategory, categories, getChildren } = ctx
+  const { addCategory, updateCategory, categories, getChildren, getDescendantSlugs } = ctx
   const [form, setForm] = useState(() => ({
     name: initial?.name || '',
     tagline: initial?.tagline || '',
