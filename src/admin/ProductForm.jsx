@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCategories } from '../context/CategoriesContext'
+import { openPdfDataUrl } from '../lib/pdf'
 
 function fileToDataUrl(file, maxDim = 900, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -25,6 +26,15 @@ function fileToDataUrl(file, maxDim = 900, quality = 0.82) {
   })
 }
 
+function fileToPdfDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 const splitLines = (s) =>
   (Array.isArray(s) ? s : (s || '').split(/\n/))
     .map((x) => (x == null ? '' : String(x).trim()))
@@ -44,10 +54,14 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
   const [uploading, setUploading] = useState(false)
   const [mainImgKey, setMainImgKey] = useState(0)
   const [detailKeys, setDetailKeys] = useState([])
+  const [iconKeys, setIconKeys] = useState([])
+  const [variantKeys, setVariantKeys] = useState([])
+  const [pdfKey, setPdfKey] = useState(0)
 
   const topCats = getChildren(ROOT.slug)
 
   const galleryItems = Array.isArray(product.gallery) ? product.gallery : splitComma(product.gallery)
+  const iconItems = Array.isArray(product.icons) ? product.icons : splitComma(product.icons)
 
   const set = (key) => (e) => setProduct((p) => ({ ...p, [key]: e.target.value }))
   const setCheck = (key) => (e) => setProduct((p) => ({ ...p, [key]: e.target.checked }))
@@ -68,7 +82,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
   }
 
   const addVariant = () => {
-    setProduct((p) => ({ ...p, variants: [...(p.variants || []), { title: '', items: '' }] }))
+    setProduct((p) => ({ ...p, variants: [...(p.variants || []), { title: '', items: '', image: '' }] }))
   }
 
   const updateVariant = (i, key) => (e) => {
@@ -82,6 +96,45 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
 
   const removeVariant = (i) => {
     setProduct((p) => ({ ...p, variants: (p.variants || []).filter((_, idx) => idx !== i) }))
+  }
+
+  const onVariantImageSelected = async (e, i) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const dataUrl = await fileToDataUrl(file)
+      setProduct((p) => {
+        const variants = (p.variants || []).map((v, idx) =>
+          idx === i ? { ...v, image: dataUrl } : v,
+        )
+        return { ...p, variants }
+      })
+    } catch {
+      alert('No se pudo procesar la imagen.')
+    } finally {
+      setUploading(false)
+      setVariantKeys((ks) => {
+        const next = [...ks]
+        next[i] = (next[i] || 0) + 1
+        return next
+      })
+    }
+  }
+
+  const onDatasheetFileSelected = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const dataUrl = await fileToPdfDataUrl(file)
+      setProduct((p) => ({ ...p, datasheet: dataUrl }))
+    } catch {
+      alert('No se pudo procesar el PDF.')
+    } finally {
+      setUploading(false)
+      setPdfKey((k) => k + 1)
+    }
   }
 
   const onMainFileSelected = async (e) => {
@@ -137,6 +190,42 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
     }
   }
 
+  const addIconSlot = () => {
+    if (iconItems.length >= 4) return
+    setProduct((p) => ({ ...p, icons: [...iconItems, ''] }))
+  }
+
+  const updateIconSrc = (i, src) => {
+    setProduct((p) => {
+      const next = [...iconItems]
+      next[i] = src
+      return { ...p, icons: next }
+    })
+  }
+
+  const removeIconItem = (i) => {
+    setProduct((p) => ({ ...p, icons: iconItems.filter((_, idx) => idx !== i) }))
+  }
+
+  const onIconFileSelected = async (e, i) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const dataUrl = await fileToDataUrl(file, 300, 0.9)
+      updateIconSrc(i, dataUrl)
+    } catch {
+      alert('No se pudo procesar la imagen.')
+    } finally {
+      setUploading(false)
+      setIconKeys((ks) => {
+        const next = [...ks]
+        next[i] = (next[i] || 0) + 1
+        return next
+      })
+    }
+  }
+
   const submit = (e) => {
     e.preventDefault()
     if (!product.name || !product.category) {
@@ -154,10 +243,10 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
       advantages: splitLines(product.advantages),
       tags: splitComma(product.tags),
       gallery: galleryItems.filter((g) => g && g.trim()).slice(0, 4),
-      icons: splitComma(product.icons),
+      icons: iconItems.filter((g) => g && g.trim()).slice(0, 4),
       variants: (product.variants || [])
         .filter((v) => v.title || splitComma(v.items).length)
-        .map((v) => ({ title: v.title, items: splitComma(v.items) })),
+        .map((v) => ({ title: v.title, items: splitComma(v.items), image: v.image || '' })),
     }
     onSubmit(clean)
   }
@@ -331,35 +420,128 @@ export default function ProductForm({ initial, onSubmit, onCancel }) {
       </div>
 
       <div>
-        <label>Iconos/badges (URLs separadas por comas)</label>
-        <input value={commaToText(product.icons)} onChange={set('icons')} placeholder="images/badge-cri80.png, images/badge-rohs.png" />
+        <label>
+          Iconos/badges debajo de la imagen (imágenes, máx. 4) {iconItems.length}/4
+        </label>
+        {iconItems.map((src, i) => (
+          <div
+            key={i}
+            style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 10 }}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              key={iconKeys[i] || 0}
+              onChange={(e) => onIconFileSelected(e, i)}
+              style={{ padding: 8, flex: 1 }}
+            />
+            <input
+              value={isDataUrl(src) ? '' : src || ''}
+              onChange={(e) => updateIconSrc(i, e.target.value)}
+              placeholder="o pega una URL"
+              style={{ flex: 2, padding: 8 }}
+            />
+            {src && (
+              <img
+                src={src}
+                alt={`badge ${i + 1}`}
+                style={{ height: 48, width: 'auto', borderRadius: 6, border: '1px solid #e2e8f0' }}
+              />
+            )}
+            <button type="button" className="btn btn-danger btn-sm" onClick={() => removeIconItem(i)}>
+              ✕
+            </button>
+          </div>
+        ))}
+        {iconItems.length < 4 && (
+          <button type="button" className="btn btn-ghost btn-sm" onClick={addIconSlot}>
+            + Añadir badge
+          </button>
+        )}
+        {uploading && (
+          <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            Procesando imagen...
+          </span>
+        )}
       </div>
 
       <div>
-        <label>Ficha técnica (URL)</label>
-        <input
-          value={product.datasheet || ''}
-          onChange={set('datasheet')}
-          placeholder="https://.../ficha.pdf"
-        />
+        <label>Ficha técnica (PDF)</label>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          <input
+            type="file"
+            accept="application/pdf,.pdf"
+            key={pdfKey}
+            onChange={onDatasheetFileSelected}
+            style={{ padding: 8, flex: 1 }}
+          />
+          {product.datasheet && (
+            <>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => openPdfDataUrl(product.datasheet)}
+              >
+                Ver PDF
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger btn-sm"
+                onClick={() => setProduct((p) => ({ ...p, datasheet: '' }))}
+              >
+                Quitar
+              </button>
+            </>
+          )}
+        </div>
+        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+          Sube un PDF. Se abrirá en una pestaña nueva del navegador sin descargarse.
+        </span>
       </div>
 
       <div>
         <label>Variantes (tabla de modelos)</label>
         {(product.variants || []).map((v, i) => (
-          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+          <div
+            key={i}
+            style={{
+              display: 'flex',
+              gap: 12,
+              marginBottom: 8,
+              alignItems: 'center',
+              background: 'var(--color-surface)',
+              border: '1px solid var(--color-surface-2)',
+              borderRadius: 8,
+              padding: 12,
+              flexWrap: 'wrap',
+            }}
+          >
             <input
               value={v.title}
               onChange={updateVariant(i, 'title')}
               placeholder="Título (ej. IP 20)"
-              style={{ flex: 1 }}
+              style={{ flex: 1, minWidth: 120 }}
             />
             <input
               value={Array.isArray(v.items) ? v.items.join(', ') : v.items || ''}
               onChange={updateVariant(i, 'items')}
               placeholder="Modelos separados por comas"
-              style={{ flex: 2 }}
+              style={{ flex: 2, minWidth: 200 }}
             />
+            <input
+              type="file"
+              accept="image/*"
+              key={variantKeys[i] || 0}
+              onChange={(e) => onVariantImageSelected(e, i)}
+              style={{ padding: 6, fontSize: '0.85rem', flex: 1, minWidth: 200 }}
+            />
+            {v.image && (
+              <img
+                src={v.image}
+                alt="Variante"
+                style={{ width: 120, height: 90, objectFit: 'cover', borderRadius: 6, border: '1px solid #e2e8f0' }}
+              />
+            )}
             <button type="button" className="btn btn-danger btn-sm" onClick={() => removeVariant(i)}>
               ✕
             </button>

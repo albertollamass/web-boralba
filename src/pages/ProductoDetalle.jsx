@@ -1,7 +1,10 @@
-import { useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import { useCategories } from '../context/CategoriesContext'
+import Carousel from '../components/Carousel'
+import { openPdfDataUrl } from '../lib/pdf'
+
+const isDataUrl = (v) => typeof v === 'string' && v.startsWith('data:')
 
 export default function ProductoDetalle() {
   const { id } = useParams()
@@ -13,6 +16,7 @@ export default function ProductoDetalle() {
 
   const category = getCategory(product.category)
   const gallery = [product.image, ...(product.gallery || [])].filter(Boolean)
+  const badges = (product.icons || []).slice(0, 4)
   const related = products
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4)
@@ -37,7 +41,18 @@ export default function ProductoDetalle() {
 
       <div className="container section" style={{ paddingTop: 0 }}>
         <div className="product-detail">
-          <Gallery images={gallery} name={product.name} />
+          <div>
+            <div className="product-carousel">
+              <Carousel images={gallery} alt={product.name} />
+            </div>
+            {badges.length > 0 && (
+              <div className="badge-row">
+                {badges.map((icon, i) => (
+                  <img key={i} src={icon} alt="Badge" loading="lazy" />
+                ))}
+              </div>
+            )}
+          </div>
           <div className="product-info">
             <div style={{ marginBottom: 8 }}>
               {product.outlet && <span className="badge badge-outlet">Outlet</span>}{' '}
@@ -54,14 +69,6 @@ export default function ProductoDetalle() {
             )}
 
             {product.description && <p>{product.description}</p>}
-
-            {product.icons?.length > 0 && (
-              <div className="badge-row">
-                {product.icons.map((icon, i) => (
-                  <img key={i} src={icon} alt="Badge" loading="lazy" />
-                ))}
-              </div>
-            )}
 
             <div className="meta-links">
               {category && (
@@ -82,14 +89,17 @@ export default function ProductoDetalle() {
 
             {product.variants?.length > 0 && (
               <div className="variant-table">
-                {product.variants.map((v) => (
-                  <div key={v.title} className="variant-col">
-                    <h4>{v.title}</h4>
-                    <ul>
-                      {v.items.map((it, i) => (
-                        <li key={i}>{it}</li>
-                      ))}
-                    </ul>
+                {product.variants.map((v, i) => (
+                  <div key={i} className="variant-row">
+                    {v.image && <img className="variant-img" src={v.image} alt={v.title} loading="lazy" />}
+                    <div className="variant-col">
+                      <h4>{v.title}</h4>
+                      <ul>
+                        {(v.items || []).map((it, j) => (
+                          <li key={j}>{it}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -102,11 +112,24 @@ export default function ProductoDetalle() {
               >
                 Solicitar información
               </a>
-              <Link to="/contacto" className="btn btn-outline">
+              <Link to="/contacto" className="btn btn-outline" target="_blank" rel="noreferrer">
                 Contactar
               </Link>
               {product.datasheet && (
-                <a href={product.datasheet} target="_blank" rel="noreferrer" className="btn btn-outline">
+                <a
+                  href={isDataUrl(product.datasheet) ? undefined : product.datasheet}
+                  onClick={
+                    isDataUrl(product.datasheet)
+                      ? (e) => {
+                          e.preventDefault()
+                          openPdfDataUrl(product.datasheet)
+                        }
+                      : undefined
+                  }
+                  target={isDataUrl(product.datasheet) ? undefined : '_blank'}
+                  rel="noreferrer"
+                  className="btn btn-outline"
+                >
                   Ficha técnica
                 </a>
               )}
@@ -204,30 +227,6 @@ function RichText({ text, as }) {
     <Tag>
       {parts.map((part, i) => (i % 2 === 1 ? <strong key={i}>{part}</strong> : part))}
     </Tag>
-  )
-}
-
-function Gallery({ images, name }) {
-  const [active, setActive] = useState(0)
-  return (
-    <div>
-      <div className="product-detail-img">
-        <img src={images[active]} alt={name} />
-      </div>
-      {images.length > 1 && (
-        <div className="gallery-thumbs">
-          {images.map((img, i) => (
-            <button
-              key={i}
-              className={i === active ? 'thumb active' : 'thumb'}
-              onClick={() => setActive(i)}
-            >
-              <img src={img} alt={`${name} ${i + 1}`} />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
   )
 }
 

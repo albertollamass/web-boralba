@@ -1072,6 +1072,21 @@ p {
   box-shadow: var(--shadow);
 }
 
+.product-carousel {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.product-carousel .carousel {
+  aspect-ratio: 4 / 3;
+}
+
+.product-carousel .carousel-track img {
+  object-fit: contain;
+  background: var(--color-surface);
+}
+
 @media (max-width: 900px) {
   .product-detail {
     grid-template-columns: 1fr;
@@ -1109,13 +1124,13 @@ p {
 
 .badge-row {
   display: flex;
-  gap: 10px;
+  gap: 14px;
   flex-wrap: wrap;
-  margin: 12px 0;
+  margin: 16px 0 0;
 }
 
 .badge-row img {
-  height: 44px;
+  height: 64px;
   width: auto;
 }
 
@@ -1145,14 +1160,49 @@ p {
 }
 
 .variant-table {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
   background: var(--color-surface);
   border: 1px solid var(--color-surface-2);
   border-radius: var(--radius);
   padding: 20px;
   margin: 14px 0;
+}
+
+.variant-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.variant-row + .variant-row {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--color-surface-2);
+}
+
+.variant-img {
+  width: 180px;
+  height: 135px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-surface-2);
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+}
+
+.variant-row .variant-col {
+  flex: 1;
+}
+
+@media (max-width: 560px) {
+  .variant-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .variant-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
 }
 
 .variant-col h4 {

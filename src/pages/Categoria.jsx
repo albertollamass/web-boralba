@@ -135,7 +135,7 @@ export default function Categoria() {
               Estamos ampliando nuestro catálogo. Consulta pronto, o contacta con nosotros para
               más información.
             </p>
-            <Link to="/contacto" className="btn btn-primary">
+            <Link to="/contacto" className="btn btn-primary" target="_blank" rel="noreferrer">
               Contactar
             </Link>
           </div>

@@ -22,7 +22,7 @@ export default function Home() {
               <Link to="/productos" className="btn btn-accent">
                 Ver productos
               </Link>
-              <Link to="/contacto" className="btn btn-outline" style={{ color: '#fff', borderColor: '#fff' }}>
+              <Link to="/contacto" className="btn btn-outline" style={{ color: '#fff', borderColor: '#fff' }} target="_blank" rel="noreferrer">
                 Asesoramiento
               </Link>
             </div>
@@ -87,7 +87,7 @@ export default function Home() {
                 Acompañamos a arquitectos e interioristas en el diseño técnico de la luz:
                 cálculos fotométricos, control DALI y soluciones a medida para cada espacio.
               </p>
-              <Link to="/contacto" className="btn btn-primary">
+              <Link to="/contacto" className="btn btn-primary" target="_blank" rel="noreferrer">
                 Solicitar asesoramiento
               </Link>
             </div>

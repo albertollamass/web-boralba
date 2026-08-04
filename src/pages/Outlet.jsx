@@ -13,7 +13,7 @@ export default function Outlet() {
         <div className="outlet-banner">
           <h1>Outlet</h1>
           <p>Donde las mejores luces encuentran su mejor precio</p>
-          <Link to="/contacto" className="btn btn-accent">
+          <Link to="/contacto" className="btn btn-accent" target="_blank" rel="noreferrer">
             Contactar
           </Link>
         </div>
