@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import { useCategories } from '../context/CategoriesContext'
@@ -11,6 +12,7 @@ export default function ProductoDetalle() {
   const { getProduct, products } = useProducts()
   const { getCategory } = useCategories()
   const product = getProduct(id)
+  const [activeTab, setActiveTab] = useState('descripcion')
 
   if (!product) return <Navigate to="/productos" replace />
 
@@ -20,6 +22,18 @@ export default function ProductoDetalle() {
   const related = products
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4)
+
+  const tabList = [
+    {
+      id: 'descripcion',
+      label: 'Descripción',
+      show: Boolean(product.longDescription || product.features?.length),
+    },
+    { id: 'aplicaciones', label: 'Aplicaciones recomendadas', show: product.applications?.length > 0 },
+    { id: 'ventajas', label: 'Ventajas técnicas', show: product.advantages?.length > 0 },
+    { id: 'datos', label: 'Datos técnicos', show: product.specs?.length > 0 },
+  ].filter((t) => t.show)
+  const currentTab = tabList.some((t) => t.id === activeTab) ? activeTab : (tabList[0]?.id ?? null)
 
   return (
     <>
@@ -139,33 +153,44 @@ export default function ProductoDetalle() {
 
         <div className="product-description" style={{ marginTop: 56 }}>
           <div className="tabs">
-            <button className="tab active">Descripción</button>
+            {tabList.map((t) => (
+              <button
+                key={t.id}
+                className={`tab${currentTab === t.id ? ' active' : ''}`}
+                onClick={() => setActiveTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
           <div className="tab-content">
-            {product.longDescription && (
-              <div className="desc-block">
-                {product.longDescription.map((p, i) => (
-                  <RichText key={i} text={p} as="p" />
-                ))}
-              </div>
+            {currentTab === 'descripcion' && (
+              <>
+                {product.longDescription && (
+                  <div className="desc-block">
+                    {product.longDescription.map((p, i) => (
+                      <RichText key={i} text={p} as="p" />
+                    ))}
+                  </div>
+                )}
+
+                {product.features?.length > 0 && (
+                  <div className="desc-block">
+                    <h2>Características principales</h2>
+                    <ul>
+                      {product.features.map((f, i) => (
+                        <li key={i}>
+                          <RichText text={f} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
             )}
 
-            {product.features?.length > 0 && (
+            {currentTab === 'aplicaciones' && product.applications?.length > 0 && (
               <div className="desc-block">
-                <h2>Características principales</h2>
-                <ul>
-                  {product.features.map((f, i) => (
-                    <li key={i}>
-                      <RichText text={f} />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {product.applications?.length > 0 && (
-              <div className="desc-block">
-                <h2>Aplicaciones recomendadas</h2>
                 <ul>
                   {product.applications.map((a, i) => (
                     <li key={i}>{a}</li>
@@ -174,9 +199,8 @@ export default function ProductoDetalle() {
               </div>
             )}
 
-            {product.advantages?.length > 0 && (
+            {currentTab === 'ventajas' && product.advantages?.length > 0 && (
               <div className="desc-block">
-                <h2>Ventajas técnicas</h2>
                 <ul className="checklist">
                   {product.advantages.map((a, i) => (
                     <li key={i}>{a}</li>
@@ -185,9 +209,8 @@ export default function ProductoDetalle() {
               </div>
             )}
 
-            {product.specs?.length > 0 && (
+            {currentTab === 'datos' && product.specs?.length > 0 && (
               <div className="desc-block">
-                <h2>Datos técnicos</h2>
                 <table className="spec-table">
                   <tbody>
                     {product.specs.map((s, i) => (

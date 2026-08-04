@@ -1124,13 +1124,13 @@ p {
 
 .badge-row {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
-  margin: 16px 0 0;
+  margin: 14px 0 0;
 }
 
 .badge-row img {
-  height: 64px;
+  height: 52px;
   width: auto;
 }
 
@@ -1182,10 +1182,9 @@ p {
 .variant-img {
   width: 180px;
   height: 135px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-surface-2);
-  box-shadow: var(--shadow);
+  background: transparent;
   flex-shrink: 0;
 }
 
@@ -1232,6 +1231,7 @@ p {
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   border-bottom: 1px solid var(--color-surface-2);
   padding: 0 16px;
