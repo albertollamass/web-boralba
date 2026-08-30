@@ -1,0 +1,36 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Peticiones de solo lectura (productos, categorias y health)
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -e
+          AUTH="authorization: Bearer $SUPABASE_KEY"
+          API="apikey: $SUPABASE_KEY"
+          echo "1/5 health"
+          curl --fail --silent --show-error "$SUPABASE_URL/auth/v1/health"
+          echo "2/5 productos"
+          curl --fail --silent --show-error -H "$API" -H "$AUTH" \
+            "$SUPABASE_URL/rest/v1/products?select=id&limit=1"
+          echo "3/5 conteo de productos"
+          curl --fail --silent --show-error -H "$API" -H "$AUTH" -H "Prefer: count=exact" \
+            "$SUPABASE_URL/rest/v1/products?select=id&limit=1"
+          echo "4/5 categorias"
+          curl --fail --silent --show-error -H "$API" -H "$AUTH" \
+            "$SUPABASE_URL/rest/v1/categories?select=slug&limit=1"
+          echo "5/5 conteo de categorias"
+          curl --fail --silent --show-error -H "$API" -H "$AUTH" -H "Prefer: count=exact" \
+            "$SUPABASE_URL/rest/v1/categories?select=slug&limit=1"
