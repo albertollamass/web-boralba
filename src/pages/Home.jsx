@@ -14,7 +14,7 @@ export default function Home() {
     <>
       <section className="hero">
         <div className="container hero-inner">
-          <div>
+          <div className="hero-content">
             <span className="hero-badge">+ de 30 años en el sector</span>
             <h1>Iluminación LED profesional para arquitectura</h1>
             <p>Soluciones lumínicas diseñadas para dar forma a tus espacios y elevar cada proyecto.</p>
@@ -26,9 +26,6 @@ export default function Home() {
                 Asesoramiento
               </Link>
             </div>
-          </div>
-          <div className="hero-img">
-            <img src="images/lobby.png" alt="Proyecto de iluminación LED" />
           </div>
         </div>
       </section>
