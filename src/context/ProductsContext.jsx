@@ -3,8 +3,26 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { logError } from '../lib/logger'
 
 const TABLE = 'products'
+const CACHE_KEY = 'boralba-products-cache-v1'
 
 const ProductsContext = createContext(null)
+
+function readCachedProducts() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null')
+    return Array.isArray(cached?.products) ? cached.products : []
+  } catch {
+    return []
+  }
+}
+
+function cacheProducts(products) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ products, savedAt: Date.now() }))
+  } catch {
+    // La caché es opcional: puede fallar si el navegador la bloquea o está llena.
+  }
+}
 
 async function fetchRemoteProducts() {
   const { data, error } = await supabase
@@ -16,7 +34,7 @@ async function fetchRemoteProducts() {
 }
 
 export function ProductsProvider({ children }) {
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState(readCachedProducts)
   const [hydrated, setHydrated] = useState(false)
   const [syncStatus, setSyncStatus] = useState('loading')
 
@@ -34,11 +52,11 @@ export function ProductsProvider({ children }) {
         const remote = await fetchRemoteProducts()
         if (cancelled) return
         setProducts(remote)
+        cacheProducts(remote)
         setSyncStatus('cloud')
       } catch (error) {
         if (cancelled) return
         logError('products/fetch', error)
-        setProducts([])
         setSyncStatus('error')
       }
       setHydrated(true)
@@ -55,7 +73,11 @@ export function ProductsProvider({ children }) {
       ...product,
       id: product.id || `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     }
-    setProducts((prev) => [newProduct, ...prev])
+    setProducts((prev) => {
+      const next = [newProduct, ...prev]
+      cacheProducts(next)
+      return next
+    })
     if (supabase) {
       supabase
         .from(TABLE)
@@ -71,7 +93,11 @@ export function ProductsProvider({ children }) {
 
   const updateProduct = (id, updates) => {
     const merged = { ...updates, id }
-    setProducts((prev) => prev.map((p) => (p.id === id ? merged : p)))
+    setProducts((prev) => {
+      const next = prev.map((p) => (p.id === id ? merged : p))
+      cacheProducts(next)
+      return next
+    })
     if (supabase) {
       supabase
         .from(TABLE)
@@ -85,7 +111,11 @@ export function ProductsProvider({ children }) {
   }
 
   const deleteProduct = (id) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id))
+    setProducts((prev) => {
+      const next = prev.filter((p) => p.id !== id)
+      cacheProducts(next)
+      return next
+    })
     if (supabase) {
       supabase
         .from(TABLE)
@@ -109,6 +139,7 @@ export function ProductsProvider({ children }) {
       return
     }
     setProducts([])
+    cacheProducts([])
     setSyncStatus('cloud')
   }
 
