@@ -7,7 +7,7 @@ export default function Categoria() {
   const { slug } = useParams()
   const { getCategory, getChildren, getBreadcrumb, getDescendantSlugs, getLeafCategories } =
     useCategories()
-  const { products } = useProducts()
+  const { products, hydrated } = useProducts()
   const category = getCategory(slug)
 
   if (!category) return <Navigate to="/productos" replace />
@@ -84,7 +84,11 @@ export default function Categoria() {
           </div>
         )}
 
-        {hasSections ? (
+        {!hydrated ? (
+          <div className="empty-state">
+            <h3>Cargando productos...</h3>
+          </div>
+        ) : hasSections ? (
           <>
             {directProducts.length > 0 && (
               <div style={{ marginBottom: 36 }}>

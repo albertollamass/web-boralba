@@ -9,11 +9,20 @@ const isDataUrl = (v) => typeof v === 'string' && v.startsWith('data:')
 
 export default function ProductoDetalle() {
   const { id } = useParams()
-  const { getProduct, products } = useProducts()
+  const { getProduct, products, hydrated } = useProducts()
   const { getCategory } = useCategories()
   const product = getProduct(id)
   const [activeTab, setActiveTab] = useState('descripcion')
 
+  if (!hydrated) {
+    return (
+      <div className="container section">
+        <div className="empty-state">
+          <h3>Cargando producto...</h3>
+        </div>
+      </div>
+    )
+  }
   if (!product) return <Navigate to="/productos" replace />
 
   const category = getCategory(product.category)

@@ -3,7 +3,7 @@ import { useProducts } from '../context/ProductsContext'
 import ProductCard from '../components/ProductCard'
 
 export default function Outlet() {
-  const { products } = useProducts()
+  const { products, hydrated } = useProducts()
   const outletProducts = products.filter((p) => p.outlet)
   const regular = products.filter((p) => !p.outlet).slice(0, 4)
 
@@ -23,7 +23,11 @@ export default function Outlet() {
           <h2>Productos en oferta</h2>
         </div>
 
-        {outletProducts.length > 0 ? (
+        {!hydrated ? (
+          <div className="empty-state">
+            <h3>Cargando productos...</h3>
+          </div>
+        ) : outletProducts.length > 0 ? (
           <div className="grid grid-4">
             {outletProducts.map((p) => (
               <ProductCard key={p.id} product={p} />

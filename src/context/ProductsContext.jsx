@@ -3,38 +3,37 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { logError } from '../lib/logger'
 
 const TABLE = 'products'
-const CACHE_KEY = 'boralba-products-cache-v1'
+// Algunas filas contienen imágenes base64 muy grandes; los lotes pequeños evitan un 500 de Supabase.
+const PAGE_SIZE = 10
 
 const ProductsContext = createContext(null)
-
-function readCachedProducts() {
-  try {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null')
-    return Array.isArray(cached?.products) ? cached.products : []
-  } catch {
-    return []
-  }
-}
-
-function cacheProducts(products) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ products, savedAt: Date.now() }))
-  } catch {
-    // La caché es opcional: puede fallar si el navegador la bloquea o está llena.
-  }
-}
+let remoteProductsRequest
 
 async function fetchRemoteProducts() {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select('id, data')
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return (data || []).map((row) => ({ id: row.id, ...row.data }))
+  if (!remoteProductsRequest) {
+    remoteProductsRequest = (async () => {
+      const products = []
+
+      for (let offset = 0; ; offset += PAGE_SIZE) {
+        const { data, error } = await supabase
+          .from(TABLE)
+          .select('id, data')
+          .order('created_at', { ascending: false })
+          .range(offset, offset + PAGE_SIZE - 1)
+        if (error) throw error
+
+        products.push(...(data || []).map((row) => ({ id: row.id, ...row.data })))
+        if (!data || data.length < PAGE_SIZE) return products
+      }
+    })().finally(() => {
+      remoteProductsRequest = undefined
+    })
+  }
+  return remoteProductsRequest
 }
 
 export function ProductsProvider({ children }) {
-  const [products, setProducts] = useState(readCachedProducts)
+  const [products, setProducts] = useState([])
   const [hydrated, setHydrated] = useState(false)
   const [syncStatus, setSyncStatus] = useState('loading')
 
@@ -52,7 +51,6 @@ export function ProductsProvider({ children }) {
         const remote = await fetchRemoteProducts()
         if (cancelled) return
         setProducts(remote)
-        cacheProducts(remote)
         setSyncStatus('cloud')
       } catch (error) {
         if (cancelled) return
@@ -75,7 +73,6 @@ export function ProductsProvider({ children }) {
     }
     setProducts((prev) => {
       const next = [newProduct, ...prev]
-      cacheProducts(next)
       return next
     })
     if (supabase) {
@@ -95,7 +92,6 @@ export function ProductsProvider({ children }) {
     const merged = { ...updates, id }
     setProducts((prev) => {
       const next = prev.map((p) => (p.id === id ? merged : p))
-      cacheProducts(next)
       return next
     })
     if (supabase) {
@@ -113,7 +109,6 @@ export function ProductsProvider({ children }) {
   const deleteProduct = (id) => {
     setProducts((prev) => {
       const next = prev.filter((p) => p.id !== id)
-      cacheProducts(next)
       return next
     })
     if (supabase) {
@@ -139,7 +134,6 @@ export function ProductsProvider({ children }) {
       return
     }
     setProducts([])
-    cacheProducts([])
     setSyncStatus('cloud')
   }
 
