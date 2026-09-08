@@ -1,16 +1,18 @@
 import { useState } from 'react'
 
-export default function Carousel({ images, alt }) {
+export default function Carousel({ images, alt, onImageClick }) {
   const [index, setIndex] = useState(0)
   const total = images.length
 
   if (total <= 1) {
     return (
-      <div className="carousel">
+      <div className="carousel-shell"><div className="carousel">
         <div className="carousel-track" style={{ transform: 'translateX(0%)' }}>
-          <img src={images[0]} alt={alt} loading="lazy" />
+          <button type="button" className="carousel-image-button" onClick={() => onImageClick?.(images[0])} aria-label="Ampliar imagen del producto">
+            <img src={images[0]} alt={alt} loading="lazy" />
+          </button>
         </div>
-      </div>
+      </div></div>
     )
   }
 
@@ -18,14 +20,16 @@ export default function Carousel({ images, alt }) {
   const next = () => setIndex((i) => (i + 1) % total)
 
   return (
-    <div className="carousel">
+    <div className="carousel-shell"><div className="carousel">
       <div className="carousel-viewport">
         <div
           className="carousel-track"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {images.map((img, j) => (
-            <img key={j} src={img} alt={alt} loading="lazy" />
+            <button type="button" className="carousel-image-button" key={j} onClick={() => onImageClick?.(img)} aria-label={`Ampliar imagen ${j + 1}`}>
+              <img src={img} alt={alt} loading="lazy" />
+            </button>
           ))}
         </div>
 
@@ -61,6 +65,6 @@ export default function Carousel({ images, alt }) {
       <div className="carousel-count">
         {index + 1} / {total}
       </div>
-    </div>
+      </div><div className="gallery-thumbs">{images.map((img, j) => <button type="button" key={j} className={`thumb${j === index ? ' active' : ''}`} onClick={() => setIndex(j)} aria-label={`Seleccionar imagen ${j + 1}`}><img src={img} alt="" /></button>)}</div></div>
   )
 }
