@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import FamilyCarousel from '../components/FamilyCarousel'
 import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
 import { useSiteSettings } from '../context/SiteSettingsContext'
@@ -83,18 +84,7 @@ export default function Home() {
             <h2>Familias de productos para cada proyecto</h2>
             <p>Todo lo que necesitas para proyectos de iluminación LED profesional.</p>
           </div>
-          <div className="home-families-grid">
-            {families.map((f) => (
-              <Link key={f.slug} to={`/categoria/${f.slug}`} className="home-family-card">
-                <div className="home-family-img"><img src={getCatImage(f.slug)} alt={f.name} loading="lazy" /></div>
-                <div className="home-family-body">
-                  <h3>{f.name}</h3>
-                  <p>{f.desc}</p>
-                  <span className="home-family-link">Ver productos &rarr;</span>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <FamilyCarousel families={families} getCatImage={getCatImage} />
           <div className="text-center" style={{ marginTop: 36 }}>
             <Link to="/productos" className="btn btn-primary">Ver todos los productos</Link>
           </div>

@@ -2384,71 +2384,123 @@ p {
   border-color: #fff !important;
 }
 
-/* ---------- 2. Families ---------- */
+/* ---------- 2. Families · 3D Cover Flow Carousel ---------- */
 .home-families {
   padding-block: clamp(56px, 8vw, 96px);
 }
-.home-families-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(14px, 2vw, 22px);
-}
-.home-family-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-2);
-  border-radius: var(--radius);
+.coverflow {
+  position: relative;
+  height: clamp(260px, 34vw, 450px);
+  margin-top: clamp(10px, 1.6vw, 22px);
+  perspective: 1600px;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  text-decoration: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: pan-y;
+  cursor: grab;
 }
-.home-family-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+.coverflow.is-dragging {
+  cursor: grabbing;
 }
-.home-family-img {
-  aspect-ratio: 16 / 9;
+.coverflow-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(150px, 22vw, 260px);
+  aspect-ratio: 4 / 5;
+  border: 0;
+  padding: 0;
+  border-radius: 12px;
   overflow: hidden;
-  background: var(--color-bg);
+  cursor: pointer;
+  background: var(--color-surface-2);
+  box-shadow: 0 2px 8px rgba(24, 24, 27, 0.12);
+  transition: transform 500ms ease-out, opacity 500ms ease-out, box-shadow 500ms ease-out;
+  will-change: transform;
 }
-.home-family-img img {
+.coverflow.is-dragging .coverflow-card {
+  transition: none;
+}
+.coverflow-card.is-active {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.28);
+}
+.coverflow-card img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
+  border-radius: 12px;
 }
-.home-family-card:hover .home-family-img img {
-  transform: scale(1.04);
+.coverflow-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.18) 45%, transparent 72%);
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+  pointer-events: none;
 }
-.home-family-body {
-  padding: 18px 20px 20px;
+.coverflow-card.is-active .coverflow-shade {
+  opacity: 1;
 }
-.home-family-body h3 {
-  font-size: 1.02rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: var(--color-text);
-}
-.home-family-body p {
-  color: var(--color-text-muted);
-  font-size: 0.88rem;
-  margin-bottom: 10px;
-  line-height: 1.45;
-}
-.home-family-link {
-  display: inline-flex;
-  align-items: center;
-  color: var(--color-text);
+.coverflow-card h3 {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  transition: color 0.2s ease;
+  font-size: clamp(1.05rem, 1.4vw, 1.45rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 500ms ease-out, transform 500ms ease-out;
+  pointer-events: none;
 }
-.home-family-card:hover .home-family-link {
-  color: var(--color-primary);
+.coverflow-card.is-active h3 {
+  opacity: 1;
+  transform: translateY(0);
+}
+.coverflow-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(24, 24, 27, 0.08);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-text);
+  box-shadow: 0 2px 10px rgba(24, 24, 27, 0.12);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+.coverflow-arrow:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+.coverflow-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.coverflow-arrow svg {
+  width: 18px;
+  height: 18px;
+}
+.coverflow-arrow--prev {
+  left: 6px;
+}
+.coverflow-arrow--next {
+  right: 6px;
 }
 
 /* ---------- 3. Featured products ---------- */
@@ -2891,10 +2943,17 @@ p {
    RESPONSIVE — Home
    ================================================================ */
 
-@media (max-width: 1024px) {
-  .home-families-grid {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 1280px) {
+  .coverflow-card {
+    width: clamp(140px, 24vw, 240px);
   }
+  .coverflow-arrow {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 1024px) {
   .home-value-inner,
   .home-exp-grid,
   .home-smart-grid {
@@ -2917,8 +2976,21 @@ p {
   .home-hero h1 {
     font-size: 1.85rem;
   }
-  .home-families-grid {
-    grid-template-columns: 1fr;
+  .coverflow {
+    height: clamp(230px, 55vw, 320px);
+  }
+  .coverflow-card {
+    width: clamp(120px, 34vw, 170px);
+  }
+  .coverflow-arrow {
+    width: 34px;
+    height: 34px;
+  }
+  .coverflow-card h3 {
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
+    font-size: 0.95rem;
   }
   .home-value-flow {
     gap: 6px;
