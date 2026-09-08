@@ -145,7 +145,7 @@ export default function Servicios() {
               <div
                 key={t}
                 style={{
-                  background: '#fff',
+                  background: 'var(--color-surface)',
                   borderRadius: 8,
                   padding: '14px',
                   textAlign: 'center',

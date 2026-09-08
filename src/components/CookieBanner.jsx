@@ -29,7 +29,7 @@ export default function CookieBanner() {
         left: 0,
         right: 0,
         background: '#fff',
-        boxShadow: '0 -8px 30px rgba(0,0,0,0.15)',
+        boxShadow: '0 -1px 0 0 rgba(15,23,42,0.08), 0 -8px 24px rgba(15,23,42,0.06)',
         zIndex: 100,
         padding: '16px 20px',
       }}

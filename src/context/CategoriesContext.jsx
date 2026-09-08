@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { buildCategoryIndex, ROOT } from '../data/categories'
+import { buildCategoryIndex, categories as seedCategories, ROOT } from '../data/categories'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { logError } from '../lib/logger'
 
@@ -7,13 +7,24 @@ const TABLE = 'categories'
 const CategoriesContext = createContext(null)
 
 async function fetchRemoteCategories() {
-  const { data, error } = await supabase.from(TABLE).select('id, data').order('created_at')
-  if (error) throw error
-  return (data || []).map((row) => row.data)
+  let lastError
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const { data, error } = await supabase.from(TABLE).select('id, data').order('created_at')
+      if (error) throw error
+      return (data || []).map((row) => row.data)
+    } catch (error) {
+      lastError = error
+      if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** attempt))
+    }
+  }
+
+  throw lastError
 }
 
 export function CategoriesProvider({ children }) {
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState(seedCategories)
   const [hydrated, setHydrated] = useState(false)
   const [syncStatus, setSyncStatus] = useState('loading')
 
@@ -34,7 +45,6 @@ export function CategoriesProvider({ children }) {
       } catch (error) {
         if (cancelled) return
         logError('categories/fetch', error)
-        setCategories([])
         setSyncStatus('error')
       }
       setHydrated(true)
