@@ -4,6 +4,20 @@ import { logError } from '../lib/logger'
 
 const AuthContext = createContext(null)
 
+async function fetchRole(uid) {
+  if (!uid) return null
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', uid)
+    .maybeSingle()
+  if (error) {
+    logError('auth/profile', error, { uid })
+    return null
+  }
+  return data?.role ?? null
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [role, setRole] = useState(null)
@@ -17,22 +31,9 @@ export function AuthProvider({ children }) {
     let cancelled = false
 
     const loadProfile = async (uid) => {
-      if (!uid) {
-        setRole(null)
-        return
-      }
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', uid)
-        .maybeSingle()
+      const nextRole = await fetchRole(uid)
       if (cancelled) return
-      if (error) {
-        logError('auth/profile', error, { uid })
-        setRole(null)
-        return
-      }
-      setRole(data?.role ?? null)
+      setRole(nextRole)
     }
 
     supabase.auth
@@ -61,12 +62,20 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  // Resuelve con el rol ya cargado para que el login pueda navegar
+  // a /admin sin que el guard lo rebote a home por rol aún null.
   const signIn = async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       logError('auth/login', error)
       throw error
     }
+    const { data: { session } } = await supabase.auth.getSession()
+    const u = session?.user ?? null
+    setUser(u)
+    const nextRole = await fetchRole(u?.id)
+    setRole(nextRole)
+    return nextRole
   }
 
   const signOut = async () => {

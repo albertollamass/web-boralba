@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -8,16 +8,25 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const { signIn } = useAuth()
+  const { signIn, user, isAdmin, loading } = useAuth()
   const navigate = useNavigate()
+
+  // Si ya hay sesión de admin, no mostrar el formulario.
+  useEffect(() => {
+    if (!loading && user && isAdmin) navigate('/admin', { replace: true })
+  }, [loading, user, isAdmin, navigate])
 
   const submit = async (e) => {
     e.preventDefault()
     setError('')
     setSubmitting(true)
     try {
-      await signIn(email, password)
-      navigate('/admin')
+      const role = await signIn(email, password)
+      if (role !== 'admin') {
+        setError('Esta cuenta no tiene permisos de administración.')
+        return
+      }
+      navigate('/admin', { replace: true })
     } catch {
       setError('Email o contraseña incorrectos.')
     } finally {

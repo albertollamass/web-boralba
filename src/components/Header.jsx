@@ -23,26 +23,16 @@ function clampTop(top) {
   return Math.min(Math.max(EDGE, top), window.innerHeight - 24)
 }
 
-function FlyoutItem({ node }) {
-  const [open, setOpen] = useState(false)
+function FlyoutItem({ node, open, onEnter, onLeave }) {
   const [pos, setPos] = useState({})
   const liRef = useRef(null)
-  const timer = useRef(null)
-
-  useEffect(() => () => clearTimeout(timer.current), [])
 
   const show = () => {
-    if (timer.current) clearTimeout(timer.current)
+    onEnter()
     if (!node.children.length) return
     const rect = liRef.current.getBoundingClientRect()
     const left = clampX(rect.left - FLYOUT_W - GAP, FLYOUT_W)
     setPos({ left, top: clampTop(rect.top - 4) })
-    setOpen(true)
-  }
-
-  const hide = () => {
-    clearTimeout(timer.current)
-    timer.current = setTimeout(() => setOpen(false), 200)
   }
 
   return (
@@ -50,22 +40,52 @@ function FlyoutItem({ node }) {
       ref={liRef}
       className={node.children.length > 0 ? 'has-sub' : ''}
       onMouseEnter={show}
-      onMouseLeave={hide}
+      onMouseLeave={onLeave}
     >
       <Link to={`/categoria/${node.slug}`}>
         <span>{node.name}</span>
         {node.children.length > 0 && <span className="chevron">‹</span>}
       </Link>
-      {open && (
+      {open && node.children.length > 0 && (
         <div className="flyout" style={{ position: 'fixed', ...pos, width: FLYOUT_W }}>
-          <ul className="flyout-list">
-            {node.children.map((child) => (
-              <FlyoutItem key={child.slug} node={child} />
-            ))}
-          </ul>
+          <FlyoutLevel nodes={node.children} listClassName="flyout-list" />
         </div>
       )}
     </li>
+  )
+}
+
+// Un solo abierto por nivel: al entrar en un item se cierra el hermano
+// al instante (sin esperar su temporizador) y el retardo corto solo se
+// usa al salir del menú del todo.
+function FlyoutLevel({ nodes, listClassName = 'flyout-list' }) {
+  const [openSlug, setOpenSlug] = useState(null)
+  const timer = useRef(null)
+
+  useEffect(() => () => clearTimeout(timer.current), [])
+
+  const openItem = (slug) => {
+    clearTimeout(timer.current)
+    setOpenSlug(slug)
+  }
+
+  const scheduleClose = () => {
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => setOpenSlug(null), 100)
+  }
+
+  return (
+    <ul className={listClassName}>
+      {nodes.map((child) => (
+        <FlyoutItem
+          key={child.slug}
+          node={child}
+          open={openSlug === child.slug}
+          onEnter={() => openItem(child.slug)}
+          onLeave={scheduleClose}
+        />
+      ))}
+    </ul>
   )
 }
 
@@ -89,7 +109,7 @@ function ProductsMenu({ tree }) {
 
   const hide = () => {
     clearTimeout(timer.current)
-    timer.current = setTimeout(() => setOpen(false), 200)
+    timer.current = setTimeout(() => setOpen(false), 100)
   }
 
   return (
@@ -102,11 +122,7 @@ function ProductsMenu({ tree }) {
           className="dropdown dropdown-flyout"
           style={{ position: 'fixed', ...pos, width: PANEL_W }}
         >
-          <ul className="flyout-list flyout-root">
-            {tree.map((node) => (
-              <FlyoutItem key={node.slug} node={node} />
-            ))}
-          </ul>
+          <FlyoutLevel nodes={tree} listClassName="flyout-list flyout-root" />
         </div>
       )}
     </div>

@@ -3,15 +3,7 @@ import FamilyCarousel from '../components/FamilyCarousel'
 import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
 import { useSiteSettings } from '../context/SiteSettingsContext'
-
-const families = [
-  { slug: 'tiras-led-2', name: 'Tiras LED', desc: 'Iluminación flexible y eficiente para cualquier proyecto.', img: 'images/tiras-led.png' },
-  { slug: 'perfiles', name: 'Perfiles', desc: 'Perfiles de aluminio para acabados profesionales.', img: 'images/perfiles.png' },
-  { slug: 'tiras-neon', name: 'Neón Flex', desc: 'Línea de luz continua con efecto neón LED.', img: 'images/neon.png' },
-  { slug: 'controladores-y-fuentes', name: 'Drivers y fuentes', desc: 'Alimentación y control para sistemas LED.', img: 'images/fuentes-drivers.png' },
-  { slug: 'casambi', name: 'Control y regulación', desc: 'Casambi, DALI y sistemas de control profesional.', img: 'images/fuentes-drivers.png' },
-  { slug: 'downlight-led', name: 'Luminarias', desc: 'Downlights, paneles y proyectores LED profesionales.', img: 'images/downlight.png' },
-]
+import { ROOT } from '../data/categories'
 
 const solutions = [
   { icon: '01', title: 'Para instaladores', desc: 'Productos compatibles, documentación técnica y soporte directo.' },
@@ -41,11 +33,20 @@ const applications = [
 ]
 
 export default function Home() {
-  const { getCategory } = useCategories()
+  const { categories, getCategory, getChildren } = useCategories()
   const { products } = useProducts()
   const { settings } = useSiteSettings()
   const featured = products.filter((p) => p.featured).slice(0, 4)
   const outletCount = products.filter((p) => p.outlet).length
+
+  // Carrusel: viene de Supabase (vía CategoriesContext).
+  // Se muestran las categorías marcadas "Mostrar en home", ordenadas por
+  // "Orden en home". Si ninguna está marcada, se usan las de nivel superior.
+  const flagged = categories
+    .filter((c) => c.showInHome)
+    .sort((a, b) => (a.homeOrder ?? 999) - (b.homeOrder ?? 999))
+  const homeSource = flagged.length > 0 ? flagged : getChildren(ROOT.slug)
+  const families = homeSource.map((c) => ({ slug: c.slug, name: c.name }))
 
   const specLine = (p) => {
     const specs = Array.isArray(p.specs) ? p.specs : []
@@ -77,19 +78,21 @@ export default function Home() {
       </section>
 
       {/* ── 2. FAMILIAS ────────────────────────────────────── */}
-      <section className="section home-families">
-        <div className="container">
-          <div className="section-head">
-            <span className="tag">Nuestro catálogo</span>
-            <h2>Familias de productos para cada proyecto</h2>
-            <p>Todo lo que necesitas para proyectos de iluminación LED profesional.</p>
+      {families.length > 0 && (
+        <section className="section home-families">
+          <div className="container">
+            <div className="section-head">
+              <span className="tag">Nuestro catálogo</span>
+              <h2>Familias de productos para cada proyecto</h2>
+              <p>Todo lo que necesitas para proyectos de iluminación LED profesional.</p>
+            </div>
+            <FamilyCarousel families={families} getCatImage={getCatImage} />
+            <div className="text-center" style={{ marginTop: 36 }}>
+              <Link to="/productos" className="btn btn-primary">Ver todos los productos</Link>
+            </div>
           </div>
-          <FamilyCarousel families={families} getCatImage={getCatImage} />
-          <div className="text-center" style={{ marginTop: 36 }}>
-            <Link to="/productos" className="btn btn-primary">Ver todos los productos</Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── 3. PRODUCTOS DESTACADOS ────────────────────────── */}
       {featured.length > 0 && (

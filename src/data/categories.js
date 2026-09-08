@@ -1,13 +1,15 @@
 export const categories = [
   {
     slug: 'tiras-led-2',
-    name: 'Tiras LED',
+    name: 'Tira LED',
     tagline: 'Iluminación flexible y eficiente para cualquier proyecto',
     description:
       'Tiras LED de alto rendimiento para iluminación decorativa, arquitectónica y profesional.',
     image: 'images/tiras-led.png',
     parent: 'productos',
     children: ['tiras-led', 'tiras-220v', 'tiras-neon'],
+    showInHome: true,
+    homeOrder: 1,
   },
   {
     slug: 'tiras-led',
@@ -117,6 +119,8 @@ export const categories = [
     image: 'images/neon.png',
     parent: 'tiras-led-2',
     children: ['flex', 'rgb'],
+    showInHome: true,
+    homeOrder: 3,
   },
   {
     slug: 'flex',
@@ -144,6 +148,8 @@ export const categories = [
       'Perfiles de aluminio que combinan con las tiras LED para un acabado profesional: disipan el calor y protegen la instalación.',
     image: 'images/perfiles.png',
     parent: 'productos',
+    showInHome: true,
+    homeOrder: 2,
     children: [
       'superficie',
       'empotrar',
@@ -228,6 +234,8 @@ export const categories = [
     image: 'images/fuentes-drivers.png',
     parent: 'productos',
     children: ['ip20-clase-ii', 'ip67'],
+    showInHome: true,
+    homeOrder: 4,
   },
   {
     slug: 'ip20-clase-ii',
@@ -261,6 +269,8 @@ export const categories = [
     description: 'Controladores compatibles con el ecosistema inalámbrico Casambi.',
     image: 'images/fuentes-drivers.png',
     parent: 'ip20-clase-ii',
+    showInHome: true,
+    homeOrder: 5,
   },
   {
     slug: 'matter',
@@ -310,6 +320,8 @@ export const categories = [
     description: 'Downlights empotrables LED para iluminación general con gran eficiencia.',
     image: 'images/downlight.png',
     parent: 'productos',
+    showInHome: true,
+    homeOrder: 6,
   },
   {
     slug: 'panel-led',

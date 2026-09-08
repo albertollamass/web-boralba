@@ -342,6 +342,7 @@ function CategoryList({ nodes, getChildren, getCategoryPathLabel, countByCat, on
           <th>Ruta</th>
           <th>Subcategorías</th>
           <th>Productos</th>
+          <th>Inicio</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -380,6 +381,7 @@ function NodeRow({ node, depth, getChildren, getCategoryPathLabel, countByCat, o
         </td>
         <td>{children.length}</td>
         <td>{total || '—'}</td>
+        <td>{node.showInHome ? `✓${node.homeOrder ?? ''}` : '—'}</td>
         <td>
           <div className="actions">
             <button className="btn-edit" onClick={() => onEdit(node)}>
@@ -427,6 +429,8 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
     description: initial?.description || '',
     image: initial?.image || '',
     parent: initial && initial.parent !== ROOT.slug ? initial.parent : '',
+    showInHome: Boolean(initial?.showInHome),
+    homeOrder: initial?.homeOrder ?? '',
   }))
   const [fileKey, setFileKey] = useState(0)
   const [uploading, setUploading] = useState(false)
@@ -482,6 +486,8 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
       description: form.description.trim() || '',
       image: form.image || 'images/placeholder.svg',
       parent: form.parent || ROOT.slug,
+      showInHome: Boolean(form.showInHome),
+      homeOrder: form.homeOrder === '' || form.homeOrder == null ? null : Number(form.homeOrder),
     }
     setSaving(true)
     try {
@@ -532,6 +538,33 @@ function CategoryForm({ initial, ctx, onCancel, onSaved }) {
       <div>
         <label>Descripción</label>
         <textarea value={form.description} onChange={set('description')} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={Boolean(form.showInHome)}
+              onChange={(e) => setForm((f) => ({ ...f, showInHome: e.target.checked }))}
+              style={{ width: 'auto' }}
+            />
+            Mostrar en el carrusel de inicio
+          </label>
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+            Si ninguna está marcada, se muestran las categorías principales.
+          </span>
+        </div>
+        <div>
+          <label>Orden en inicio</label>
+          <input
+            type="number"
+            min="1"
+            value={form.homeOrder}
+            onChange={set('homeOrder')}
+            placeholder="1, 2, 3…"
+          />
+        </div>
       </div>
 
       <div>

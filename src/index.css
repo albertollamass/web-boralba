@@ -339,6 +339,22 @@ p {
   border: 1px solid var(--color-surface-2);
   padding: 8px;
   z-index: 70;
+  animation: flyout-in 110ms ease-out;
+}
+
+.dropdown-flyout {
+  animation: flyout-in 110ms ease-out;
+}
+
+@keyframes flyout-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .menu-toggle {
@@ -1334,6 +1350,9 @@ p {
   font-weight: 800;
   font-size: 0.82rem;
   letter-spacing: 0.08em;
+  margin-right: 10px;
+  padding-top: 2px;
+  flex-shrink: 0;
 }
 
 .content-card h3 {
@@ -2038,7 +2057,7 @@ p {
 .desc-block { margin-top: 32px; }
 .desc-block h2 { font-size: 1.2rem; font-weight: 600; }
 .content-card-grid { max-width: none; gap: 12px 28px; }
-.content-card { border: 0; border-top: 1px solid var(--color-surface-2); border-radius: 0; padding: 17px 0; background: var(--color-surface); }
+.content-card { border: 0; border-top: 1px solid var(--color-surface-2); border-radius: 0; padding: 17px 0; background: var(--color-surface); gap: 24px; }
 .content-card-number { font-size: .72rem; font-weight: 500; color: var(--color-primary); }
 .content-card h3 { font-size: .98rem; font-weight: 600; }
 .content-card p { color: var(--color-text-muted); line-height: 1.5; }
@@ -2415,7 +2434,7 @@ p {
   cursor: pointer;
   background: var(--color-surface-2);
   box-shadow: 0 2px 8px rgba(24, 24, 27, 0.12);
-  transition: transform 500ms ease-out, opacity 500ms ease-out, box-shadow 500ms ease-out;
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1), opacity 620ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 620ms cubic-bezier(0.22, 1, 0.36, 1), visibility 620ms;
   will-change: transform;
 }
 .coverflow.is-dragging .coverflow-card {
@@ -2483,14 +2502,13 @@ p {
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
-.coverflow-arrow:hover:not(:disabled) {
+.coverflow-arrow:hover {
   background: var(--color-primary);
   color: #fff;
   box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
 }
-.coverflow-arrow:disabled {
-  opacity: 0.35;
-  cursor: default;
+.coverflow-arrow:active {
+  transform: translateY(-50%) scale(0.94);
 }
 .coverflow-arrow svg {
   width: 18px;
