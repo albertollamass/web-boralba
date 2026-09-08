@@ -40,8 +40,8 @@ function productText(p) {
   const parts = [p.name, p.ref, p.description]
   ;(p.specs || []).forEach((s) => parts.push(s.label, s.value))
   ;(p.features || []).forEach((f) => parts.push(f))
-  ;(p.applications || []).forEach((a) => parts.push(a))
-  ;(p.advantages || []).forEach((a) => parts.push(a))
+  ;(p.applications || []).forEach((a) => parts.push(typeof a === 'object' ? [a.text, a.title, a.name, a.description] : a))
+  ;(p.advantages || []).forEach((a) => parts.push(typeof a === 'object' ? [a.text, a.title, a.name, a.description] : a))
   ;(p.tags || []).forEach((t) => parts.push(t))
   return parts.map(normalizeText).filter(Boolean).join(' ')
 }
