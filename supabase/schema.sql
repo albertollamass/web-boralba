@@ -10,6 +10,12 @@ create table if not exists public.products (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.site_settings (
+  id text primary key,
+  data jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
 -- Categorías (dinámicas, gestionadas desde el panel de admin)
 create table if not exists public.categories (
   id text primary key,
@@ -28,12 +34,15 @@ create table if not exists public.profiles (
 
 -- Activar RLS. Con esto, nadie puede hacer nada salvo lo que permiten las políticas.
 alter table public.products enable row level security;
+alter table public.site_settings enable row level security;
 alter table public.categories enable row level security;
 alter table public.profiles enable row level security;
 
 -- Limpiar políticas anteriores si re-ejecutas el script
 drop policy if exists "Lectura pública de productos" on public.products;
 drop policy if exists "Escritura solo administradores" on public.products;
+drop policy if exists "Lectura pública de configuración" on public.site_settings;
+drop policy if exists "Escritura solo administradores configuración" on public.site_settings;
 drop policy if exists "Lectura pública de categorías" on public.categories;
 drop policy if exists "Escritura solo administradores categorías" on public.categories;
 drop policy if exists "Perfil propio" on public.profiles;
@@ -42,6 +51,14 @@ drop policy if exists "Perfil propio" on public.profiles;
 create policy "Lectura pública de productos"
   on public.products for select
   using (true);
+
+create policy "Lectura pública de configuración"
+  on public.site_settings for select using (true);
+
+create policy "Escritura solo administradores configuración"
+  on public.site_settings for all
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
 
 -- Solo un usuario autenticado que esté en la tabla profiles puede CREAR/MODIFICAR/BORRAR
 create policy "Escritura solo administradores"

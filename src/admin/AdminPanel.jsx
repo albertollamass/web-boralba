@@ -5,6 +5,7 @@ import { useCategories } from '../context/CategoriesContext'
 import { useAuth } from '../context/AuthContext'
 import { ROOT } from '../data/categories'
 import ProductForm from './ProductForm'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 const emptyProduct = () => ({
   name: '',
@@ -28,6 +29,11 @@ const emptyProduct = () => ({
   technicalNotice: '',
   variants: [],
   specs: [],
+  includedItems: [],
+  applicationExample: { image: '', title: '', description: '', spaceType: '', inspiration: false },
+  compatibleProducts: [],
+  similarProductIds: [],
+  documents: [],
   featured: false,
   outlet: false,
 })
@@ -37,6 +43,7 @@ export default function AdminPanel() {
     useProducts()
   const categoriesCtx = useCategories()
   const { user, isAdmin, signOut } = useAuth()
+  const { settings, updateSettings } = useSiteSettings()
   const [view, setView] = useState('products')
   const [editing, setEditing] = useState(null)
   const [creating, setCreating] = useState(false)
@@ -103,9 +110,10 @@ export default function AdminPanel() {
           >
             Categorías
           </button>
+          <button className={view === 'configuracion' ? 'active' : ''} onClick={() => setView('configuracion')}>Configuración general</button>
         </div>
 
-        {view === 'categorias' ? (
+        {view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
           catForm.open ? (
             <CategoryForm
               initial={catForm.editing}
@@ -119,8 +127,9 @@ export default function AdminPanel() {
         ) : creating || editing ? (
           <div>
             <h2 style={{ marginBottom: 16 }}>{editing ? 'Editar producto' : 'Nuevo producto'}</h2>
-            <ProductForm
+              <ProductForm
               initial={editing || emptyProduct()}
+              allProducts={products}
               onSubmit={handleSubmit}
               onCancel={() => {
                 setEditing(null)
@@ -258,6 +267,11 @@ export default function AdminPanel() {
       </div>
     </div>
   )
+}
+
+function SettingsView({ settings, onSave }) {
+  const [form, setForm] = useState(settings)
+  return <form className="form admin-form-section" onSubmit={(event) => { event.preventDefault(); onSave(form); alert('Configuración guardada.') }}><h2>Configuración general</h2><p className="admin-help">Estos datos se reutilizan en el asesoramiento técnico y no se guardan por producto.</p><label>Teléfono<input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label><label>Correo electrónico<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label><label>Horario<input value={form.hours} onChange={(e) => setForm({ ...form, hours: e.target.value })} /></label><button className="btn btn-primary" type="submit">Guardar configuración</button></form>
 }
 
 function CategoriesView({ ctx, onNew, onEdit }) {

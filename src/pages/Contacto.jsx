@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 const icons = {
   phone: (
@@ -28,12 +29,15 @@ const icons = {
 }
 
 export default function Contacto() {
+  const { settings } = useSiteSettings()
+  const [searchParams] = useSearchParams()
+  const selectedRefs = searchParams.get('productos') || ''
   const [form, setForm] = useState({
     nombre: '',
     email: '',
     telefono: '',
     tipo: '',
-    mensaje: '',
+    mensaje: selectedRefs ? `Referencias de la solución: ${selectedRefs}\n\n` : '',
     privacidad: false,
     cookies: false,
     legal: false,
@@ -89,7 +93,7 @@ export default function Contacto() {
               <div>
                 <h4>Llámanos</h4>
                 <p>
-                  <a href="tel:+34918707113">(34) 91 870 71 13</a>
+                    <a href={`tel:${settings.phone}`}>{settings.phone}</a>
                 </p>
               </div>
             </div>
@@ -98,7 +102,7 @@ export default function Contacto() {
               <div>
                 <h4>Email</h4>
                 <p>
-                  <a href="mailto:boralba@boralba.es">boralba@boralba.es</a>
+                    <a href={`mailto:${settings.email}`}>{settings.email}</a>
                 </p>
               </div>
             </div>
@@ -117,11 +121,7 @@ export default function Contacto() {
               <span className="icon">{icons.clock}</span>
               <div>
                 <h4>Horario</h4>
-                <p>
-                  Lunes a Viernes
-                  <br />
-                  8:00 – 18:00
-                </p>
+                <p>{settings.hours}</p>
               </div>
             </div>
           </div>

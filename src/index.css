@@ -1521,6 +1521,66 @@ p {
   font-size: 0.92rem;
 }
 
+/* Product guidance blocks */
+.product-section { margin-top: 58px; }
+.included-section { border-top: 1px solid #e5e3df; padding-top: 32px; }
+.included-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.included-grid article { display: flex; gap: 12px; min-width: 0; padding: 18px 14px; background: #fff; border: 1px solid #e5e3df; border-radius: 3px; }
+.included-icon { color: #dd3531; flex: 0 0 30px; }
+.included-icon img, .included-icon svg { width: 28px; height: 28px; object-fit: contain; }
+.included-grid strong { color: #dd3531; font-size: .84rem; }
+.included-grid h3 { margin: 2px 0 4px; font-size: .95rem; }
+.included-grid p { margin: 0; color: #666; font-size: .82rem; }
+.application-example { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 34px; align-items: center; }
+.application-example > img { width: 100%; aspect-ratio: 16 / 7; object-fit: contain; background: #fff; cursor: zoom-in; }
+.application-example h2 { margin: 0 0 12px; }
+.application-example p { color: #666; line-height: 1.7; }
+.application-example small { display: block; margin-top: 18px; color: #666; font-style: italic; }
+.space-label, .recommended { display: inline-block; color: #dd3531; font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; }
+.component-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+.component-card { display: grid; grid-template-columns: 130px 1fr; gap: 18px; padding: 16px; background: #fff; border: 1px solid #e5e3df; }
+.component-card > img { width: 130px; height: 130px; object-fit: contain; background: #f8f8f6; }
+.component-card h3 { margin: 8px 0 2px; font-size: 1rem; }
+.component-card p { color: #666; font-size: .86rem; margin: 7px 0; }
+.component-card-top { display: flex; justify-content: space-between; gap: 8px; font-size: .72rem; color: #666; }
+.component-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+.component-actions .check, .similar-card .check { font-size: .78rem; color: #666; }
+.documents-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.document-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #fff; border: 1px solid #e5e3df; color: #171717; }
+.document-item:hover { border-color: #dd3531; }
+.document-icon { color: #dd3531; font-size: 1.3rem; }
+.document-item span:nth-child(2) { display: grid; flex: 1; gap: 3px; }
+.document-item small { color: #666; }
+.document-item b { font-size: .78rem; font-weight: 600; color: #dd3531; }
+.similar-card { background: #fff; border: 1px solid #e5e3df; padding-bottom: 12px; }
+.similar-card .check { display: block; padding: 0 14px; }
+.compare-button { margin-top: 20px; }
+.comparison-wrap { position: relative; margin-top: 22px; padding: 24px; background: #fff; border: 1px solid #e5e3df; }
+.comparison-close { position: absolute; right: 14px; top: 10px; border: 0; background: none; color: #dd3531; cursor: pointer; }
+.comparison-scroll { overflow-x: auto; padding-top: 12px; }
+.comparison-table { min-width: 620px; width: 100%; border-collapse: collapse; }
+.comparison-table th, .comparison-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e3df; }
+.comparison-table th { color: #666; font-size: .82rem; }
+.technical-advice { display: flex; justify-content: space-between; gap: 30px; align-items: center; margin: 68px 0 10px; padding: 38px 42px; background: #222; color: #fff; }
+.technical-advice h2 { margin: 0 0 10px; color: #fff; font-size: clamp(1.45rem, 2.4vw, 2rem); }
+.technical-advice p { max-width: 700px; margin: 0; color: rgba(255,255,255,.72); line-height: 1.65; }
+.advice-contact { display: grid; gap: 7px; min-width: 220px; }
+.advice-contact a, .advice-contact span { color: rgba(255,255,255,.8); font-size: .85rem; }
+.advice-contact .btn { margin-bottom: 5px; color: #fff; text-align: center; }
+
+@media (max-width: 800px) {
+  .included-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .component-grid, .documents-list { grid-template-columns: 1fr; }
+  .application-example, .technical-advice { grid-template-columns: 1fr; flex-direction: column; align-items: flex-start; }
+  .technical-advice { padding: 30px 24px; }
+}
+@media (max-width: 500px) {
+  .included-grid { grid-template-columns: 1fr; }
+  .component-card { grid-template-columns: 90px 1fr; gap: 12px; }
+  .component-card > img { width: 90px; height: 90px; }
+  .application-example > img { aspect-ratio: 4 / 3; }
+}
+
 .spec-table th {
   color: var(--color-text-muted);
   font-weight: 600;
