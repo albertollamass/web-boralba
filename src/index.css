@@ -89,7 +89,7 @@ p {
 }
 
 .container {
-  max-width: 1240px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 clamp(24px, 4vw, 40px);
 }
@@ -2294,4 +2294,657 @@ p {
 .sync-error {
   background: #fde8e8;
   color: #c62828;
+}
+
+/* ================================================================
+   HOME — Rediseño corporativo B2B premium
+   ================================================================ */
+
+/* ---------- 1. Hero ---------- */
+.home-hero {
+  background-image: linear-gradient(90deg, rgba(20, 22, 26, 0.92) 0%, rgba(20, 22, 26, 0.65) 55%, rgba(20, 22, 26, 0.22) 100%), url('/images/lobby.png');
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+  min-height: 560px;
+  position: relative;
+  overflow: hidden;
+}
+.home-hero::after {
+  content: '';
+  position: absolute;
+  right: -100px;
+  top: -100px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(221, 53, 49, 0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+.home-hero-inner {
+  display: flex;
+  align-items: center;
+  min-height: 560px;
+  padding-block: clamp(60px, 9vw, 110px);
+  position: relative;
+  z-index: 1;
+}
+.home-hero-content {
+  max-width: 680px;
+}
+.home-hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.88);
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.home-hero h1 {
+  color: #fff;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.08;
+  margin-bottom: 16px;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.3);
+}
+.home-hero-sub {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.12rem;
+  max-width: 520px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.home-hero-text {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.98rem;
+  max-width: 520px;
+  line-height: 1.6;
+}
+.home-hero-ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+.btn-outline--light {
+  background: transparent;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+.btn-outline--light:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: #fff !important;
+}
+
+/* ---------- 2. Families ---------- */
+.home-families {
+  padding-block: clamp(56px, 8vw, 96px);
+}
+.home-families-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(14px, 2vw, 22px);
+}
+.home-family-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--color-surface-2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  text-decoration: none;
+}
+.home-family-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.home-family-img {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+.home-family-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.home-family-card:hover .home-family-img img {
+  transform: scale(1.04);
+}
+.home-family-body {
+  padding: 18px 20px 20px;
+}
+.home-family-body h3 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--color-text);
+}
+.home-family-body p {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
+.home-family-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.home-family-card:hover .home-family-link {
+  text-decoration: underline;
+}
+
+/* ---------- 3. Featured products ---------- */
+.home-featured {
+  background: var(--color-surface);
+  padding-block: clamp(56px, 8vw, 96px);
+}
+.home-product-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--color-surface-2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.home-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.home-product-img {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+.home-product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+.home-product-card:hover .home-product-img img {
+  transform: scale(1.05);
+}
+.home-product-body {
+  padding: 16px 18px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.home-product-body h3 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+.home-product-specs {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+}
+.home-product-ref {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.home-product-link {
+  margin-top: auto;
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.home-product-card:hover .home-product-link {
+  text-decoration: underline;
+}
+
+/* ---------- 4. Value proposition ---------- */
+.home-value {
+  padding-block: clamp(56px, 8vw, 96px);
+}
+.home-value-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+.home-value-text h2 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  margin-bottom: 14px;
+}
+.home-value-text p {
+  color: var(--color-text-muted);
+  font-size: 1.02rem;
+  line-height: 1.65;
+  max-width: 480px;
+}
+.home-value-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 28px 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-2);
+  border-radius: var(--radius);
+}
+.home-flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 12px;
+  min-width: 80px;
+}
+.home-flow-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-surface-2);
+  color: var(--color-primary);
+}
+.home-flow-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.home-flow-step strong {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text);
+}
+.home-flow-plus,
+.home-flow-equals {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.home-flow-result .home-flow-icon {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+/* ---------- 5. Clients ---------- */
+.home-clients {
+  background: var(--color-surface);
+  padding-block: clamp(56px, 8vw, 96px);
+}
+.home-client-card {
+  padding: 32px 28px;
+  background: #fff;
+  border: 1px solid var(--color-surface-2);
+  border-radius: var(--radius);
+  transition: border-color 0.25s ease;
+}
+.home-client-card:hover {
+  border-color: var(--color-primary);
+}
+.home-client-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(221, 53, 49, 0.08);
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.82rem;
+  margin-bottom: 16px;
+}
+.home-client-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.home-client-card p {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  line-height: 1.55;
+}
+
+/* ---------- 6. Experience ---------- */
+.home-experience {
+  padding-block: clamp(56px, 8vw, 96px);
+}
+.home-exp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+.home-exp-img {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.home-exp-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.home-exp-content h2 {
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  margin-bottom: 22px;
+}
+.home-exp-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+.home-exp-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--color-surface-2);
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+.home-exp-list li:last-child {
+  border-bottom: none;
+}
+.home-exp-list svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+/* ---------- 7. Smart Lighting ---------- */
+.home-smart {
+  background: #191b20;
+  color: #fff;
+  padding-block: clamp(56px, 8vw, 96px);
+}
+.home-smart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+.home-smart h2 {
+  color: #fff;
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  margin-bottom: 14px;
+}
+.home-smart p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+.tag--light {
+  color: rgba(255, 255, 255, 0.7);
+}
+.home-smart-pillars {
+  display: flex;
+  gap: 18px;
+  margin-top: 24px;
+}
+.home-smart-pillar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.home-smart-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(221, 53, 49, 0.25);
+  color: #dd3531;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+.home-smart-img {
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.home-smart-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---------- 8. Applications ---------- */
+.home-applications {
+  background: var(--color-surface);
+  padding-block: clamp(56px, 8vw, 96px);
+}
+.home-app-card {
+  position: relative;
+  margin: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  cursor: pointer;
+}
+.home-app-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.home-app-card:hover img {
+  transform: scale(1.05);
+}
+.home-app-card figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 36px 18px 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.home-app-card figcaption span {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.home-app-card figcaption small {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+/* ---------- 9. Brands ---------- */
+.home-brands {
+  padding-block: clamp(48px, 7vw, 80px);
+}
+.home-brands-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(32px, 5vw, 64px);
+  flex-wrap: wrap;
+}
+.home-brand-logo {
+  opacity: 0.7;
+  transition: opacity 0.25s ease;
+}
+.home-brand-logo:hover {
+  opacity: 1;
+}
+.home-brand-logo img {
+  height: 48px;
+  width: auto;
+}
+.home-brand-placeholder {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--color-surface-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 1.2rem;
+}
+
+/* ---------- 10. Outlet ---------- */
+.home-outlet {
+  padding-block: clamp(48px, 7vw, 80px);
+}
+.home-outlet-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: clamp(28px, 4vw, 44px) clamp(28px, 4vw, 48px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-2);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius);
+}
+.home-outlet-text h2 {
+  font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+.home-outlet-text p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+.home-outlet-count {
+  margin-top: 6px !important;
+  color: var(--color-primary) !important;
+  font-weight: 600;
+  font-size: 0.85rem !important;
+}
+
+/* ---------- 11. Pre-footer CTA ---------- */
+.home-cta {
+  background: #191b20;
+  color: #fff;
+  padding: clamp(48px, 7vw, 80px) 0;
+}
+.home-cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+.home-cta-text h2 {
+  color: #fff;
+  font-size: clamp(1.4rem, 2.8vw, 2rem);
+  margin-bottom: 10px;
+}
+.home-cta-text p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 1rem;
+  max-width: 520px;
+  margin: 0;
+}
+.home-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.home-cta-contact {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 0.9rem;
+}
+.home-cta-contact:hover {
+  color: #fff !important;
+}
+
+/* ================================================================
+   RESPONSIVE — Home
+   ================================================================ */
+
+@media (max-width: 1024px) {
+  .home-families-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .home-value-inner,
+  .home-exp-grid,
+  .home-smart-grid {
+    grid-template-columns: 1fr;
+  }
+  .home-smart-img {
+    order: -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .home-hero-inner {
+    min-height: 480px;
+    padding-block: 48px;
+  }
+  .home-hero {
+    min-height: 480px;
+    background-position: 60% center;
+  }
+  .home-hero h1 {
+    font-size: 1.85rem;
+  }
+  .home-families-grid {
+    grid-template-columns: 1fr;
+  }
+  .home-value-flow {
+    gap: 6px;
+    padding: 20px 14px;
+  }
+  .home-flow-step {
+    padding: 10px 6px;
+    min-width: 64px;
+  }
+  .home-flow-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .home-flow-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+  .home-smart-pillars {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .home-outlet-card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .home-cta-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
