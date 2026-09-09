@@ -5153,85 +5153,68 @@ body:has(.redesign-home) .header { display: none; }
   position: relative;
   isolation: isolate;
   min-height: 100vh;
-  background: #3b3937;
-  color: #fff;
-}
-.public-experience-ambient {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  overflow: hidden;
-  pointer-events: none;
-}
-.public-experience-ambient img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: .38;
-  transform: scale(1.12);
-  filter: blur(18px) saturate(.78) brightness(1.02) contrast(1.02);
-}
-.public-experience-ambient::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.12), transparent 60%),
-    linear-gradient(180deg, rgba(59,57,55,.32), rgba(59,57,55,.22));
+  background: var(--boralba-mist);
+  color: var(--boralba-ink);
 }
 .public-experience-header {
   position: relative;
-  min-height: 184px;
   overflow: visible;
-  background: linear-gradient(180deg, rgba(12,12,15,.7), rgba(12,12,15,.18)), url('/images/lobby.png') center 42% / cover;
+  background: var(--boralba-mist);
 }
 .public-experience-header::after {
   content: '';
   position: absolute;
   inset: auto 0 0;
   height: 1px;
-  background: rgba(255,255,255,.16);
+  background: var(--boralba-line);
 }
-.public-experience-header .redesign-hero-top { position: relative; }
-.public-experience-header .redesign-mobile-menu { top: 76px; }
+.public-experience-header .redesign-hero-top { position: relative; background: var(--boralba-mist); }
+.public-experience-header .redesign-mobile-menu { top: 76px; background: #fff; border-color: var(--boralba-line); box-shadow: var(--shadow-lg); }
+.public-experience-header .redesign-mobile-menu a:not(.redesign-btn-primary) { color: var(--boralba-ink); }
+.public-experience-header .redesign-mobile-menu a:not(.redesign-btn-primary):hover { background: var(--color-surface); color: var(--boralba-red); }
+.public-experience-header .redesign-nav a { color: var(--boralba-ink); opacity: .82; }
+.public-experience-header .redesign-nav a:hover { opacity: 1; color: var(--boralba-red); }
+.public-experience-header .redesign-logo img { filter: none; }
 .public-experience .site-main {
   min-height: 60vh;
-  background: transparent;
-  color: rgba(255,255,255,.78);
+  background:
+    radial-gradient(circle at 88% 8%, rgba(255,255,255,.9), transparent 28rem),
+    var(--boralba-mist);
+  color: var(--boralba-ink);
 }
 .public-experience .site-main > * { animation: public-page-in .65s cubic-bezier(.22,1,.36,1) both; }
 .public-experience .site-main h1,
 .public-experience .site-main h2,
 .public-experience .site-main h3,
-.public-experience .site-main h4 { color: #fff; font-family: var(--font-montserrat); }
-.public-experience .site-main p { color: rgba(255,255,255,.7); }
+.public-experience .site-main h4 { color: var(--boralba-ink); font-family: var(--font-montserrat); }
+.public-experience .site-main p { color: var(--boralba-gray); }
 .public-experience .site-main .page-header {
   background: transparent;
-  border-bottom: 1px solid rgba(255,255,255,.12);
+  border-bottom: 1px solid var(--boralba-line);
 }
-.public-experience .site-main .page-header h1 { color: #fff; }
+.public-experience .site-main .page-header h1 { color: var(--boralba-ink); }
 .public-experience .site-main .breadcrumb,
-.public-experience .site-main .breadcrumb a { color: rgba(255,255,255,.58); }
-.public-experience .site-main .breadcrumb a:hover { color: #ffb4b1; }
+.public-experience .site-main .breadcrumb a { color: var(--boralba-gray); }
+.public-experience .site-main .breadcrumb a:hover { color: var(--boralba-red); }
 .public-experience .site-main .section-head h2,
-.public-experience .site-main .section-head h3 { color: #fff; }
+.public-experience .site-main .section-head h3 { color: var(--boralba-ink); }
 .public-experience .site-main .section-head p,
-.public-experience .site-main .muted { color: rgba(255,255,255,.62); }
-.public-experience .site-main .tag { color: #ffb4b1; }
+.public-experience .site-main .muted { color: var(--boralba-gray); }
+.public-experience .site-main .tag { color: var(--boralba-red); }
 .public-experience .site-main .card {
-  background: rgba(26,26,30,.46);
-  border: 1px solid rgba(255,255,255,.13);
+  background: #fff;
+  border: 1px solid var(--boralba-line);
   border-radius: 16px;
-  box-shadow: 0 24px 70px -45px rgba(0,0,0,.8);
+  box-shadow: 0 18px 42px -30px rgba(26,26,30,.5);
 }
-.public-experience .site-main .card:hover { border-color: rgba(255,180,177,.5); }
-.public-experience .site-main .card-img { background: rgba(255,255,255,.06); }
+.public-experience .site-main .card:hover { border-color: rgba(221,53,49,.35); }
+.public-experience .site-main .card-img { background: #f8f7f5; }
 .public-experience .site-main .products-family-grid .card {
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  border-bottom: 1px solid rgba(255,255,255,.16);
+  border-bottom: 1px solid var(--boralba-line);
 }
 .public-experience .site-main .products-family-grid .card-img {
   aspect-ratio: 16 / 10;
@@ -5239,71 +5222,72 @@ body:has(.redesign-home) .header { display: none; }
   overflow: hidden;
 }
 .public-experience .site-main .products-family-grid .card-body { padding-inline: 0; }
-.public-experience .site-main .products-family-grid .card:hover { transform: none; border-color: rgba(255,180,177,.65); }
+.public-experience .site-main .products-family-grid .card:hover { transform: none; border-color: rgba(221,53,49,.35); }
 .public-experience .site-main .card-body h3 a,
-.public-experience .site-main .card-body h3 { color: #fff; }
-.public-experience .site-main .card-body p { color: rgba(255,255,255,.62); }
-.public-experience .site-main .ref { color: rgba(255,255,255,.48); }
-.public-experience .site-main .price { color: #ffb4b1; }
+.public-experience .site-main .card-body h3 { color: var(--boralba-ink); }
+.public-experience .site-main .card-body p { color: var(--boralba-gray); }
+.public-experience .site-main .ref { color: var(--color-text-muted); }
+.public-experience .site-main .price { color: var(--boralba-red); }
 .public-experience .site-main .btn-outline {
-  border-color: rgba(255,255,255,.55);
-  color: #fff;
-  background: rgba(255,255,255,.06);
+  border-color: var(--boralba-line);
+  color: var(--boralba-ink);
+  background: transparent;
 }
-.public-experience .site-main .btn-outline:hover { background: #fff; color: #1a1a1e; }
+.public-experience .site-main .btn-outline:hover { background: var(--boralba-red); color: #fff; border-color: var(--boralba-red); }
 .public-experience .site-main .category-card {
-  border-bottom-color: rgba(255,255,255,.16);
+  border-bottom-color: var(--boralba-line);
   background: transparent;
 }
 .public-experience .site-main .category-card .overlay { background: linear-gradient(to top, rgba(15,15,18,.85), transparent 70%); }
-.public-experience .site-main .card-proyecto { background: transparent; border: 0; border-top: 1px solid rgba(255,255,255,.16); box-shadow: none; }
+.public-experience .site-main .card-proyecto { background: transparent; border: 0; border-top: 1px solid var(--boralba-line); box-shadow: none; }
 .public-experience .site-main .card-proyecto .card-body { background: transparent; }
-.public-experience .site-main .card-proyecto .proyecto-tag { color: #ffb4b1; }
-.public-experience .site-main .grid-3 > .card { background: transparent; border: 0; border-top: 1px solid rgba(255,255,255,.16); border-radius: 0; }
-.public-experience .site-main .contact-item { border-top-color: rgba(255,255,255,.16); }
-.public-experience .site-main .contact-item .icon { color: #ffb4b1; }
+.public-experience .site-main .card-proyecto .proyecto-tag { color: var(--boralba-red); }
+.public-experience .site-main .grid-3 > .card { background: transparent; border: 0; border-top: 1px solid var(--boralba-line); border-radius: 0; }
+.public-experience .site-main .contact-item { border-top-color: var(--boralba-line); }
+.public-experience .site-main .contact-item .icon { color: var(--boralba-red); }
 .public-experience .site-main .form {
-  background: rgba(26,26,30,.4);
-  border-color: rgba(255,255,255,.15);
-  box-shadow: 0 24px 70px -45px rgba(0,0,0,.8);
+  background: #fff;
+  border-color: var(--boralba-line);
+  box-shadow: 0 24px 60px -40px rgba(26,26,30,.5);
 }
 .public-experience .site-main .form input,
 .public-experience .site-main .form textarea,
-.public-experience .site-main .form select { color: #fff; border-color: rgba(255,255,255,.3); }
-.public-experience .site-main .form input::placeholder,
-.public-experience .site-main .form textarea::placeholder { color: rgba(255,255,255,.45); }
-.public-experience .site-main .outlet-banner { background: rgba(23,23,25,.8); border-left-color: var(--boralba-red); }
+.public-experience .site-main .form select { color: var(--boralba-ink); border-color: #cfcfcd; }
+.public-experience .site-main .form input:focus,
+.public-experience .site-main .form textarea:focus,
+.public-experience .site-main .form select:focus { border-color: var(--boralba-red); }
+.public-experience .site-main .outlet-banner { background: #171719; border-left-color: var(--boralba-red); }
 .public-experience .site-main .search-box {
-  background: rgba(26,26,30,.48);
-  border-color: rgba(255,255,255,.2);
-  color: #fff;
+  background: #fff;
+  border-color: var(--boralba-line);
+  color: var(--boralba-ink);
 }
-.public-experience .site-main .search-box input { color: #fff; }
-.public-experience .site-main .empty-state { background: transparent; border-color: rgba(255,255,255,.16); }
-.public-experience .site-main .empty-state h3 { color: #fff; }
+.public-experience .site-main .search-box input { color: var(--boralba-ink); }
+.public-experience .site-main .empty-state { background: #fff; border-color: var(--boralba-line); }
+.public-experience .site-main .empty-state h3 { color: var(--boralba-ink); }
 .public-experience .site-main .product-page { background: transparent; }
-.public-experience .site-main .product-info h1 { color: #fff; }
+.public-experience .site-main .product-info h1 { color: var(--boralba-ink); }
 .public-experience .site-main .product-kicker,
-.public-experience .site-main .product-ref,
-.public-experience .site-main .datasheet-link { color: #ffb4b1; }
+.public-experience .site-main .product-ref { color: var(--boralba-red); }
+.public-experience .site-main .datasheet-link { color: var(--boralba-red); }
 .public-experience .site-main .product-short-description,
 .public-experience .site-main .description-copy,
-.public-experience .site-main .product-section p { color: rgba(255,255,255,.7); }
-.public-experience .site-main .product-description { border-top-color: rgba(255,255,255,.16); background: transparent; }
-.public-experience .site-main .tabs { background: transparent; border-bottom-color: rgba(255,255,255,.16); }
-.public-experience .site-main .tab { color: rgba(255,255,255,.62); }
-.public-experience .site-main .tab.active { color: #fff; border-bottom-color: var(--boralba-red); }
+.public-experience .site-main .product-section p { color: var(--boralba-gray); }
+.public-experience .site-main .product-description { border-top-color: var(--boralba-line); background: transparent; }
+.public-experience .site-main .tabs { background: transparent; border-bottom-color: var(--boralba-line); }
+.public-experience .site-main .tab { color: var(--boralba-gray); }
+.public-experience .site-main .tab.active { color: var(--boralba-ink); border-bottom-color: var(--boralba-red); }
 .public-experience .site-main .spec-table-wrap,
 .public-experience .site-main .content-card,
 .public-experience .site-main .component-card,
 .public-experience .site-main .documents-list,
-.public-experience .site-main .comparison-wrap { background: rgba(26,26,30,.42); border-color: rgba(255,255,255,.14); }
+.public-experience .site-main .comparison-wrap { background: #fff; border-color: var(--boralba-line); }
 .public-experience .site-main .spec-table th,
-.public-experience .site-main .spec-table td { border-bottom-color: rgba(255,255,255,.12); color: rgba(255,255,255,.78); }
+.public-experience .site-main .spec-table td { border-bottom-color: var(--boralba-line); color: var(--boralba-ink); }
 .public-experience .site-main .content-card h3,
-.public-experience .site-main .component-card h3 { color: #fff; }
-.public-experience .site-main .technical-advice { background: rgba(23,23,25,.72); }
-
-@media (max-width: 680px) {
-  .public-experience-header { min-height: 148px; }
-}
+.public-experience .site-main .component-card h3 { color: var(--boralba-ink); }
+.public-experience .site-main .technical-advice { background: #fff; }
+.public-experience .site-main .similar-card { background: #fff; }
+.public-experience .site-main .carousel { background: #f1f0ee; }
+.public-experience .site-main .footer,
+.public-experience + .footer { border-top-color: var(--boralba-line); }

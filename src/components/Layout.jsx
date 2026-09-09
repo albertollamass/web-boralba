@@ -12,7 +12,6 @@ export default function Layout() {
     <>
       {isHome ? <main className="site-main"><Outlet /></main> : (
         <div className="public-experience">
-          <div className="public-experience-ambient" aria-hidden="true"><img src="images/lobby.png" alt="" /></div>
           <header className="public-experience-header">
             <HomeHeader menuOpen={menuOpen} onMenuToggle={() => setMenuOpen((open) => !open)} onNavigate={() => setMenuOpen(false)} />
           </header>
