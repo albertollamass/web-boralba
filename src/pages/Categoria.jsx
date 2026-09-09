@@ -28,11 +28,13 @@ export default function Categoria() {
   const children = getChildren(slug)
   const trail = getBreadcrumb(slug)
   const categorySlugs = new Set(getDescendantSlugs(slug))
+  const leaf = children.length === 0
   const productsInCategory = products.filter((product) => {
     const assignedCategories = [product.category, ...(Array.isArray(product.categories) ? product.categories : [])].filter(Boolean)
-    return assignedCategories.some((assignedCategory) => categorySlugs.has(assignedCategory))
+    return leaf
+      ? assignedCategories.includes(slug)
+      : assignedCategories.some((assignedCategory) => categorySlugs.has(assignedCategory))
   })
-  const leaf = children.length === 0
   const subCats = children.length > 0 ? children : getLeafCategories().filter((item) => item.slug !== slug)
 
   return (

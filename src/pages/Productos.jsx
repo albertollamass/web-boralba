@@ -5,18 +5,6 @@ import { useProducts } from '../context/ProductsContext'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 import { normalizeText, searchProducts } from '../lib/search'
 
-const CATEGORY_DEFINITIONS = [
-  { slug: 'tiras-led', label: 'Tiras LED 24V', aliases: ['tiras-led', 'tiras-led-24v'] },
-  { slug: 'tiras-220v', label: 'Tiras LED 220V', aliases: ['tiras-220v'] },
-  { slug: 'perfiles', label: 'Perfiles de aluminio', aliases: ['perfiles'] },
-  { slug: 'tiras-neon', label: 'Neón Flex', aliases: ['tiras-neon', 'neon', 'flex'] },
-  { slug: 'controladores-y-fuentes', label: 'Drivers', aliases: ['controladores-y-fuentes', 'drivers', 'fuentes'] },
-  { slug: 'controladores-y-fuentes', label: 'Controladores y mandos', aliases: ['controladores-y-fuentes', 'controladores'] },
-  { slug: 'proyectores', label: 'Proyectores', aliases: ['proyectores'] },
-  { slug: 'sensores', label: 'Sensores', aliases: ['sensores', 'sensor'] },
-  { slug: 'downlight-led', label: 'Downlights y paneles', aliases: ['downlight-led', 'panel-led', 'downlights', 'paneles'] },
-]
-
 const FILTERS = [
   { key: 'application', label: 'Aplicación', placeholder: 'Todas las aplicaciones' },
   { key: 'power', label: 'Potencia', placeholder: 'Cualquier potencia' },
@@ -66,16 +54,13 @@ function ProductTile({ product, categoryName }) {
 
 export default function Productos() {
   const { products } = useProducts()
-  const { getCategory, getBreadcrumb, getDescendantSlugs } = useCategories()
+  const { ROOT, getChildren, getCategory, getBreadcrumb, getDescendantSlugs } = useCategories()
   const { settings } = useSiteSettings()
   const [query, setQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [filters, setFilters] = useState({})
 
-  const categories = useMemo(() => CATEGORY_DEFINITIONS.map((definition) => {
-    const category = definition.aliases.map((slug) => getCategory(slug)).find(Boolean)
-    return { ...definition, targetSlug: category?.slug || definition.slug, image: category?.image || 'images/placeholder.svg', categoryName: category?.name }
-  }), [getCategory])
+  const categories = useMemo(() => getChildren(ROOT.slug), [getChildren, ROOT.slug])
 
   const productsWithCategory = useMemo(() => products.map((product) => {
     const assignedCategories = [...new Set([product.category, ...(Array.isArray(product.categories) ? product.categories : [])].filter(Boolean))]
@@ -137,8 +122,8 @@ export default function Productos() {
         <div className="catalog-section-label"><span>Explora por familia</span><span className="catalog-line" /></div>
         <h2 id="catalog-categories-title">¿Qué estás buscando?</h2>
         <div className="catalog-category-grid">
-          {categories.map((category) => <Link to={`/categoria/${category.targetSlug}`} key={`${category.label}-${category.slug}`} className="catalog-category">
-            <span className="catalog-category-image"><img src={category.image} alt="" /></span><span>{category.label}</span><b>↗</b>
+          {categories.map((category) => <Link to={`/categoria/${category.slug}`} key={category.slug} className="catalog-category">
+            <span className="catalog-category-image"><img src={category.image || 'images/placeholder.svg'} alt={category.name} /></span><span>{category.name}</span><b>↗</b>
           </Link>)}
         </div>
       </section>
@@ -150,7 +135,7 @@ export default function Productos() {
         </div>
         <div className="catalog-filterbar">
           <span className="catalog-filter-label">Filtrar por</span>
-          <label className="catalog-filter"><span className="sr-only">Categoría</span><select value={selectedCategory} onChange={(event) => { setSelectedCategory(event.target.value); setQuery('') }}><option value="">Todas las categorías</option>{categories.map((category) => <option value={category.slug} key={`${category.label}-filter`}>{category.label}</option>)}</select></label>
+          <label className="catalog-filter"><span className="sr-only">Categoría</span><select value={selectedCategory} onChange={(event) => { setSelectedCategory(event.target.value); setQuery('') }}><option value="">Todas las categorías</option>{categories.map((category) => <option value={category.slug} key={category.slug}>{category.name}</option>)}</select></label>
           {FILTERS.map(({ key, label, placeholder }) => <label key={key} className="catalog-filter"><span className="sr-only">{label}</span><select value={filters[key] || ''} onChange={(event) => setFilters((current) => ({ ...current, [key]: event.target.value }))}><option value="">{placeholder}</option>{options[key].map((option) => <option key={option} value={option}>{option}</option>)}</select></label>)}
         </div>
         {results.length > 0 ? <div className="catalog-product-grid">{results.map((product) => <ProductTile key={product.id} product={product} categoryName={product.categoryName} />)}</div> : <div className="catalog-empty"><span>⌕</span><h3>No hemos encontrado productos que cumplan exactamente estos criterios.</h3><p>Puedes eliminar algún filtro o probar con una búsqueda más general.</p><button type="button" className="catalog-button" onClick={clearAll}>Limpiar criterios</button></div>}
