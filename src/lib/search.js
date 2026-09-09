@@ -1,5 +1,17 @@
-export function normalizeText(s) {
-  return String(s || '')
+export const DEFAULT_SEARCH_SYNONYMS = [
+  { terms: ['calida', 'calido', 'calida'], field: 'temperature', values: ['2700k', '3000k', 'luz calida'] },
+  { terms: ['neutra', 'neutro'], field: 'temperature', values: ['4000k', 'luz neutra'] },
+  { terms: ['fria', 'frio'], field: 'temperature', values: ['5000k', '6000k', 'luz fria'] },
+  { terms: ['empotrable', 'empotrado'], field: 'all', values: ['instalacion empotrable', 'empotrar', 'empotrable'] },
+  { terms: ['superficie'], field: 'all', values: ['instalacion en superficie', 'superficie'] },
+  { terms: ['exterior'], field: 'ip', values: ['ip65', 'ip67', 'ip68'] },
+  { terms: ['armario'], field: 'application', values: ['sensor armario', 'iluminacion interior de armario', 'armario'] },
+  { terms: ['controlador', 'controladores', 'mando', 'mandos'], field: 'category', values: ['controlador', 'driver', 'mando'] },
+  { terms: ['inteligente'], field: 'technical', values: ['casambi', 'dali', 'dmx', 'alexa', 'zigbee'] },
+]
+
+export function normalizeText(value) {
+  return String(value || '')
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -7,107 +19,131 @@ export function normalizeText(s) {
     .trim()
 }
 
-export function extractPower(query) {
-  const m = String(query || '').match(/(\d+(?:[.,]\d+)?)\s*w\b/i)
-  if (m) return parseFloat(m[1].replace(',', '.'))
-  const num = String(query || '').trim().match(/^\d+(?:[.,]\d+)?$/)
-  return num ? parseFloat(num[0].replace(',', '.')) : null
+const asText = (value) => {
+  if (Array.isArray(value)) return value.map(asText).join(' ')
+  if (value && typeof value === 'object') return Object.values(value).map(asText).join(' ')
+  return String(value || '')
 }
 
-function parsePowerValue(value) {
-  const m = String(value || '').match(/(\d+(?:[.,]\d+)?)\s*w/i)
-  if (!m) return null
-  return parseFloat(m[1].replace(',', '.'))
-}
-
-function hasPowerSpec(product, qPower) {
-  if (qPower == null) return false
-  return (product.specs || []).some((s) => {
-    if (normalizeText(s.label) !== 'potencia') return false
-    const v = parsePowerValue(s.value)
-    return v != null && Math.abs(v - qPower) < 0.001
-  })
-}
-
-function powerTokenIn(value, qPower) {
-  if (qPower == null) return false
-  const str = normalizeText(value)
-  const token = `(?:^|[^0-9])${qPower}(?:w)?(?![0-9])`
-  return new RegExp(token).test(str)
-}
-
-function productText(p) {
-  const parts = [p.name, p.ref, p.description]
-  ;(p.specs || []).forEach((s) => parts.push(s.label, s.value))
-  ;(p.features || []).forEach((f) => parts.push(f))
-  ;(p.applications || []).forEach((a) => parts.push(typeof a === 'object' ? [a.text, a.title, a.name, a.description] : a))
-  ;(p.advantages || []).forEach((a) => parts.push(typeof a === 'object' ? [a.text, a.title, a.name, a.description] : a))
-  ;(p.tags || []).forEach((t) => parts.push(t))
-  return parts.map(normalizeText).filter(Boolean).join(' ')
-}
-
-function tokenContains(haystack, token) {
-  if (!token) return false
-  return haystack.split(' ').some((w) => w.includes(token))
-}
-
-function distance(a, b) {
-  const row = Array.from({ length: b.length + 1 }, (_, index) => index)
-  for (let i = 1; i <= a.length; i += 1) {
-    let diagonal = row[0]
-    row[0] = i
-    for (let j = 1; j <= b.length; j += 1) {
-      const above = row[j]
-      row[j] = a[i - 1] === b[j - 1] ? diagonal : Math.min(diagonal + 1, row[j] + 1, row[j - 1] + 1)
-      diagonal = above
-    }
+const fieldText = (product) => {
+  const specs = (product.specs || []).map((spec) => `${spec.label || ''} ${spec.value || ''} ${spec.unit || ''}`).join(' ')
+  const applications = asText(product.applications)
+  const features = asText(product.features)
+  const tags = asText(product.tags)
+  const technical = `${specs} ${features} ${tags}`
+  return {
+    name: normalizeText(product.name),
+    ref: normalizeText(product.ref),
+    category: normalizeText(`${product.categoryName || ''} ${product.categorySearch || ''} ${product.category || ''}`),
+    description: normalizeText(product.description),
+    application: normalizeText(applications),
+    technical: normalizeText(technical),
+    all: normalizeText(`${product.name || ''} ${product.ref || ''} ${product.categoryName || ''} ${product.categorySearch || ''} ${product.category || ''} ${product.description || ''} ${applications} ${technical}`),
+    specs: (product.specs || []).map((spec) => ({ label: normalizeText(spec.label), value: normalizeText(`${spec.value || ''} ${spec.unit || ''}`) })),
   }
-  return row[b.length]
 }
 
-function tokenMatches(haystack, token) {
-  if (tokenContains(haystack, token)) return true
-  if (token.length < 4) return false
-  return haystack.split(' ').some((word) => distance(word, token) <= (token.length > 7 ? 2 : 1))
+const specValues = (fields, labels) => fields.specs.filter((spec) => labels.some((label) => spec.label === label || spec.label.includes(label))).map((spec) => spec.value).join(' ')
+const compactUnits = (value) => normalizeText(value).replace(/(\d)\s+(?=[a-z])/g, '$1')
+
+function numericSpec(fields, labels) {
+  const value = specValues(fields, labels)
+  const match = value.match(/(?:^|\D)(\d+(?:[.,]\d+)?)(?:\s*)(?:k|v|w|%|$)/i)
+  return match ? Number(match[1].replace(',', '.')) : null
 }
 
-export function searchProducts(products, query) {
-  const q = normalizeText(query)
-  if (!q) return []
+function matchesTechnicalCondition(fields, condition) {
+  if (condition.type === 'voltage') return numericSpec(fields, ['voltaje', 'tension']) === condition.value
+  if (condition.type === 'ip') return numericSpec(fields, ['ip', 'proteccion ip']) >= condition.value
+  if (condition.type === 'cri') return numericSpec(fields, ['cri', 'reproduccion cromatica']) >= condition.value
+  if (condition.type === 'temperature') {
+    const values = compactUnits(specValues(fields, ['temperatura', 'temperatura de color']))
+    return condition.values.some((value) => values.includes(compactUnits(value)))
+  }
+  return false
+}
 
-  const qPower = extractPower(query)
-  const qTokens = q.split(' ').filter((t) => !/^\d+(?:[.,]\d+)?w?$/.test(t))
-  const isPowerQuery = qPower != null
+function matchesValue(fields, field, values) {
+  if (field === 'temperature') {
+    const actual = compactUnits(`${specValues(fields, ['temperatura', 'temperatura de color'])} ${fields.technical} ${fields.application}`)
+    return values.some((value) => actual.includes(compactUnits(value)))
+  }
+  if (field === 'ip') {
+    const actual = numericSpec(fields, ['ip', 'proteccion ip'])
+    const requested = values.map((value) => Number(normalizeText(value).match(/\d+/)?.[0])).filter(Boolean)
+    return actual != null && requested.some((value) => actual >= value)
+  }
+  const haystack = fields[field] || fields.all
+  return values.some((value) => haystack.includes(normalizeText(value)))
+}
 
-  const scored = products.map((p) => {
-    let score = 0
-    const haystack = productText(p) + ` ${normalizeText(p.categoryName)} ${normalizeText(p.categorySearch)}`
-    const name = normalizeText(p.name)
-    const ref = normalizeText(p.ref)
+function findSynonym(token, synonyms) {
+  return synonyms.find((synonym) => (synonym.terms || []).map(normalizeText).includes(token))
+}
 
-    if (isPowerQuery) {
-      const powerMatch =
-        hasPowerSpec(p, qPower) || powerTokenIn(name, qPower) || powerTokenIn(ref, qPower)
-      if (!powerMatch) return null
-      score += 100
-    }
+function parseQuery(query, synonyms) {
+  const normalized = normalizeText(query)
+    .replace(/\b(12|24|220)\s+v\b/g, '$1v')
+    .replace(/\bip\s+(\d{2})\b/g, 'ip$1')
+    .replace(/\bcri\s+(\d{2})\b/g, 'cri$1')
+    .replace(/\b(2700|3000|4000|5000|6000)\s+k\b/g, '$1k')
+  const technical = []
+  const ignored = new Set()
+  const addTechnical = (type, value) => technical.push({ type, value })
+  const tokens = normalized.split(' ').filter(Boolean)
 
-    const extraTokens = qTokens.filter((t) => t.length >= 2)
-    if (extraTokens.every((t) => tokenMatches(haystack, t))) {
-      score += 20
-    } else if (extraTokens.length > 0) {
-      return null
-    }
-
-    if (name.includes(q)) score += 50
-    if (ref.includes(q)) score += 30
-    if (haystack.includes(q)) score += 10
-
-    return { product: p, score }
+  tokens.forEach((token, index) => {
+    const voltage = token.match(/^(12|24|220)v$/)
+    const ip = token.match(/^ip(\d{2})$/)
+    const cri = token.match(/^cri(\d{2})$/)
+    const temperature = token.match(/^(2700|3000|4000|5000|6000)k$/)
+    if (voltage) { addTechnical('voltage', Number(voltage[1])); ignored.add(index); return }
+    if (ip) { addTechnical('ip', Number(ip[1])); ignored.add(index); return }
+    if (cri) { addTechnical('cri', Number(cri[1])); ignored.add(index); return }
+    if (temperature) { technical.push({ type: 'temperature', values: [temperature[0]] }); ignored.add(index); return }
+    const synonym = findSynonym(token, synonyms)
+    if (synonym) { technical.push({ type: 'synonym', field: synonym.field || 'all', values: synonym.values || [] }); ignored.add(index) }
   })
 
-  return scored
-    .filter(Boolean)
-    .sort((a, b) => b.score - a.score)
-    .map((s) => s.product)
+  return { normalized, tokens: tokens.filter((_, index) => !ignored.has(index)), technical }
+}
+
+function tokenMatches(text, token) {
+  if (text.split(' ').some((word) => word === token || word.includes(token))) return true
+  if (token.length < 4) return false
+  return text.split(' ').some((word) => {
+    if (Math.abs(word.length - token.length) > 1) return false
+    let differences = 0
+    for (let index = 0; index < Math.max(word.length, token.length); index += 1) if (word[index] !== token[index]) differences += 1
+    return differences <= 1
+  })
+}
+
+export function searchProducts(products, query, options = {}) {
+  const synonyms = options.synonyms || DEFAULT_SEARCH_SYNONYMS
+  const parsed = parseQuery(query, synonyms)
+  if (!parsed.normalized) return []
+
+  const exactReference = products.filter((product) => normalizeText(product.ref) === parsed.normalized)
+  if (exactReference.length) return exactReference
+
+  return products.map((product) => {
+    const fields = fieldText(product)
+    if (!parsed.technical.every((condition) => condition.type === 'synonym'
+      ? matchesValue(fields, condition.field, condition.values)
+      : matchesTechnicalCondition(fields, condition))) return null
+    if (!parsed.tokens.every((token) => tokenMatches(fields.all, token))) return null
+
+    let score = 0
+    if (fields.name === parsed.normalized) score += 1000
+    else if (fields.name.includes(parsed.normalized)) score += 700
+    if (fields.ref.includes(parsed.normalized)) score += 600
+    if (fields.category.includes(parsed.normalized)) score += 500
+    if (parsed.technical.length) score += 300
+    if (parsed.tokens.every((token) => tokenMatches(fields.category, token))) score += 100
+    if (parsed.tokens.every((token) => tokenMatches(fields.technical, token))) score += 70
+    if (parsed.tokens.every((token) => tokenMatches(fields.application, token))) score += 40
+    if (fields.all.includes(parsed.normalized)) score += 20
+    return { product, score }
+  }).filter(Boolean).sort((a, b) => b.score - a.score).map(({ product }) => product)
 }

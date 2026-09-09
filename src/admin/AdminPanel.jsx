@@ -11,6 +11,7 @@ const emptyProduct = () => ({
   name: '',
   ref: '',
   category: '',
+  categories: [],
   price: '',
   unit: '',
   image: '',
@@ -271,7 +272,10 @@ export default function AdminPanel() {
 
 function SettingsView({ settings, onSave }) {
   const [form, setForm] = useState(settings)
-  return <form className="form admin-form-section" onSubmit={(event) => { event.preventDefault(); onSave(form); alert('Configuración guardada.') }}><h2>Configuración general</h2><p className="admin-help">Estos datos se reutilizan en el asesoramiento técnico y no se guardan por producto.</p><label>Teléfono<input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label><label>Correo electrónico<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label><label>Horario<input value={form.hours} onChange={(e) => setForm({ ...form, hours: e.target.value })} /></label><button className="btn btn-primary" type="submit">Guardar configuración</button></form>
+  const [synonyms, setSynonyms] = useState(() => (settings.searchSynonyms || []).map((synonym) => ({ ...synonym, terms: [...(synonym.terms || [])], values: [...(synonym.values || [])] })))
+  const updateSynonym = (index, key, value) => setSynonyms((current) => current.map((synonym, i) => i === index ? { ...synonym, [key]: value } : synonym))
+  const updateSynonymList = (index, key, value) => updateSynonym(index, key, value.split(',').map((item) => item.trim()).filter(Boolean))
+  return <form className="form admin-form-section" onSubmit={(event) => { event.preventDefault(); onSave({ ...form, searchSynonyms: synonyms.filter((synonym) => synonym.terms.length && synonym.values.length) }); alert('Configuración guardada.') }}><h2>Configuración general</h2><p className="admin-help">Estos datos se reutilizan en el asesoramiento técnico y no se guardan por producto.</p><label>Teléfono<input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label><label>Correo electrónico<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label><label>Horario<input value={form.hours} onChange={(e) => setForm({ ...form, hours: e.target.value })} /></label><div className="admin-synonyms"><h3>Sinónimos controlados del buscador</h3><p className="admin-help">Solo amplían la búsqueda cuando el producto contiene realmente los valores indicados. No añadas características que el producto no tenga.</p>{synonyms.map((synonym, index) => <div className="admin-synonym-row" key={index}><input value={synonym.terms.join(', ')} onChange={(e) => updateSynonymList(index, 'terms', e.target.value)} placeholder="Términos: cálida, cálido" /><select value={synonym.field || 'all'} onChange={(e) => updateSynonym(index, 'field', e.target.value)}><option value="all">Cualquier campo</option><option value="temperature">Temperatura</option><option value="ip">Protección IP</option><option value="application">Aplicación</option><option value="technical">Datos técnicos</option><option value="category">Categoría</option></select><input value={synonym.values.join(', ')} onChange={(e) => updateSynonymList(index, 'values', e.target.value)} placeholder="Valores reales: 2700K, 3000K" /><button type="button" className="btn btn-danger btn-sm" onClick={() => setSynonyms((current) => current.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => setSynonyms((current) => [...current, { terms: [], field: 'all', values: [] }])}>+ Añadir sinónimo</button></div><button className="btn btn-primary" type="submit">Guardar configuración</button></form>
 }
 
 function CategoriesView({ ctx, onNew, onEdit }) {

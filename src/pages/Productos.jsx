@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 import { normalizeText, searchProducts } from '../lib/search'
 
 const CATEGORY_DEFINITIONS = [
@@ -38,6 +39,16 @@ const valueFor = (product, key) => {
 
 const asText = (value) => Array.isArray(value) ? value.map((item) => typeof item === 'object' ? Object.values(item).join(' ') : item).join(' ') : String(value || '')
 
+const numericValue = (value) => Number(normalizeText(value).match(/\d+(?:[.,]\d+)?/)?.[0]?.replace(',', '.'))
+
+const filterMatches = (product, key, selected) => {
+  const actual = asText(valueFor(product, key))
+  if (!actual) return false
+  if (key === 'voltage') return numericValue(actual) === numericValue(selected)
+  if (key === 'ip' || key === 'cri') return numericValue(actual) >= numericValue(selected)
+  return normalizeText(actual).includes(normalizeText(selected))
+}
+
 function ProductTile({ product, categoryName }) {
   return (
     <Link className="catalog-product" to={`/producto/${product.id}`}>
@@ -56,20 +67,24 @@ function ProductTile({ product, categoryName }) {
 export default function Productos() {
   const { products } = useProducts()
   const { getCategory, getBreadcrumb, getDescendantSlugs } = useCategories()
+  const { settings } = useSiteSettings()
   const [query, setQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [filters, setFilters] = useState({})
 
   const categories = useMemo(() => CATEGORY_DEFINITIONS.map((definition) => {
     const category = definition.aliases.map((slug) => getCategory(slug)).find(Boolean)
-    return { ...definition, image: category?.image || 'images/placeholder.svg', categoryName: category?.name }
+    return { ...definition, targetSlug: category?.slug || definition.slug, image: category?.image || 'images/placeholder.svg', categoryName: category?.name }
   }), [getCategory])
 
-  const productsWithCategory = useMemo(() => products.map((product) => ({
-    ...product,
-    categoryName: getCategory(product.category)?.name || product.category || '',
-    categorySearch: getBreadcrumb(product.category).map((category) => category.name).join(' '),
-  })), [products, getCategory, getBreadcrumb])
+  const productsWithCategory = useMemo(() => products.map((product) => {
+    const assignedCategories = [...new Set([product.category, ...(Array.isArray(product.categories) ? product.categories : [])].filter(Boolean))]
+    return {
+      ...product,
+      categoryName: getCategory(product.category)?.name || product.category || '',
+      categorySearch: assignedCategories.flatMap((assignedCategory) => getBreadcrumb(assignedCategory).map((category) => category.name)).join(' '),
+    }
+  }), [products, getCategory, getBreadcrumb])
 
   const initialProducts = useMemo(() => [...productsWithCategory]
     .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)))
@@ -83,30 +98,20 @@ export default function Productos() {
 
   const results = useMemo(() => {
     const hasQuery = Boolean(normalizeText(query))
-    let result = hasQuery ? searchProducts(productsWithCategory, query) : selectedCategory ? productsWithCategory : initialProducts
-    if (hasQuery && result.length === 0) {
-      const related = normalizeText(query).split(' ').filter((token) => token.length > 2)
-        .flatMap((token) => searchProducts(productsWithCategory, token))
-      result = [...new Map(related.map((product) => [product.id, product])).values()].slice(0, 8)
-    }
+    let result = hasQuery ? searchProducts(productsWithCategory, query, { synonyms: settings.searchSynonyms }) : selectedCategory ? productsWithCategory : initialProducts
     if (selectedCategory) {
       const slugs = new Set(getDescendantSlugs(selectedCategory))
       result = result.filter((product) => slugs.has(product.category) || (selectedCategory === 'downlight-led' && ['panel-led'].includes(product.category)))
     }
     return result.filter((product) => FILTERS.every(({ key }) => {
       if (!filters[key]) return true
-      return normalizeText(asText(valueFor(product, key))).includes(normalizeText(filters[key]))
+      return filterMatches(product, key, filters[key])
     }))
-  }, [query, selectedCategory, filters, productsWithCategory, initialProducts, getDescendantSlugs])
+  }, [query, selectedCategory, filters, productsWithCategory, initialProducts, getDescendantSlugs, settings.searchSynonyms])
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
   const showingResults = Boolean(normalizeText(query) || selectedCategory || activeFilterCount)
   const clearAll = () => { setQuery(''); setSelectedCategory(''); setFilters({}) }
-  const selectCategory = (slug) => {
-    setSelectedCategory((current) => current === slug ? '' : slug)
-    setQuery('')
-    document.getElementById('catalog-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   return (
     <main className="catalog-page">
@@ -132,9 +137,9 @@ export default function Productos() {
         <div className="catalog-section-label"><span>Explora por familia</span><span className="catalog-line" /></div>
         <h2 id="catalog-categories-title">¿Qué estás buscando?</h2>
         <div className="catalog-category-grid">
-          {categories.map((category) => <button type="button" key={`${category.label}-${category.slug}`} className={`catalog-category${selectedCategory === category.slug ? ' is-active' : ''}`} onClick={() => selectCategory(category.slug)}>
+          {categories.map((category) => <Link to={`/categoria/${category.targetSlug}`} key={`${category.label}-${category.slug}`} className="catalog-category">
             <span className="catalog-category-image"><img src={category.image} alt="" /></span><span>{category.label}</span><b>↗</b>
-          </button>)}
+          </Link>)}
         </div>
       </section>
 
@@ -145,9 +150,10 @@ export default function Productos() {
         </div>
         <div className="catalog-filterbar">
           <span className="catalog-filter-label">Filtrar por</span>
+          <label className="catalog-filter"><span className="sr-only">Categoría</span><select value={selectedCategory} onChange={(event) => { setSelectedCategory(event.target.value); setQuery('') }}><option value="">Todas las categorías</option>{categories.map((category) => <option value={category.slug} key={`${category.label}-filter`}>{category.label}</option>)}</select></label>
           {FILTERS.map(({ key, label, placeholder }) => <label key={key} className="catalog-filter"><span className="sr-only">{label}</span><select value={filters[key] || ''} onChange={(event) => setFilters((current) => ({ ...current, [key]: event.target.value }))}><option value="">{placeholder}</option>{options[key].map((option) => <option key={option} value={option}>{option}</option>)}</select></label>)}
         </div>
-        {results.length > 0 ? <div className="catalog-product-grid">{results.map((product) => <ProductTile key={product.id} product={product} categoryName={product.categoryName} />)}</div> : <div className="catalog-empty"><span>⌕</span><h3>No hemos encontrado ese producto.</h3><p>Prueba con tira LED, perfil, driver, sensor o downlight.</p><button type="button" className="catalog-button" onClick={clearAll}>Ver productos recomendados</button></div>}
+        {results.length > 0 ? <div className="catalog-product-grid">{results.map((product) => <ProductTile key={product.id} product={product} categoryName={product.categoryName} />)}</div> : <div className="catalog-empty"><span>⌕</span><h3>No hemos encontrado productos que cumplan exactamente estos criterios.</h3><p>Puedes eliminar algún filtro o probar con una búsqueda más general.</p><button type="button" className="catalog-button" onClick={clearAll}>Limpiar criterios</button></div>}
       </section>
     </main>
   )

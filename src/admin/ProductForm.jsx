@@ -53,6 +53,7 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
   const { getChildren, getCategoryPathLabel, getDescendantSlugs, ROOT } = useCategories()
   const [product, setProduct] = useState(() => ({
     ...initial,
+    categories: [...new Set((Array.isArray(initial.categories) && initial.categories.length ? initial.categories : [initial.category]).filter(Boolean))],
     specs: (initial.specs || []).map((s) => ({ label: s.label || '', value: s.value || '', unit: s.unit || '', featured: Boolean(s.featured) })),
     applications: normalizeApplications(initial.applications),
     advantages: normalizeAdvantages(initial.advantages),
@@ -123,6 +124,8 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
     if (!product.name || !product.category) return alert('El nombre y la categoría son obligatorios.')
     onSubmit({
       ...product,
+      category: product.categories?.[0] || product.category,
+      categories: [...new Set((product.categories || [product.category]).filter(Boolean))],
       price: product.price === '' || product.price == null ? null : Number(product.price),
        image: product.image || 'images/placeholder.svg',
       longDescription: list(product.longDescription),
@@ -156,10 +159,11 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
           <div><label>Referencia</label><input value={product.ref || ''} onChange={set('ref')} /></div>
         </div>
         <label>Categoría *</label>
-        <select value={product.category || ''} onChange={set('category')} required>
+        <select multiple value={product.categories || (product.category ? [product.category] : [])} onChange={(e) => setProduct((p) => { const categories = [...e.target.selectedOptions].map((option) => option.value); return { ...p, category: categories[0] || '', categories } })} required>
           <option value="">Selecciona una categoría...</option>
           {topCats.map((top) => <optgroup key={top.slug} label={top.name}>{getDescendantSlugs(top.slug).map((s) => <option key={s} value={s}>{getCategoryPathLabel(s)}</option>)}</optgroup>)}
         </select>
+        <p className="admin-help">Puedes seleccionar varias subcategorías manteniendo Ctrl/Cmd. La primera será la categoría principal.</p>
         <div className="admin-form-grid two">
           <div><label>Descripción corta</label><textarea value={product.description || ''} onChange={set('description')} /></div>
           <div><label>Descripción larga <small>(un párrafo por línea)</small></label><textarea value={text(product.longDescription)} onChange={set('longDescription')} /></div>

@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { DEFAULT_SEARCH_SYNONYMS } from '../lib/search'
 
-const defaults = { phone: '(34) 91 870 71 13', email: 'boralba@boralba.es', hours: 'Lunes a Viernes · 8:00 – 18:00' }
+const defaults = { phone: '(34) 91 870 71 13', email: 'boralba@boralba.es', hours: 'Lunes a Viernes · 8:00 – 18:00', searchSynonyms: DEFAULT_SEARCH_SYNONYMS }
 const SettingsContext = createContext(null)
 
 export function SiteSettingsProvider({ children }) {

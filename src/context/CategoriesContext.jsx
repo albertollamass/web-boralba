@@ -32,7 +32,9 @@ export function CategoriesProvider({ children }) {
     let cancelled = false
     async function init() {
       if (!isSupabaseConfigured) {
-        setCategories([])
+        // Keep the public catalogue navigable when Supabase is not configured.
+        // The seed tree is also the fallback used by the product navigation.
+        setCategories(seedCategories)
         setSyncStatus('error')
         setHydrated(true)
         return
