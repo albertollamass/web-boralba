@@ -219,7 +219,13 @@ function Home() {
               ))}
               <Link to="/contacto" className="redesign-btn-primary redesign-btn-compact" onClick={() => setMenuOpen(false)}>Solicitar presupuesto</Link>
             </div>
-            <ParallaxMedia src="images/lobby.png" alt="Instalación de iluminación arquitectónica" speed={0.16} zoom={0.12} />
+            <img
+              className="redesign-hero-image"
+              src="images/lobby.png"
+              alt="Instalación de iluminación arquitectónica"
+              loading="eager"
+              fetchPriority="high"
+            />
             <div className="redesign-hero-wash" />
             <div className="redesign-hero-content">
               <span className="redesign-hero-pill">Iluminación técnica para proyectos que dejan huella</span>

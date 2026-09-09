@@ -4337,8 +4337,18 @@ background: var(--color-surface-2);
   flex-direction: column;
   box-shadow: none;
 }
-.redesign-hero .media-fx { position: absolute; inset: 0; }
-.redesign-hero .media-fx img { filter: none; }
+.redesign-hero-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: none;
+  transform: none;
+  image-rendering: auto;
+}
 .redesign-hero-wash {
   position: absolute;
   inset: 0;
