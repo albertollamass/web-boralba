@@ -110,7 +110,7 @@ export default function Productos() {
           <div className="catalog-search-wrap">
             <div className="catalog-search">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16.5 16.5 4 4" /></svg>
-              <input value={query} onChange={(event) => { setQuery(event.target.value); setSelectedCategory('') }} placeholder="Busca por producto, aplicación o característica" aria-label="Buscar productos" />
+              <input value={query} onChange={(event) => { setQuery(event.target.value); setSelectedCategory('') }} placeholder="Buscar por código, producto o característica" aria-label="Buscar por código, producto o característica" />
               {query && <button type="button" className="catalog-clear" onClick={() => setQuery('')} aria-label="Borrar búsqueda">×</button>}
             </div>
             {!query && <div className="catalog-search-note">Prueba con <button type="button" onClick={() => setQuery('tira cálida')}>tira cálida</button>, <button type="button" onClick={() => setQuery('perfil techo')}>perfil techo</button> o <button type="button" onClick={() => setQuery('DALI')}>DALI</button></div>}
@@ -123,7 +123,7 @@ export default function Productos() {
         <h2 id="catalog-categories-title">¿Qué estás buscando?</h2>
         <div className="catalog-category-grid">
           {categories.map((category) => <Link to={`/categoria/${category.slug}`} key={category.slug} className="catalog-category">
-            <span className="catalog-category-image"><img src={category.image || 'images/placeholder.svg'} alt={category.name} /></span><span>{category.name}</span><b>↗</b>
+            <span className="catalog-category-image"><img src={category.image || 'images/placeholder.svg'} alt={category.name} /></span><span>{category.name}</span>
           </Link>)}
         </div>
       </section>
