@@ -108,11 +108,12 @@ export function ParallaxMedia({ src, alt, speed = 0.16, zoom = 0.1, className = 
  * - `--drive-op`:    opacidad (0 → 1) del elemento en su viaje.
  * - `--drive-y`:     desplazamiento vertical en px (negativo = hacia arriba).
  * - `--drive-scale`: escala del elemento (1 en reposo).
+ * - `--drive-blur`:  desenfoque cinematográfico al entrar/salir (0 en reposo).
  * - `--drive-exit`:  0 → 1 mientras abandona la parte superior del viewport.
  * Solo escucha scroll cuando el elemento está cerca del viewport y respeta
  * `prefers-reduced-motion` (en ese caso las variables quedan en reposo).
  */
-export function useScrollDrive({ range = 0.85, start = 0.08, y = 150, scale = 0.06, fade = 0.94 } = {}) {
+export function useScrollDrive({ range = 0.85, start = 0.08, y = 150, scale = 0.06, fade = 0.94, blur = 6 } = {}) {
   const ref = useRef(null)
 
   useEffect(() => {
@@ -132,6 +133,7 @@ export function useScrollDrive({ range = 0.85, start = 0.08, y = 150, scale = 0.
       el.style.setProperty('--drive-op', String(1 - exit * fade))
       el.style.setProperty('--drive-y', `${(-exit * y).toFixed(1)}px`)
       el.style.setProperty('--drive-scale', (1 - exit * scale).toFixed(4))
+      el.style.setProperty('--drive-blur', `${(exit * blur).toFixed(2)}px`)
       el.style.setProperty('--drive-exit', exit.toFixed(4))
       el.style.setProperty('--drive-in', enter.toFixed(4))
     }
@@ -147,7 +149,7 @@ export function useScrollDrive({ range = 0.85, start = 0.08, y = 150, scale = 0.
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }
-  }, [range, start, y, scale, fade])
+  }, [range, start, y, scale, fade, blur])
 
   return ref
 }
