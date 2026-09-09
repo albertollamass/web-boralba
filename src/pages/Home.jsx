@@ -1,43 +1,171 @@
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import FamilyCarousel from '../components/FamilyCarousel'
+import Reveal, { ParallaxMedia, useScrollDrive } from '../components/Reveal'
 import { useCategories } from '../context/CategoriesContext'
-import { useProducts } from '../context/ProductsContext'
-import { useSiteSettings } from '../context/SiteSettingsContext'
 import { ROOT } from '../data/categories'
 
-const solutions = [
-  { icon: '01', title: 'Para instaladores', desc: 'Productos compatibles, documentación técnica y soporte directo.' },
-  { icon: '02', title: 'Para arquitectos e interioristas', desc: 'Inspiración, detalles constructivos y asesoramiento de proyecto.' },
-  { icon: '03', title: 'Para distribuidores', desc: 'Catálogo profesional, atención comercial y disponibilidad.' },
+const advantages = [
+  { num: '01', title: 'Producto técnico y fiable', desc: 'Materiales seleccionados para garantizar un funcionamiento estable y duradero.' },
+  { num: '02', title: 'Asesoramiento especializado', desc: 'Te ayudamos a elegir la solución adecuada según el proyecto, la potencia, la temperatura de color y el sistema de control.' },
+  { num: '03', title: 'Respuesta rápida', desc: 'Facilitamos presupuestos, fichas técnicas y documentación para que puedas avanzar sin perder tiempo.' },
+  { num: '04', title: 'Soluciones personalizadas', desc: 'Adaptamos la propuesta a las necesidades de cada instalación.' },
 ]
 
-const experienceItems = [
-  'Más de 30 años de experiencia',
-  'Asesoramiento técnico especializado',
-  'Corte y preparación a medida',
-  'Selección de componentes compatibles',
-  'Atención directa a profesionales',
-  'Soluciones para proyectos de cualquier escala',
-]
-
-const smartPillars = [
-  { num: '01', title: 'Diseño de la solución' },
-  { num: '02', title: 'Programación y puesta en marcha' },
-  { num: '03', title: 'Asistencia técnica' },
+const professionalLinks = [
+  { label: 'Arquitectos e interioristas', to: '/servicios' },
+  { label: 'Instaladores', to: '/productos' },
+  { label: 'Distribuidores', to: '/contacto' },
+  { label: 'Proyectos especiales', to: '/proyectos' },
 ]
 
 const applications = [
-  { label: 'Residencial', img: 'images/lobby.png' },
-  { label: 'Retail', img: 'images/productos.png' },
-  { label: 'Hoteles y restauración', img: 'images/asesoramiento.png' },
+  { label: 'Iluminación indirecta', img: 'images/proyectos/Madrid-Sur1.jpg' },
+  { label: 'Iluminación de muebles', img: 'images/proyectos/decoracion_hogar.jpg' },
+  { label: 'Hoteles y restauración', img: 'images/proyectos/centro_eventos.jpg' },
+  { label: 'Tiendas y comercios', img: 'images/productos.png' },
+  { label: 'Oficinas', img: 'images/proyectos/oficinas.jpg' },
+  { label: 'Viviendas', img: 'images/proyectos/torre_consuerga_1.jpg' },
+  { label: 'Centros educativos y deportivos', img: 'images/proyectos/centro_medico_1.jpg' },
 ]
 
-export default function Home() {
+const stats = [
+  { num: '+25', label: 'años de experiencia' },
+  { num: '100%', label: 'asesoramiento técnico personalizado' },
+  { num: 'LED', label: 'soluciones profesionales' },
+  { num: 'Madrid', label: 'envíos desde Madrid' },
+]
+
+const testimonials = [
+  {
+    quote: 'Desde el primer contacto recibimos un asesoramiento impecable. La selección de perfiles y tiras LED encajó perfectamente con el proyecto de iluminación indirecta del nuevo restaurante.',
+    name: 'Carlos Ruiz',
+    company: 'Arquitecto · Estudio Ruiz',
+  },
+  {
+    quote: 'Respuesta rápida, documentación técnica clara y productos de calidad. Son el aliado perfecto para cualquier instalación LED profesional.',
+    name: 'María González',
+    company: 'Instaladora eléctrica',
+  },
+  {
+    quote: 'Nos ayudaron a diseñar la iluminación completa de nuestra tienda, desde la tira LED hasta el control inteligente. El resultado final superó todas las expectativas.',
+    name: 'Javier Moreno',
+    company: 'Directora de retail',
+  },
+]
+
+const faqs = [
+  {
+    q: '¿Qué tira LED necesito para mi proyecto?',
+    a: 'Depende de la tensión, la potencia, el color y la longitud necesaria. Para largas tiradas recomendamos tiras de 24V y para distancias muy grandes opciones de 220V. Nuestro equipo te asesora sobre la opción más adecuada según cada instalación.',
+  },
+  {
+    q: '¿Qué diferencia hay entre IP20 e IP65?',
+    a: 'La tira IP20 está pensada para instalaciones en interior protegidas (dentro de perfiles o zonas secas). La IP65 lleva una protección adicional contra polvo y agua, ideal para exteriores, baños o zonas expuestas a humedad.',
+  },
+  {
+    q: '¿Podéis ayudarme a elegir el perfil adecuado?',
+    a: 'Sí. El perfil correcto depende del tipo de tira, el acabado deseado (empotrado, superficie, esquina) y la disipación de calor. Guiamos la selección según el uso y la forma de instalación.',
+  },
+  {
+    q: '¿Qué driver necesito?',
+    a: 'El driver debe coincidir con la tensión y la potencia total consumida por las tiras. También hay que decidir si es regulable y el protocolo de control. Calculamos la potencia necesaria y recomendamos el modelo compatible.',
+  },
+  {
+    q: '¿Disponéis de soluciones DALI, DMX o Casambi?',
+    a: 'Sí, trabajamos con DALI, DMX y Casambi, así como otros sistemas de control profesional. Diseñamos, configuramos y ponemos en marcha la instalación para que funcione a la primera.',
+  },
+  {
+    q: '¿Podéis preparar un presupuesto personalizado?',
+    a: 'Por supuesto. Cuéntanos tu proyecto y preparamos un presupuesto personalizado con los componentes, cantidades y documentación técnica necesaria.',
+  },
+]
+
+function PanelHeading({ number, eyebrow, title, children }) {
+  return (
+    <div className="redesign-heading">
+      <span className="redesign-kicker"><b>{number}</b>{eyebrow}</span>
+      <h2>{title}</h2>
+      {children && <p>{children}</p>}
+    </div>
+  )
+}
+
+function ApplicationsStrip() {
+  const trackRef = useRef(null)
+  const scrollBy = (direction) => {
+    const track = trackRef.current
+    const card = track?.querySelector('.redesign-application')
+    if (track) track.scrollBy({ left: direction * ((card?.offsetWidth || 300) + 16), behavior: 'smooth' })
+  }
+
+  return (
+    <div className="redesign-applications">
+      <button type="button" className="redesign-arrow" onClick={() => scrollBy(-1)} aria-label="Aplicaciones anteriores">‹</button>
+      <div className="redesign-application-track" ref={trackRef}>
+        {applications.map((application, index) => (
+          <figure className="redesign-application" key={application.label}>
+            <ParallaxMedia src={application.img} alt={application.label} speed={0.1} zoom={0.06} />
+            <figcaption><small>{String(index + 1).padStart(2, '0')}</small>{application.label}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <button type="button" className="redesign-arrow" onClick={() => scrollBy(1)} aria-label="Siguientes aplicaciones">›</button>
+    </div>
+  )
+}
+
+function TestimonialSlider() {
+  const [index, setIndex] = useState(0)
+  const next = () => setIndex((i) => (i + 1) % testimonials.length)
+  const prev = () => setIndex((i) => (i - 1 + testimonials.length) % testimonials.length)
+  const t = testimonials[index]
+
+  return (
+    <div className="redesign-testimonial">
+      <span className="redesign-quote">“</span>
+      <p key={index} className="redesign-testimonial-text">{t.quote}</p>
+      <div className="redesign-testimonial-meta">
+        <strong>{t.name}</strong>
+        <span>{t.company}</span>
+      </div>
+      <div className="redesign-testimonial-nav">
+        <button type="button" onClick={prev} aria-label="Testimonio anterior">‹</button>
+        <button type="button" onClick={next} aria-label="Siguiente testimonio">›</button>
+      </div>
+    </div>
+  )
+}
+
+function FaqAccordion() {
+  const [open, setOpen] = useState(null)
+  return (
+    <div className="redesign-faq">
+      {faqs.map((item, i) => (
+        <div className={`redesign-faq-item${open === i ? ' is-open' : ''}`} key={item.q}>
+          <button
+            type="button"
+            className="redesign-faq-heading"
+            onClick={() => setOpen(open === i ? null : i)}
+            aria-expanded={open === i}
+          >
+            <span>{item.q}</span>
+            <span className="redesign-faq-arrow">{open === i ? '−' : '+'}</span>
+          </button>
+          <div className="redesign-faq-body">
+            <p>{item.a}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Home() {
   const { categories, getCategory, getChildren } = useCategories()
-  const { products } = useProducts()
-  const { settings } = useSiteSettings()
-  const featured = products.filter((p) => p.featured).slice(0, 4)
-  const outletCount = products.filter((p) => p.outlet).length
+  const [menuOpen, setMenuOpen] = useState(false)
+  const driveRef = useScrollDrive()
+  const getCatImage = (slug) => getCategory(slug)?.image || 'images/placeholder.svg'
 
   // Carrusel: viene de Supabase (vía CategoriesContext).
   // Se muestran las categorías marcadas "Mostrar en home", ordenadas por
@@ -48,244 +176,180 @@ export default function Home() {
   const homeSource = flagged.length > 0 ? flagged : getChildren(ROOT.slug)
   const families = homeSource.map((c) => ({ slug: c.slug, name: c.name }))
 
-  const specLine = (p) => {
-    const specs = Array.isArray(p.specs) ? p.specs : []
-    const parts = specs.slice(0, 3).map((s) => `${s.value}${s.unit ? ` ${s.unit}` : ''}`).filter(Boolean)
-    return parts.join(' · ')
-  }
-
-  const getCatImage = (slug) => {
-    const cat = getCategory(slug)
-    return cat?.image || 'images/placeholder.svg'
-  }
+  const navItems = [
+    { label: 'Productos', to: '/productos' },
+    { label: 'Soluciones', to: '/servicios' },
+    { label: 'Proyectos', to: '/proyectos' },
+    { label: 'Recursos', to: '/buscar' },
+    { label: 'Contacto', to: '/contacto' },
+  ]
 
   return (
-    <>
-      {/* ── 1. HERO ────────────────────────────────────────── */}
-      <section className="home-hero">
-        <div className="container home-hero-inner">
-          <div className="home-hero-content">
-            <span className="home-hero-badge">Soluciones LED profesionales</span>
-            <h1>Iluminación LED que transforma espacios</h1>
-            <p className="home-hero-sub">Soluciones profesionales para arquitectura, interiorismo e instalación.</p>
-            <p className="home-hero-text">Te ayudamos a seleccionar y configurar todos los componentes de tu proyecto: iluminación, perfiles, alimentación y control.</p>
-            <div className="home-hero-ctas">
-              <Link to="/productos" className="btn btn-primary">Descubrir productos</Link>
-              <Link to="/contacto" className="btn btn-outline btn-outline--light">Cuéntanos tu proyecto</Link>
+    <div className="home redesign-home">
+      <div className="redesign-ambient" aria-hidden="true">
+        <img src="images/lobby.png" alt="" />
+      </div>
+      <div className="redesign-editorial">
+        {/* SECCIÓN 1: HERO */}
+        <section className="redesign-section redesign-hero-section">
+          <div ref={driveRef} className="redesign-hero">
+            <div className="redesign-hero-top">
+              <Link to="/" className="redesign-logo" onClick={() => setMenuOpen(false)}>
+                <img src="images/logo.png" alt="Boralba Lighting" />
+              </Link>
+              <nav className="redesign-nav" aria-label="Navegación principal">
+                {navItems.map((item) => (
+                  <Link to={item.to} key={item.label}>{item.label}</Link>
+                ))}
+              </nav>
+              <Link to="/contacto" className="redesign-btn-primary redesign-btn-compact redesign-cta-top">Solicitar presupuesto</Link>
+              <button
+                type="button"
+                className="redesign-menu-toggle"
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                aria-expanded={menuOpen}
+              >
+                {menuOpen ? '✕' : '☰'}
+              </button>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 2. FAMILIAS ────────────────────────────────────── */}
-      {families.length > 0 && (
-        <section className="section home-families">
-          <div className="container">
-            <div className="section-head">
-              <span className="tag">Nuestro catálogo</span>
-              <h2>Familias de productos para cada proyecto</h2>
-              <p>Todo lo que necesitas para proyectos de iluminación LED profesional.</p>
-            </div>
-            <FamilyCarousel families={families} getCatImage={getCatImage} />
-            <div className="text-center" style={{ marginTop: 36 }}>
-              <Link to="/productos" className="btn btn-primary">Ver todos los productos</Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── 3. PRODUCTOS DESTACADOS ────────────────────────── */}
-      {featured.length > 0 && (
-        <section className="section home-featured">
-          <div className="container">
-            <div className="section-head">
-              <span className="tag">Destacados</span>
-              <h2>Productos destacados</h2>
-              <p>Una selección de soluciones para proyectos profesionales.</p>
-            </div>
-            <div className="grid grid-4">
-              {featured.map((p) => (
-                <Link key={p.id} to={`/producto/${p.id}`} className="home-product-card">
-                  <div className="home-product-img"><img src={p.image || 'images/placeholder.svg'} alt={p.name} loading="lazy" /></div>
-                  <div className="home-product-body">
-                    <h3>{p.name}</h3>
-                    {specLine(p) && <p className="home-product-specs">{specLine(p)}</p>}
-                    {p.ref && <p className="home-product-ref">Ref. {p.ref}</p>}
-                    <span className="home-product-link">Ver producto &rarr;</span>
-                  </div>
-                </Link>
+            <div className={`redesign-mobile-menu${menuOpen ? ' is-open' : ''}`}>
+              {navItems.map((item) => (
+                <Link to={item.to} key={item.label} onClick={() => setMenuOpen(false)}>{item.label}</Link>
               ))}
+              <Link to="/contacto" className="redesign-btn-primary redesign-btn-compact" onClick={() => setMenuOpen(false)}>Solicitar presupuesto</Link>
+            </div>
+            <ParallaxMedia src="images/lobby.png" alt="Instalación de iluminación arquitectónica" speed={0.16} zoom={0.12} />
+            <div className="redesign-hero-wash" />
+            <div className="redesign-hero-content">
+              <span className="redesign-hero-pill">Iluminación técnica para proyectos que dejan huella</span>
+              <h1>Creamos soluciones de iluminación que convierten cada proyecto en una referencia</h1>
+              <p>Asesoramiento técnico, producto LED profesional y proyectos que marcan la diferencia en arquitectura, comercio y hostelería.</p>
+              <div className="redesign-hero-actions">
+                <Link to="/productos" className="redesign-btn-primary redesign-btn-compact">Explorar productos</Link>
+                <Link to="/contacto" className="redesign-btn-outline redesign-btn-compact">Solicitar asesoramiento</Link>
+              </div>
             </div>
           </div>
         </section>
-      )}
 
-      {/* ── 4. VALUE PROP ──────────────────────────────────── */}
-      <section className="section home-value">
-        <div className="container">
-          <div className="home-value-inner">
-            <div className="home-value-text">
-              <span className="tag">Nuestra diferencia</span>
-              <h2>No vendemos productos aislados. Configuramos soluciones.</h2>
-              <p>Seleccionamos los componentes compatibles para que la instalación funcione correctamente desde el primer momento.</p>
-              <Link to="/contacto" className="btn btn-primary" style={{ marginTop: 8 }}>Configurar mi proyecto</Link>
+        {/* SECCIÓN 2: CARRUSEL DE FAMILIAS */}
+        {families.length > 0 && (
+          <Reveal as="section" className="redesign-section redesign-panel" delay={60}>
+            <div className="redesign-panel-inner">
+              <PanelHeading number="01" eyebrow="Familias de producto" title="Soluciones de iluminación para cada proyecto">Desde la tira LED hasta el control inteligente: todo lo necesario para crear instalaciones profesionales, eficientes y duraderas.</PanelHeading>
+              <div className="redesign-carousel">
+                <FamilyCarousel families={families} getCatImage={getCatImage} />
+              </div>
             </div>
-            <div className="home-value-flow">
-              <div className="home-flow-step"><span className="home-flow-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M2 12h20" /></svg>
-              </span><strong>Iluminación</strong></div>
-              <span className="home-flow-plus">+</span>
-              <div className="home-flow-step"><span className="home-flow-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /></svg>
-              </span><strong>Perfiles</strong></div>
-              <span className="home-flow-plus">+</span>
-              <div className="home-flow-step"><span className="home-flow-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-              </span><strong>Alimentación</strong></div>
-              <span className="home-flow-plus">+</span>
-              <div className="home-flow-step"><span className="home-flow-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M12 2v4m0 12v4M2 12h4m12 0h4" /></svg>
-              </span><strong>Control</strong></div>
-              <span className="home-flow-equals">=</span>
-              <div className="home-flow-step home-flow-result"><span className="home-flow-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-              </span><strong>Proyecto de éxito</strong></div>
+          </Reveal>
+        )}
+
+        {/* SECCIÓN 3: POR QUÉ ELEGIR BORALBA */}
+        <Reveal as="section" className="redesign-section redesign-panel" delay={60}>
+          <div className="redesign-panel-inner redesign-two-col">
+            <div className="redesign-gallery">
+              <div className="redesign-gallery-main">
+                <ParallaxMedia src="images/asesoramiento.png" alt="Productos Boralba" speed={0.12} zoom={0.08} />
+              </div>
+              <div className="redesign-gallery-small">
+                <ParallaxMedia src="images/perfiles.png" alt="Perfiles de aluminio" speed={0.1} zoom={0.06} />
+              </div>
+              <div className="redesign-gallery-small">
+                <ParallaxMedia src="images/proyectos/Madrid-Sur1.jpg" alt="Instalación LED" speed={0.1} zoom={0.06} />
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. SOLUCIONES POR CLIENTE ──────────────────────── */}
-      <section className="section home-clients">
-        <div className="container">
-          <div className="section-head">
-            <span className="tag">Por tipo de cliente</span>
-            <h2>Encuentra tu solución</h2>
-          </div>
-          <div className="grid grid-3">
-            {solutions.map((s) => (
-              <article key={s.icon} className="home-client-card">
-                <span className="home-client-num">{s.icon}</span>
-                <h3>{s.title}</h3>
-                <p>{s.desc}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. EXPERIENCIA ─────────────────────────────────── */}
-      <section className="section home-experience">
-        <div className="container">
-          <div className="home-exp-grid">
-            <div className="home-exp-img"><img src="images/asesoramiento.png" alt="Asesoramiento Boralba" /></div>
-            <div className="home-exp-content">
-              <span className="tag">Sobre nosotros</span>
-              <h2>Más de 30 años haciendo fácil la iluminación profesional</h2>
-              <ul className="home-exp-list">
-                {experienceItems.map((item, i) => (
-                  <li key={i}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link to="/contacto" className="btn btn-primary" style={{ marginTop: 8 }}>Conoce Boralba</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 7. SMART LIGHTING ──────────────────────────────── */}
-      <section className="section home-smart">
-        <div className="container">
-          <div className="home-smart-grid">
-            <div className="home-smart-content">
-              <span className="tag tag--light">Smart Lighting</span>
-              <h2>Controla la iluminación. Transforma el espacio.</h2>
-              <p>Diseñamos, configuramos y ponemos en marcha soluciones de control mediante Casambi, DALI y otros sistemas profesionales.</p>
-              <div className="home-smart-pillars">
-                {smartPillars.map((p) => (
-                  <div key={p.num} className="home-smart-pillar">
-                    <span className="home-smart-num">{p.num}</span>
-                    <span>{p.title}</span>
+            <div className="redesign-advantages">
+              <PanelHeading number="02" eyebrow="Por qué elegir Boralba" title="Una solución profesional de principio a fin" />
+              <div className="redesign-advantages-list">
+                {advantages.map((adv) => (
+                  <div className="redesign-advantage" key={adv.num}>
+                    <b>{adv.num}</b>
+                    <div>
+                      <strong>{adv.title}</strong>
+                      <p>{adv.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-              <Link to="/servicios" className="btn btn-primary" style={{ marginTop: 14 }}>Descubrir Smart Lighting</Link>
             </div>
-            <div className="home-smart-img"><img src="images/eslogan.png" alt="Control de iluminación" /></div>
           </div>
-        </div>
-      </section>
+        </Reveal>
 
-      {/* ── 8. APLICACIONES ────────────────────────────────── */}
-      <section className="section home-applications">
-        <div className="container">
-          <div className="section-head">
-            <span className="tag">Ideas de aplicación</span>
-            <h2>Iluminación aplicada a espacios reales</h2>
+        {/* SECCIÓN 4: SOLUCIONES PARA PROFESIONALES */}
+        <Reveal as="section" className="redesign-section redesign-panel" delay={60}>
+          <div className="redesign-panel-inner redesign-two-col redesign-pro">
+            <div className="redesign-pro-content">
+              <p className="redesign-pro-eyebrow">Soluciones profesionales</p>
+              <h2>Diseñado para profesionales</h2>
+              <p className="redesign-pro-sub">Soluciones pensadas para arquitectos, interioristas, instaladores, distribuidores y empresas de proyectos.</p>
+              <div className="redesign-pro-links">
+                {professionalLinks.map((link) => (
+                  <Link to={link.to} key={link.label} className="redesign-pro-link">
+                    <span>{link.label}</span>
+                    <em>→</em>
+                  </Link>
+                ))}
+              </div>
+              <Link to="/servicios" className="redesign-btn-primary redesign-btn-compact redesign-pro-cta">Descubrir soluciones profesionales</Link>
+            </div>
+            <div className="redesign-pro-media">
+              <ParallaxMedia src="images/proyectos/centro_cultural_antonio_lopez_1.jpg" alt="Proyecto de arquitectura" speed={0.12} zoom={0.08} />
+            </div>
           </div>
-          <div className="grid grid-3">
-            {applications.map((a) => (
-              <figure key={a.label} className="home-app-card">
-                <img src={a.img} alt={a.label} loading="lazy" />
-                <figcaption>
-                  <span>{a.label}</span>
-                  <small>Imagen de inspiración</small>
-                </figcaption>
-              </figure>
+        </Reveal>
+
+        {/* SECCIÓN 5: PROYECTOS Y APLICACIONES */}
+        <Reveal as="section" className="redesign-section redesign-panel" delay={60}>
+          <div className="redesign-panel-inner">
+            <PanelHeading number="03" eyebrow="Proyectos" title="Iluminación que se adapta al espacio" />
+            <ApplicationsStrip />
+          </div>
+        </Reveal>
+
+        {/* SECCIÓN 6: DATOS DESTACADOS */}
+        <Reveal as="section" className="redesign-section redesign-panel" delay={60}>
+          <div className="redesign-panel-inner redesign-stats">
+            {stats.map((stat) => (
+              <div className="redesign-stat" key={stat.label}>
+                <strong>{stat.num}</strong>
+                <span>{stat.label}</span>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Reveal>
 
-      {/* ── 9. FABRICANTES ─────────────────────────────────── */}
-      <section className="section home-brands">
-        <div className="container">
-          <div className="section-head">
-            <span className="tag">Tecnología de primeras marcas</span>
-            <h2>Trabajamos con fabricantes especializados</h2>
-            <p>Garantizamos fiabilidad, compatibilidad y calidad de luz.</p>
+        {/* SECCIÓN 7: TESTIMONIOS */}
+        <Reveal as="section" className="redesign-section redesign-panel" delay={60}>
+          <div className="redesign-panel-inner">
+            <PanelHeading number="04" eyebrow="Clientes" title="Lo que dicen nuestros clientes" />
+            <TestimonialSlider />
           </div>
-          <div className="home-brands-row">
-            <div className="home-brand-logo"><img src="images/tridonic.png" alt="Tridonic" /></div>
-            <div className="home-brand-placeholder">+</div>
-          </div>
-        </div>
-      </section>
+        </Reveal>
 
-      {/* ── 10. OUTLET ─────────────────────────────────────── */}
-      {outletCount > 0 && (
-        <section className="section home-outlet">
-          <div className="container">
-            <div className="home-outlet-card">
-              <div className="home-outlet-text">
-                <span className="tag">Outlet</span>
-                <h2>Outlet profesional</h2>
-                <p>Últimas unidades y productos descatalogados disponibles hasta fin de existencias.</p>
-                <p className="home-outlet-count">{outletCount} producto{outletCount > 1 ? 's' : ''} disponible{outletCount > 1 ? 's' : ''}</p>
-              </div>
-              <Link to="/outlet" className="btn btn-primary">Ver outlet</Link>
+        {/* SECCIÓN 8: PREGUNTAS FRECUENTES */}
+        <Reveal as="section" className="redesign-section redesign-panel" delay={60}>
+          <div className="redesign-panel-inner">
+            <PanelHeading number="05" eyebrow="Ayuda" title="Preguntas frecuentes" />
+            <FaqAccordion />
+          </div>
+        </Reveal>
+
+        {/* SECCIÓN 9: CTA FINAL */}
+        <Reveal as="section" className="redesign-section redesign-panel" delay={60}>
+          <div className="redesign-cta">
+            <ParallaxMedia src="images/proyectos/tunel_calle_damas_2.jpg" alt="Instalación LED profesional" speed={0.14} zoom={0.1} />
+            <div className="redesign-cta-wash" />
+            <div className="redesign-cta-content">
+              <h2>¿Tienes un proyecto en mente?</h2>
+              <p>Cuéntanos qué necesitas y te ayudaremos a encontrar la solución de iluminación adecuada.</p>
+              <Link to="/contacto" className="redesign-btn-primary redesign-btn-compact">Solicitar presupuesto</Link>
             </div>
           </div>
-        </section>
-      )}
-
-      {/* ── 11. PRE-FOOTER CTA ─────────────────────────────── */}
-      <section className="home-cta">
-        <div className="container home-cta-inner">
-          <div className="home-cta-text">
-            <h2>¿Tienes un proyecto de iluminación?</h2>
-            <p>Cuéntanos qué necesitas y nuestro equipo te ayudará a seleccionar una solución completa.</p>
-          </div>
-          <div className="home-cta-actions">
-            <Link to="/contacto" className="btn btn-primary btn-outline--light">Solicitar asesoramiento</Link>
-            <a href={`tel:${settings.phone}`} className="home-cta-contact">{settings.phone}</a>
-            <a href={`mailto:${settings.email}`} className="home-cta-contact">{settings.email}</a>
-          </div>
-        </div>
-      </section>
-    </>
+        </Reveal>
+      </div>
+    </div>
   )
 }
+
+export default Home
