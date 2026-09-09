@@ -4,6 +4,7 @@ import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 import { normalizeText, searchProducts } from '../lib/search'
+import '../catalog.css'
 
 const FILTERS = [
   { key: 'application', label: 'Aplicación', placeholder: 'Todas las aplicaciones' },
@@ -42,11 +43,11 @@ function ProductTile({ product, categoryName }) {
     <Link className="catalog-product" to={`/producto/${product.id}`}>
       <div className="catalog-product-image">
         <img src={product.image || 'images/placeholder.svg'} alt={product.name || 'Producto Boralba'} loading="lazy" />
-        {product.featured && <span className="catalog-product-badge">Destacado</span>}
       </div>
       <div className="catalog-product-copy">
-        <span>{categoryName || product.category || 'Producto LED'}</span>
-        <h3>{product.name || 'Producto sin nombre'}</h3>
+        <span>{categoryName || product.category}</span>
+        <h3>{product.name}</h3>
+        <small>{product.ref}</small>
       </div>
     </Link>
   )

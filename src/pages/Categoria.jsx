@@ -19,23 +19,24 @@ function CategoryProductCard({ product, categoryName }) {
 
 export default function Categoria() {
   const { slug } = useParams()
-  const { getCategory, getChildren, getBreadcrumb, getDescendantSlugs, getLeafCategories } = useCategories()
+  const { ROOT, getCategory, getChildren, getBreadcrumb, getDescendantSlugs, getLeafCategories } = useCategories()
   const { products, hydrated } = useProducts()
   const category = getCategory(slug)
 
   if (!category) return <Navigate to="/productos" replace />
 
   const children = getChildren(slug)
+  const isFamily = category.parent === ROOT.slug
   const trail = getBreadcrumb(slug)
   const categorySlugs = new Set(getDescendantSlugs(slug))
-  const leaf = children.length === 0
+  const leaf = !isFamily
   const productsInCategory = products.filter((product) => {
     const assignedCategories = [product.category, ...(Array.isArray(product.categories) ? product.categories : [])].filter(Boolean)
     return leaf
       ? assignedCategories.includes(slug)
       : assignedCategories.some((assignedCategory) => categorySlugs.has(assignedCategory))
   })
-  const subCats = children.length > 0 ? children : getLeafCategories().filter((item) => item.slug !== slug)
+  const subCats = isFamily ? children : getLeafCategories().filter((item) => item.slug !== slug)
 
   return (
     <>
@@ -52,7 +53,7 @@ export default function Categoria() {
       </div>
 
       <div className="container section category-page-content" style={{ paddingTop: 0 }}>
-        {children.length > 0 && <>
+        {isFamily && children.length > 0 && <>
           <div className="section-head left"><h3 style={{ marginBottom: 4 }}>Subcategorías</h3></div>
           <div className="grid grid-3">
             {children.map((child) => <Link key={child.slug} to={`/categoria/${child.slug}`} className="category-card"><img src={child.image || 'images/placeholder.svg'} alt={child.name} loading="lazy" /><div className="overlay"><h3>{child.name}</h3></div></Link>)}
@@ -60,7 +61,7 @@ export default function Categoria() {
           <div style={{ marginTop: 40 }} />
         </>}
 
-        {children.length === 0 && (!hydrated ? <div className="empty-state"><h3>Cargando productos...</h3></div> : <>
+        {!isFamily && (!hydrated ? <div className="empty-state"><h3>Cargando productos...</h3></div> : <>
           <div className="section-head left category-products-heading">
             <h3 style={{ marginBottom: 4 }}>{leaf ? `Productos en ${category.name}` : `Todos los productos de ${category.name}`}</h3>
             <span className="muted">{productsInCategory.length} producto{productsInCategory.length === 1 ? '' : 's'}</span>
