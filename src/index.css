@@ -4177,6 +4177,217 @@ background: var(--color-surface-2);
   color: #1a1a1e;
   min-height: 100vh;
 }
+
+/* ================================================================
+   SISTEMA EDITORIAL PUBLICO
+   La capa publica comparte la atmosfera de la HOME sin tocar la
+   estructura ni los estilos de administracion.
+   ================================================================ */
+.site-main {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(255,255,255,.9), transparent 28rem),
+    var(--boralba-mist);
+  min-height: 60vh;
+}
+
+.site-main > * {
+  animation: public-page-in .65s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes public-page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+.site-main .container {
+  max-width: 1320px;
+}
+
+.site-main .page-header {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  border-bottom: 1px solid var(--boralba-line);
+  padding: clamp(52px, 8vw, 112px) 0 clamp(44px, 6vw, 82px);
+  margin-bottom: 0;
+}
+
+.site-main .page-header::after {
+  content: '';
+  position: absolute;
+  right: 9%;
+  bottom: -120px;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgba(221,53,49,.13);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.site-main .page-header h1 {
+  max-width: 920px;
+  font-family: var(--font-montserrat);
+  font-size: clamp(2.35rem, 5.4vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -.055em;
+  line-height: .98;
+  margin: 20px 0 18px;
+}
+
+.site-main .page-header p {
+  max-width: 650px;
+  color: var(--boralba-gray);
+  font-size: clamp(1rem, 1.5vw, 1.16rem);
+  line-height: 1.65;
+}
+
+.site-main .breadcrumb {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  color: var(--boralba-gray);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.site-main .breadcrumb a { color: var(--boralba-gray); }
+.site-main .breadcrumb a:hover { color: var(--boralba-red); }
+.site-main .section { padding-block: clamp(64px, 9vw, 128px); }
+.site-main .section-head { margin-bottom: clamp(34px, 5vw, 62px); }
+.site-main .section-head.left { margin-bottom: 34px; }
+.site-main .section-head h2,
+.site-main .section-head h3 {
+  font-family: var(--font-montserrat);
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+.site-main .section-head h2 { font-size: clamp(1.8rem, 3.6vw, 3rem); }
+.site-main .section-head p { line-height: 1.7; }
+.site-main .tag,
+.site-main .section-head .tag {
+  color: var(--boralba-red);
+  font-family: var(--font-montserrat);
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* Header compartido: limpio, ligero y con el rojo reservado a la accion. */
+.topbar { background: #171719; padding: 9px 0; font-size: .72rem; }
+.header {
+  background: rgba(246,245,243,.88);
+  border-bottom: 1px solid var(--boralba-line);
+  box-shadow: 0 8px 30px rgba(26,26,30,.04);
+}
+.header-inner { padding-block: 17px; }
+.logo img { height: 40px; }
+.nav { gap: 4px; }
+.nav-link {
+  border-radius: 999px;
+  padding: 10px 15px;
+  font-family: var(--font-montserrat);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.nav-link:hover { background: rgba(221,53,49,.08); color: var(--boralba-red); }
+.dropdown, .flyout { border: 1px solid var(--boralba-line); border-radius: 12px; box-shadow: 0 24px 60px rgba(26,26,30,.12); }
+.menu-toggle { font-size: 1.35rem; }
+
+/* Productos: las tarjetas quedan reservadas al objeto funcional. */
+.site-main .card {
+  background: #fff;
+  border: 1px solid var(--boralba-line);
+  border-radius: 16px;
+  box-shadow: 0 18px 42px -30px rgba(26,26,30,.5);
+}
+.site-main .card:hover { transform: translateY(-6px); border-color: rgba(221,53,49,.35); }
+.site-main .card-img { aspect-ratio: 5 / 4; background: #f8f7f5; }
+.site-main .card-img img { object-fit: contain; padding: 8%; transition: transform .6s cubic-bezier(.22,1,.36,1); }
+.site-main .card:hover .card-img img { transform: scale(1.06); }
+.site-main .card-body { padding: 22px 22px 24px; }
+.site-main .card-body h3 { font-family: var(--font-montserrat); font-weight: 700; letter-spacing: -.02em; }
+.site-main .card-body h3 a { color: var(--boralba-ink); }
+.site-main .card-body .ref { text-transform: uppercase; letter-spacing: .08em; font-size: .7rem; }
+.site-main .card-body p { line-height: 1.55; }
+.site-main .price { color: var(--boralba-red); font-family: var(--font-montserrat); }
+.site-main .btn { border-radius: 999px; }
+.site-main .btn-primary { background: var(--boralba-red); }
+.site-main .btn-primary:hover { background: var(--boralba-red-dark); transform: translateY(-2px); }
+.site-main .btn-outline { border-width: 1px; }
+.site-main .grid-4 { column-gap: clamp(18px, 2.8vw, 34px); row-gap: clamp(28px, 4vw, 52px); }
+
+.site-main .category-card {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-bottom: 1px solid var(--boralba-line);
+  padding-bottom: 12px;
+}
+.site-main .category-card img { aspect-ratio: 16 / 10; filter: saturate(.85); transition: transform .7s cubic-bezier(.22,1,.36,1); }
+.site-main .category-card:hover img { transform: scale(1.035); }
+.site-main .category-card .overlay { padding: 22px; background: linear-gradient(to top, rgba(15,15,18,.72), transparent 70%); }
+.site-main .category-card .overlay h3 { font-family: var(--font-montserrat); font-size: 1.2rem; }
+
+/* Proyectos: imagen protagonista y texto como pie editorial, no tarjeta generica. */
+.site-main .card-proyecto {
+  border: 0;
+  border-top: 1px solid var(--boralba-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding-top: 18px;
+}
+.site-main .card-proyecto:hover { transform: none; box-shadow: none; }
+.site-main .card-proyecto .carousel { aspect-ratio: 16 / 10; }
+.site-main .card-proyecto .card-body { padding: 20px 0 4px; }
+.site-main .card-proyecto .proyecto-tag { padding: 0; background: transparent; color: var(--boralba-red); font-size: .68rem; letter-spacing: .12em; }
+.site-main .card-proyecto .proyecto-tag::before { display: none; }
+.site-main .card-proyecto h3 { font-size: clamp(1.25rem, 2vw, 1.7rem); }
+
+/* Servicios y contacto se expresan mediante lineas, escala y espacio. */
+.site-main .grid-3 > .card { border: 0; border-top: 1px solid var(--boralba-line); border-radius: 0; box-shadow: none; background: transparent; }
+.site-main .grid-3 > .card:hover { transform: none; border-color: var(--boralba-red); }
+.site-main .grid-3 > .card .card-body { padding: 24px 4px 26px 0; }
+.site-main .service-icon { margin-bottom: 24px; }
+.site-main .contact-item { background: transparent; border: 0; border-top: 1px solid var(--boralba-line); border-radius: 0; padding: 20px 0; }
+.site-main .contact-item .icon { color: var(--boralba-red); }
+.site-main .form { border: 1px solid var(--boralba-line); border-radius: 16px; box-shadow: 0 24px 60px -40px rgba(26,26,30,.5); padding: clamp(24px, 4vw, 46px); }
+.site-main .form label { font-size: .7rem; letter-spacing: .12em; }
+.site-main .form input, .site-main .form textarea, .site-main .form select { border: 0; border-bottom: 1px solid #cfcfcd; border-radius: 0; background: transparent; padding: 13px 2px; }
+.site-main .form input:focus, .site-main .form textarea:focus, .site-main .form select:focus { box-shadow: none; border-color: var(--boralba-red); }
+.site-main .outlet-banner { border-radius: 0; padding: clamp(56px, 8vw, 112px); background: #171719; box-shadow: none; border-left: 5px solid var(--boralba-red); text-align: left; }
+.site-main .outlet-banner h1 { font-family: var(--font-montserrat); text-align: left; letter-spacing: -.05em; text-transform: none; }
+
+.site-main .product-page { background: transparent; }
+.site-main .product-detail { padding-bottom: clamp(34px, 5vw, 72px); }
+.site-main .product-carousel .carousel { background: #f1f0ee; border-radius: 18px; }
+.site-main .product-info h1 { font-family: var(--font-montserrat); font-weight: 800; }
+.site-main .product-description { border: 0; border-top: 1px solid var(--boralba-line); border-radius: 0; box-shadow: none; background: transparent; }
+.site-main .tabs { background: transparent; padding: 0; }
+.site-main .desktop-tab-content { padding: 38px 0; }
+.site-main .variant-table, .site-main .comparison-wrap { border-radius: 12px; }
+.site-main .technical-advice { border-left: 5px solid var(--boralba-red); }
+
+.site-main + .footer, .footer { border-top: 1px solid rgba(255,255,255,.08); }
+
+@media (max-width: 980px) {
+  .topbar .container { justify-content: center; text-align: center; }
+  .header-inner { padding-block: 14px; }
+}
+@media (max-width: 700px) {
+  .site-main .page-header h1 { font-size: clamp(2.3rem, 12vw, 3.4rem); }
+  .site-main .page-header { padding-block: 42px 48px; }
+  .site-main .section { padding-block: 58px; }
+  .site-main .grid-4 { row-gap: 28px; }
+  .site-main .card-proyecto .carousel { aspect-ratio: 4 / 3; }
+  .site-main .outlet-banner { padding: 48px 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-main > * { animation: none; }
+}
 .redesign-editorial { position: relative; }
 
 /* Fondo continuo: imagen del hero extendida, sutilmente desenfocada */
@@ -4933,4 +5144,166 @@ body:has(.redesign-home) .header { display: none; }
   .redesign-mobile-menu { display: none; }
   .redesign-mobile-menu.is-open { display: flex; }
   .redesign-hero-actions { width: 100%; }
+}
+
+/* ================================================================
+   RUTAS PUBLICAS — misma escena, atmosfera y tipografia que la HOME
+   ================================================================ */
+.public-experience {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background: #3b3937;
+  color: #fff;
+}
+.public-experience-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.public-experience-ambient img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .38;
+  transform: scale(1.12);
+  filter: blur(18px) saturate(.78) brightness(1.02) contrast(1.02);
+}
+.public-experience-ambient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.12), transparent 60%),
+    linear-gradient(180deg, rgba(59,57,55,.32), rgba(59,57,55,.22));
+}
+.public-experience-header {
+  position: relative;
+  min-height: 184px;
+  overflow: visible;
+  background: linear-gradient(180deg, rgba(12,12,15,.7), rgba(12,12,15,.18)), url('/images/lobby.png') center 42% / cover;
+}
+.public-experience-header::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: rgba(255,255,255,.16);
+}
+.public-experience-header .redesign-hero-top { position: relative; }
+.public-experience-header .redesign-mobile-menu { top: 76px; }
+.public-experience .site-main {
+  min-height: 60vh;
+  background: transparent;
+  color: rgba(255,255,255,.78);
+}
+.public-experience .site-main > * { animation: public-page-in .65s cubic-bezier(.22,1,.36,1) both; }
+.public-experience .site-main h1,
+.public-experience .site-main h2,
+.public-experience .site-main h3,
+.public-experience .site-main h4 { color: #fff; font-family: var(--font-montserrat); }
+.public-experience .site-main p { color: rgba(255,255,255,.7); }
+.public-experience .site-main .page-header {
+  background: transparent;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+.public-experience .site-main .page-header h1 { color: #fff; }
+.public-experience .site-main .breadcrumb,
+.public-experience .site-main .breadcrumb a { color: rgba(255,255,255,.58); }
+.public-experience .site-main .breadcrumb a:hover { color: #ffb4b1; }
+.public-experience .site-main .section-head h2,
+.public-experience .site-main .section-head h3 { color: #fff; }
+.public-experience .site-main .section-head p,
+.public-experience .site-main .muted { color: rgba(255,255,255,.62); }
+.public-experience .site-main .tag { color: #ffb4b1; }
+.public-experience .site-main .card {
+  background: rgba(26,26,30,.46);
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px -45px rgba(0,0,0,.8);
+}
+.public-experience .site-main .card:hover { border-color: rgba(255,180,177,.5); }
+.public-experience .site-main .card-img { background: rgba(255,255,255,.06); }
+.public-experience .site-main .products-family-grid .card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(255,255,255,.16);
+}
+.public-experience .site-main .products-family-grid .card-img {
+  aspect-ratio: 16 / 10;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.public-experience .site-main .products-family-grid .card-body { padding-inline: 0; }
+.public-experience .site-main .products-family-grid .card:hover { transform: none; border-color: rgba(255,180,177,.65); }
+.public-experience .site-main .card-body h3 a,
+.public-experience .site-main .card-body h3 { color: #fff; }
+.public-experience .site-main .card-body p { color: rgba(255,255,255,.62); }
+.public-experience .site-main .ref { color: rgba(255,255,255,.48); }
+.public-experience .site-main .price { color: #ffb4b1; }
+.public-experience .site-main .btn-outline {
+  border-color: rgba(255,255,255,.55);
+  color: #fff;
+  background: rgba(255,255,255,.06);
+}
+.public-experience .site-main .btn-outline:hover { background: #fff; color: #1a1a1e; }
+.public-experience .site-main .category-card {
+  border-bottom-color: rgba(255,255,255,.16);
+  background: transparent;
+}
+.public-experience .site-main .category-card .overlay { background: linear-gradient(to top, rgba(15,15,18,.85), transparent 70%); }
+.public-experience .site-main .card-proyecto { background: transparent; border: 0; border-top: 1px solid rgba(255,255,255,.16); box-shadow: none; }
+.public-experience .site-main .card-proyecto .card-body { background: transparent; }
+.public-experience .site-main .card-proyecto .proyecto-tag { color: #ffb4b1; }
+.public-experience .site-main .grid-3 > .card { background: transparent; border: 0; border-top: 1px solid rgba(255,255,255,.16); border-radius: 0; }
+.public-experience .site-main .contact-item { border-top-color: rgba(255,255,255,.16); }
+.public-experience .site-main .contact-item .icon { color: #ffb4b1; }
+.public-experience .site-main .form {
+  background: rgba(26,26,30,.4);
+  border-color: rgba(255,255,255,.15);
+  box-shadow: 0 24px 70px -45px rgba(0,0,0,.8);
+}
+.public-experience .site-main .form input,
+.public-experience .site-main .form textarea,
+.public-experience .site-main .form select { color: #fff; border-color: rgba(255,255,255,.3); }
+.public-experience .site-main .form input::placeholder,
+.public-experience .site-main .form textarea::placeholder { color: rgba(255,255,255,.45); }
+.public-experience .site-main .outlet-banner { background: rgba(23,23,25,.8); border-left-color: var(--boralba-red); }
+.public-experience .site-main .search-box {
+  background: rgba(26,26,30,.48);
+  border-color: rgba(255,255,255,.2);
+  color: #fff;
+}
+.public-experience .site-main .search-box input { color: #fff; }
+.public-experience .site-main .empty-state { background: transparent; border-color: rgba(255,255,255,.16); }
+.public-experience .site-main .empty-state h3 { color: #fff; }
+.public-experience .site-main .product-page { background: transparent; }
+.public-experience .site-main .product-info h1 { color: #fff; }
+.public-experience .site-main .product-kicker,
+.public-experience .site-main .product-ref,
+.public-experience .site-main .datasheet-link { color: #ffb4b1; }
+.public-experience .site-main .product-short-description,
+.public-experience .site-main .description-copy,
+.public-experience .site-main .product-section p { color: rgba(255,255,255,.7); }
+.public-experience .site-main .product-description { border-top-color: rgba(255,255,255,.16); background: transparent; }
+.public-experience .site-main .tabs { background: transparent; border-bottom-color: rgba(255,255,255,.16); }
+.public-experience .site-main .tab { color: rgba(255,255,255,.62); }
+.public-experience .site-main .tab.active { color: #fff; border-bottom-color: var(--boralba-red); }
+.public-experience .site-main .spec-table-wrap,
+.public-experience .site-main .content-card,
+.public-experience .site-main .component-card,
+.public-experience .site-main .documents-list,
+.public-experience .site-main .comparison-wrap { background: rgba(26,26,30,.42); border-color: rgba(255,255,255,.14); }
+.public-experience .site-main .spec-table th,
+.public-experience .site-main .spec-table td { border-bottom-color: rgba(255,255,255,.12); color: rgba(255,255,255,.78); }
+.public-experience .site-main .content-card h3,
+.public-experience .site-main .component-card h3 { color: #fff; }
+.public-experience .site-main .technical-advice { background: rgba(23,23,25,.72); }
+
+@media (max-width: 680px) {
+  .public-experience-header { min-height: 148px; }
 }

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import FamilyCarousel from '../components/FamilyCarousel'
 import Reveal, { ParallaxMedia, useScrollDrive } from '../components/Reveal'
+import HomeHeader from '../components/HomeHeader'
 import { useCategories } from '../context/CategoriesContext'
 import { ROOT } from '../data/categories'
 
@@ -176,14 +177,6 @@ function Home() {
   const homeSource = flagged.length > 0 ? flagged : getChildren(ROOT.slug)
   const families = homeSource.map((c) => ({ slug: c.slug, name: c.name }))
 
-  const navItems = [
-    { label: 'Productos', to: '/productos' },
-    { label: 'Soluciones', to: '/servicios' },
-    { label: 'Proyectos', to: '/proyectos' },
-    { label: 'Recursos', to: '/buscar' },
-    { label: 'Contacto', to: '/contacto' },
-  ]
-
   return (
     <div className="home redesign-home">
       <div className="redesign-ambient" aria-hidden="true">
@@ -193,32 +186,7 @@ function Home() {
         {/* SECCIÓN 1: HERO */}
         <section className="redesign-section redesign-hero-section">
           <div ref={driveRef} className="redesign-hero">
-            <div className="redesign-hero-top">
-              <Link to="/" className="redesign-logo" onClick={() => setMenuOpen(false)}>
-                <img src="images/logo.png" alt="Boralba Lighting" />
-              </Link>
-              <nav className="redesign-nav" aria-label="Navegación principal">
-                {navItems.map((item) => (
-                  <Link to={item.to} key={item.label}>{item.label}</Link>
-                ))}
-              </nav>
-              <Link to="/contacto" className="redesign-btn-primary redesign-btn-compact redesign-cta-top">Solicitar presupuesto</Link>
-              <button
-                type="button"
-                className="redesign-menu-toggle"
-                onClick={() => setMenuOpen((o) => !o)}
-                aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-                aria-expanded={menuOpen}
-              >
-                {menuOpen ? '✕' : '☰'}
-              </button>
-            </div>
-            <div className={`redesign-mobile-menu${menuOpen ? ' is-open' : ''}`}>
-              {navItems.map((item) => (
-                <Link to={item.to} key={item.label} onClick={() => setMenuOpen(false)}>{item.label}</Link>
-              ))}
-              <Link to="/contacto" className="redesign-btn-primary redesign-btn-compact" onClick={() => setMenuOpen(false)}>Solicitar presupuesto</Link>
-            </div>
+            <HomeHeader menuOpen={menuOpen} onMenuToggle={() => setMenuOpen((open) => !open)} onNavigate={() => setMenuOpen(false)} />
             <img
               className="redesign-hero-image"
               src="images/lobby.png"

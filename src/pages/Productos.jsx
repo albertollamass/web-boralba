@@ -31,7 +31,7 @@ export default function Productos() {
       </div>
 
       <div className="container section" style={{ paddingTop: 0 }}>
-        <div className="grid grid-2">
+        <div className="grid grid-2 products-family-grid">
           {cats.map((cat) => (
             <Link key={cat.slug} to={`/categoria/${cat.slug}`} className="card" style={{ textDecoration: 'none' }}>
               <div className="card-img">
