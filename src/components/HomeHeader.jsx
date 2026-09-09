@@ -4,7 +4,6 @@ const navItems = [
   { label: 'Productos', to: '/productos' },
   { label: 'Soluciones', to: '/servicios' },
   { label: 'Proyectos', to: '/proyectos' },
-  { label: 'Recursos', to: '/buscar' },
   { label: 'Contacto', to: '/contacto' },
 ]
 
