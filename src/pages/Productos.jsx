@@ -1,108 +1,154 @@
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
-import ProductCard from '../components/ProductCard'
+import { normalizeText, searchProducts } from '../lib/search'
+
+const CATEGORY_DEFINITIONS = [
+  { slug: 'tiras-led', label: 'Tiras LED 24V', aliases: ['tiras-led', 'tiras-led-24v'] },
+  { slug: 'tiras-220v', label: 'Tiras LED 220V', aliases: ['tiras-220v'] },
+  { slug: 'perfiles', label: 'Perfiles de aluminio', aliases: ['perfiles'] },
+  { slug: 'tiras-neon', label: 'Neón Flex', aliases: ['tiras-neon', 'neon', 'flex'] },
+  { slug: 'controladores-y-fuentes', label: 'Drivers', aliases: ['controladores-y-fuentes', 'drivers', 'fuentes'] },
+  { slug: 'controladores-y-fuentes', label: 'Controladores y mandos', aliases: ['controladores-y-fuentes', 'controladores'] },
+  { slug: 'proyectores', label: 'Proyectores', aliases: ['proyectores'] },
+  { slug: 'sensores', label: 'Sensores', aliases: ['sensores', 'sensor'] },
+  { slug: 'downlight-led', label: 'Downlights y paneles', aliases: ['downlight-led', 'panel-led', 'downlights', 'paneles'] },
+]
+
+const FILTERS = [
+  { key: 'application', label: 'Aplicación', placeholder: 'Todas las aplicaciones' },
+  { key: 'power', label: 'Potencia', placeholder: 'Cualquier potencia' },
+  { key: 'temperature', label: 'Temperatura de color', placeholder: 'Cualquier temperatura' },
+  { key: 'ip', label: 'Protección IP', placeholder: 'Cualquier protección' },
+  { key: 'control', label: 'Tipo de control', placeholder: 'Cualquier control' },
+  { key: 'cri', label: 'CRI', placeholder: 'Cualquier CRI' },
+  { key: 'voltage', label: 'Tensión', placeholder: 'Cualquier tensión' },
+]
+
+const valueFor = (product, key) => {
+  const specLabels = {
+    power: ['potencia'], temperature: ['temperatura', 'temperatura de color'], ip: ['ip', 'proteccion ip'],
+    control: ['control', 'tipo de control', 'sistema de control'], cri: ['cri', 'reproduccion cromatica'], voltage: ['voltaje', 'tension'],
+  }
+  if (key === 'application') return product.applications || []
+  const spec = (product.specs || []).find((item) => specLabels[key]?.includes(normalizeText(item.label)))
+  return spec ? `${spec.value || ''} ${spec.unit || ''}`.trim() : ''
+}
+
+const asText = (value) => Array.isArray(value) ? value.map((item) => typeof item === 'object' ? Object.values(item).join(' ') : item).join(' ') : String(value || '')
+
+function ProductTile({ product, categoryName }) {
+  return (
+    <Link className="catalog-product" to={`/producto/${product.id}`}>
+      <div className="catalog-product-image">
+        <img src={product.image || 'images/placeholder.svg'} alt={product.name || 'Producto Boralba'} loading="lazy" />
+        {product.featured && <span className="catalog-product-badge">Destacado</span>}
+      </div>
+      <div className="catalog-product-copy">
+        <span>{categoryName || product.category || 'Producto LED'}</span>
+        <h3>{product.name || 'Producto sin nombre'}</h3>
+      </div>
+    </Link>
+  )
+}
 
 export default function Productos() {
-  const { getChildren, ROOT, categories } = useCategories()
-  const cats = getChildren(ROOT.slug)
   const { products } = useProducts()
+  const { getCategory, getBreadcrumb, getDescendantSlugs } = useCategories()
+  const [query, setQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [filters, setFilters] = useState({})
 
-  const byCategory = {}
-  products.forEach((p) => {
-    if (!byCategory[p.category]) byCategory[p.category] = []
-    byCategory[p.category].push(p)
-  })
+  const categories = useMemo(() => CATEGORY_DEFINITIONS.map((definition) => {
+    const category = definition.aliases.map((slug) => getCategory(slug)).find(Boolean)
+    return { ...definition, image: category?.image || 'images/placeholder.svg', categoryName: category?.name }
+  }), [getCategory])
 
-  const orderedCategories = categories.filter((c) => byCategory[c.slug]?.length)
+  const productsWithCategory = useMemo(() => products.map((product) => ({
+    ...product,
+    categoryName: getCategory(product.category)?.name || product.category || '',
+    categorySearch: getBreadcrumb(product.category).map((category) => category.name).join(' '),
+  })), [products, getCategory, getBreadcrumb])
+
+  const initialProducts = useMemo(() => [...productsWithCategory]
+    .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)))
+    .slice(0, 8), [productsWithCategory])
+
+  const options = useMemo(() => Object.fromEntries(FILTERS.map(({ key }) => {
+    const values = productsWithCategory.flatMap((product) => asText(valueFor(product, key)).split(/[,;|]/))
+      .map((value) => value.trim()).filter(Boolean)
+    return [key, [...new Set(values)].slice(0, 24)]
+  })), [productsWithCategory])
+
+  const results = useMemo(() => {
+    const hasQuery = Boolean(normalizeText(query))
+    let result = hasQuery ? searchProducts(productsWithCategory, query) : selectedCategory ? productsWithCategory : initialProducts
+    if (hasQuery && result.length === 0) {
+      const related = normalizeText(query).split(' ').filter((token) => token.length > 2)
+        .flatMap((token) => searchProducts(productsWithCategory, token))
+      result = [...new Map(related.map((product) => [product.id, product])).values()].slice(0, 8)
+    }
+    if (selectedCategory) {
+      const slugs = new Set(getDescendantSlugs(selectedCategory))
+      result = result.filter((product) => slugs.has(product.category) || (selectedCategory === 'downlight-led' && ['panel-led'].includes(product.category)))
+    }
+    return result.filter((product) => FILTERS.every(({ key }) => {
+      if (!filters[key]) return true
+      return normalizeText(asText(valueFor(product, key))).includes(normalizeText(filters[key]))
+    }))
+  }, [query, selectedCategory, filters, productsWithCategory, initialProducts, getDescendantSlugs])
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length
+  const showingResults = Boolean(normalizeText(query) || selectedCategory || activeFilterCount)
+  const clearAll = () => { setQuery(''); setSelectedCategory(''); setFilters({}) }
+  const selectCategory = (slug) => {
+    setSelectedCategory((current) => current === slug ? '' : slug)
+    setQuery('')
+    document.getElementById('catalog-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
-    <>
-      <div className="page-header">
+    <main className="catalog-page">
+      <section className="catalog-hero">
         <div className="container">
-          <div className="breadcrumb">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <span>Productos</span>
+          <div className="catalog-breadcrumb"><Link to="/">Inicio</Link><span>/</span><span>Productos</span></div>
+          <div className="catalog-heading">
+            <div><p className="catalog-kicker">Catálogo Boralba</p><h1>La luz correcta<br /><em>para cada proyecto.</em></h1></div>
+            <p className="catalog-intro">Soluciones LED profesionales para crear espacios que se sienten bien.</p>
           </div>
-          <h1>Conoce nuestros productos</h1>
-          <p>Soluciones de iluminación LED profesional para cualquier proyecto.</p>
-        </div>
-      </div>
-
-      <div className="container section" style={{ paddingTop: 0 }}>
-        <div className="grid grid-2 products-family-grid">
-          {cats.map((cat) => (
-            <Link key={cat.slug} to={`/categoria/${cat.slug}`} className="card" style={{ textDecoration: 'none' }}>
-              <div className="card-img">
-                <img src={cat.image} alt={cat.name} loading="lazy" />
-              </div>
-              <div className="card-body">
-                <h3>{cat.name}</h3>
-                <p>{cat.tagline}</p>
-                <span className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }}>
-                  Ver productos
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {orderedCategories.length > 0 && (
-          <div style={{ marginTop: 56 }}>
-            <div className="section-head left" style={{ marginBottom: 32 }}>
-              <span className="tag">Catálogo completo</span>
-              <h2>Todos los productos por categoría</h2>
-              <p>
-                Cada producto se asigna a una categoría. Explora cada sección o usa el menú de
-                Productos para navegar.
-              </p>
+          <div className="catalog-search-wrap">
+            <div className="catalog-search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16.5 16.5 4 4" /></svg>
+              <input value={query} onChange={(event) => { setQuery(event.target.value); setSelectedCategory('') }} placeholder="Busca por producto, aplicación o característica" aria-label="Buscar productos" />
+              {query && <button type="button" className="catalog-clear" onClick={() => setQuery('')} aria-label="Borrar búsqueda">×</button>}
             </div>
-
-            {orderedCategories.map((cat) => (
-              <div key={cat.slug} style={{ marginBottom: 40 }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    gap: 10,
-                    flexWrap: 'wrap',
-                    marginBottom: 18,
-                  }}
-                >
-                  <h3 style={{ margin: 0, fontSize: '1.3rem' }}>{cat.name}</h3>
-                  <span className="muted" style={{ fontSize: '0.88rem' }}>
-                    {byCategory[cat.slug].length} producto{byCategory[cat.slug].length === 1 ? '' : 's'}
-                  </span>
-                  <Link to={`/categoria/${cat.slug}`} style={{ fontSize: '0.88rem' }}>
-                    Ver categoría →
-                  </Link>
-                </div>
-                <div className="grid grid-4">
-                  {byCategory[cat.slug].map((p) => (
-                    <ProductCard key={p.id} product={p} />
-                  ))}
-                </div>
-              </div>
-            ))}
+            {!query && <div className="catalog-search-note">Prueba con <button type="button" onClick={() => setQuery('tira cálida')}>tira cálida</button>, <button type="button" onClick={() => setQuery('perfil techo')}>perfil techo</button> o <button type="button" onClick={() => setQuery('DALI')}>DALI</button></div>}
           </div>
-        )}
-
-        <div className="section-head mt-3" style={{ marginTop: 56 }}>
-          <span className="tag">Catálogo completo</span>
-          <h2>Descubre todos nuestros productos</h2>
-          <p>Accede a nuestro catálogo completo y encuentra la solución de iluminación perfecta para tu proyecto.</p>
-          <a
-            href="https://www.canva.com/design/DAG2mF_yVsU/ElFlARQAFFWe1Rs1c9D9AA/edit"
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-primary mt-2"
-            style={{ display: 'inline-flex' }}
-          >
-            Ver catálogo
-          </a>
         </div>
-      </div>
-    </>
+      </section>
+
+      <section className="catalog-categories container" aria-labelledby="catalog-categories-title">
+        <div className="catalog-section-label"><span>Explora por familia</span><span className="catalog-line" /></div>
+        <h2 id="catalog-categories-title">¿Qué estás buscando?</h2>
+        <div className="catalog-category-grid">
+          {categories.map((category) => <button type="button" key={`${category.label}-${category.slug}`} className={`catalog-category${selectedCategory === category.slug ? ' is-active' : ''}`} onClick={() => selectCategory(category.slug)}>
+            <span className="catalog-category-image"><img src={category.image} alt="" /></span><span>{category.label}</span><b>↗</b>
+          </button>)}
+        </div>
+      </section>
+
+      <section className="catalog-results container" id="catalog-results" aria-live="polite">
+        <div className="catalog-results-head">
+          <div><p className="catalog-kicker">{showingResults ? 'Resultados de búsqueda' : 'Selección Boralba'}</p><h2>{showingResults ? `${results.length} ${results.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}` : 'Recomendados para empezar'}</h2></div>
+          {(showingResults || activeFilterCount > 0) && <button type="button" className="catalog-reset" onClick={clearAll}>Limpiar búsqueda <span>×</span></button>}
+        </div>
+        <div className="catalog-filterbar">
+          <span className="catalog-filter-label">Filtrar por</span>
+          {FILTERS.map(({ key, label, placeholder }) => <label key={key} className="catalog-filter"><span className="sr-only">{label}</span><select value={filters[key] || ''} onChange={(event) => setFilters((current) => ({ ...current, [key]: event.target.value }))}><option value="">{placeholder}</option>{options[key].map((option) => <option key={option} value={option}>{option}</option>)}</select></label>)}
+        </div>
+        {results.length > 0 ? <div className="catalog-product-grid">{results.map((product) => <ProductTile key={product.id} product={product} categoryName={product.categoryName} />)}</div> : <div className="catalog-empty"><span>⌕</span><h3>No hemos encontrado ese producto.</h3><p>Prueba con tira LED, perfil, driver, sensor o downlight.</p><button type="button" className="catalog-button" onClick={clearAll}>Ver productos recomendados</button></div>}
+      </section>
+    </main>
   )
 }

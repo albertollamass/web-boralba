@@ -51,6 +51,26 @@ function tokenContains(haystack, token) {
   return haystack.split(' ').some((w) => w.includes(token))
 }
 
+function distance(a, b) {
+  const row = Array.from({ length: b.length + 1 }, (_, index) => index)
+  for (let i = 1; i <= a.length; i += 1) {
+    let diagonal = row[0]
+    row[0] = i
+    for (let j = 1; j <= b.length; j += 1) {
+      const above = row[j]
+      row[j] = a[i - 1] === b[j - 1] ? diagonal : Math.min(diagonal + 1, row[j] + 1, row[j - 1] + 1)
+      diagonal = above
+    }
+  }
+  return row[b.length]
+}
+
+function tokenMatches(haystack, token) {
+  if (tokenContains(haystack, token)) return true
+  if (token.length < 4) return false
+  return haystack.split(' ').some((word) => distance(word, token) <= (token.length > 7 ? 2 : 1))
+}
+
 export function searchProducts(products, query) {
   const q = normalizeText(query)
   if (!q) return []
@@ -61,7 +81,7 @@ export function searchProducts(products, query) {
 
   const scored = products.map((p) => {
     let score = 0
-    const haystack = productText(p)
+    const haystack = productText(p) + ` ${normalizeText(p.categoryName)} ${normalizeText(p.categorySearch)}`
     const name = normalizeText(p.name)
     const ref = normalizeText(p.ref)
 
@@ -73,7 +93,7 @@ export function searchProducts(products, query) {
     }
 
     const extraTokens = qTokens.filter((t) => t.length >= 2)
-    if (extraTokens.every((t) => tokenContains(haystack, t))) {
+    if (extraTokens.every((t) => tokenMatches(haystack, t))) {
       score += 20
     } else if (extraTokens.length > 0) {
       return null
