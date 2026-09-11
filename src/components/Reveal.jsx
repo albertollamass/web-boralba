@@ -154,6 +154,34 @@ export function useScrollDrive({ range = 0.85, start = 0.08, y = 150, scale = 0.
   return ref
 }
 
+export function useAmbientDrive() {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (prefersReduced() || isSmallScreen()) return
+    const el = ref.current
+    if (!el) return
+    let raf = 0
+    const update = () => {
+      el.style.setProperty('--ambient-y', `${(-window.scrollY * 0.045).toFixed(1)}px`)
+    }
+    const onScroll = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
+  return ref
+}
+
 /** Zoom dirigido por scroll sobre cualquier contenedor (usa variables CSS). */
 export function ScrollFX({ as: Tag = 'div', className = '', children, speed = 0.14, zoom = 0.08 }) {
   const ref = useMediaFX(speed, zoom)

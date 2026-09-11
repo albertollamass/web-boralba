@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useCategories } from '../context/CategoriesContext'
 
-export default function Footer() {
+export default function Footer({ home = false }) {
   const { getChildren, ROOT } = useCategories()
   const cats = getChildren(ROOT.slug)
   const year = new Date().getFullYear()
 
   return (
-    <footer className="footer">
+    <footer className={`footer${home ? ' footer-home' : ''}`}>
       <div className="container">
         <div className="footer-grid">
           <div>
@@ -69,6 +69,8 @@ export default function Footer() {
             <Link to="/legal/politica-cookies">Política de Cookies</Link>
           </span>
         </div>
+        <div className="footer-wordmark" aria-hidden="true">BORALBA</div>
+        {home && <img className="footer-home-image" src="images/proyectos/tunel_calle_damas_3.jpg" alt="Instalación LED profesional" />}
       </div>
     </footer>
   )

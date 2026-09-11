@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard from '../components/ProductCard'
 import { searchProducts } from '../lib/search'
 
 export default function Buscar() {
   const { products } = useProducts()
-  const [query, setQuery] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('q') || '')
 
   const results = useMemo(() => searchProducts(products, query), [products, query])
   const hasQuery = query.trim().length > 0
@@ -45,7 +47,7 @@ export default function Buscar() {
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+             onChange={(e) => { setQuery(e.target.value); setSearchParams(e.target.value ? { q: e.target.value } : {}) }}
             placeholder="Introduce descripción, código o potencia (ej: 50W, DL-15W, panel led…)"
             autoFocus
           />

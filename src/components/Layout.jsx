@@ -18,7 +18,7 @@ export default function Layout() {
           <main className="site-main"><Outlet /></main>
         </div>
       )}
-      <Footer />
+      <Footer home={isHome} />
       <CookieBanner />
     </>
   )
