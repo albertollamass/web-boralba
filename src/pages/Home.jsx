@@ -61,7 +61,15 @@ function ApplicationsStrip() {
 }
 
 function ProfessionalScene() {
-  return <div className="professional-scene professional-video-scene"><video src="images/video tira.mp4" poster="images/IMAGEN 3D.png" autoPlay loop muted playsInline preload="auto" aria-label="Animación del perfil y la tira LED" /></div>
+  const videoRef = useRef(null)
+  const playVideo = () => videoRef.current?.play().catch(() => {})
+  const pauseVideo = () => {
+    if (!videoRef.current) return
+    videoRef.current.pause()
+    videoRef.current.currentTime = 0
+  }
+
+  return <div className="professional-scene professional-video-scene" onMouseEnter={playVideo} onMouseLeave={pauseVideo}><video ref={videoRef} src="images/video tira.mp4" poster="images/IMAGEN 3D.png" loop muted playsInline preload="metadata" aria-label="Animación del perfil y la tira LED" /></div>
   /*
   return <div className="professional-scene" aria-hidden="true">
     <div className="reference-product-stage">
