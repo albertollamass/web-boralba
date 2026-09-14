@@ -1,44 +1,96 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-const navItems = [
+const NAV_ITEMS = [
   { label: 'Productos', to: '/productos' },
-  { label: 'Soluciones', to: '/servicios' },
   { label: 'Proyectos', to: '/proyectos' },
+  { label: 'Soluciones', to: '/servicios' },
+  { label: 'Recursos', to: '/servicios' },
+  { label: 'Empresa', to: '/servicios' },
   { label: 'Contacto', to: '/contacto' },
 ]
 
-export default function HomeHeader({ menuOpen, onMenuToggle, onNavigate }) {
+function SearchIcon({ onClick }) {
+  return (
+    <button type="button" className="bh-search-btn" onClick={onClick} aria-label="Buscar productos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+    </button>
+  )
+}
+
+export default function HomeHeader({ home = false, menuOpen, onMenuToggle, onNavigate, onSearchOpen }) {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 24)
+    handler()
+    window.addEventListener('scroll', handler, { passive: true })
+    return () => window.removeEventListener('scroll', handler)
+  }, [])
+
   return (
     <>
-      <div className="redesign-hero-top">
-        <Link to="/" className="redesign-logo" onClick={onNavigate}>
-          <img src="images/logo.png" alt="Boralba Lighting" />
-        </Link>
-        <nav className="redesign-nav" aria-label="Navegación principal">
-          {navItems.map((item) => (
-            <Link to={item.to} key={item.label}>{item.label}</Link>
+      <header className={`bh ${scrolled ? 'bh--scrolled' : ''}${home ? ' bh--home' : ''}`}>
+        <div className="bh-inner">
+          <Link to="/" className="bh-logo" onClick={onNavigate}>
+            <img src="images/logo.png" alt="Boralba Lighting" />
+          </Link>
+
+          <nav className="bh-nav" aria-label="Navegación principal">
+            {NAV_ITEMS.map((item) => (
+              <Link key={item.label} to={item.to} className="bh-nav-link" onClick={onNavigate}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="bh-actions">
+            <SearchIcon onClick={onSearchOpen} />
+            <Link to="/contacto" className="bh-cta" onClick={onNavigate}>
+              Área profesional <span className="bh-cta-arrow">→</span>
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            className="bh-burger"
+            onClick={onMenuToggle}
+            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </header>
+
+      <div className={`bh-mobile${home ? ' bh--home' : ''}${menuOpen ? ' bh-mobile--open' : ''}`}>
+        <nav className="bh-mobile-nav">
+          {NAV_ITEMS.map((item) => (
+            <Link key={item.label} to={item.to} className="bh-mobile-link" onClick={onNavigate}>
+              {item.label}
+            </Link>
           ))}
+          <button type="button" className="bh-mobile-link" onClick={onSearchOpen}>
+            Buscar productos
+          </button>
+          <Link to="/contacto" className="bh-mobile-cta" onClick={onNavigate}>
+            Área profesional →
+          </Link>
         </nav>
-        <Link to="/contacto" className="redesign-btn-primary redesign-btn-compact redesign-cta-top">
-          Solicitar presupuesto
-        </Link>
-        <button
-          type="button"
-          className="redesign-menu-toggle"
-          onClick={onMenuToggle}
-          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-          aria-expanded={menuOpen}
-        >
-          {menuOpen ? '✕' : '☰'}
-        </button>
-      </div>
-      <div className={`redesign-mobile-menu${menuOpen ? ' is-open' : ''}`}>
-        {navItems.map((item) => (
-          <Link to={item.to} key={item.label} onClick={onNavigate}>{item.label}</Link>
-        ))}
-        <Link to="/contacto" className="redesign-btn-primary redesign-btn-compact" onClick={onNavigate}>
-          Solicitar presupuesto
-        </Link>
       </div>
     </>
   )

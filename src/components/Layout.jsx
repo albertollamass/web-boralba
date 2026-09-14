@@ -1,24 +1,39 @@
-import { Outlet, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useState, useCallback } from 'react'
 import Footer from './Footer'
 import CookieBanner from './CookieBanner'
 import HomeHeader from './HomeHeader'
 
 export default function Layout() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const isHome = pathname === '/'
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const openSearch = useCallback(() => {
+    setMenuOpen(false)
+    navigate('/buscar')
+  }, [navigate])
+
+  const header = (
+    <HomeHeader
+      home={isHome}
+      menuOpen={menuOpen}
+      onMenuToggle={() => setMenuOpen((open) => !open)}
+      onNavigate={() => setMenuOpen(false)}
+      onSearchOpen={openSearch}
+    />
+  )
+
   return (
     <>
-      {isHome ? <main className="site-main"><Outlet /></main> : (
-        <div className="public-experience">
-          <header className="public-experience-header">
-            <HomeHeader menuOpen={menuOpen} onMenuToggle={() => setMenuOpen((open) => !open)} onNavigate={() => setMenuOpen(false)} />
-          </header>
-          <main className="site-main"><Outlet /></main>
-        </div>
-      )}
-      <Footer home={isHome} />
+      {header}
+      <div className={`site-frame${isHome ? ' home-frame' : ''}`}>
+        <main className="site-main">
+          <Outlet />
+        </main>
+        <Footer home={isHome} />
+      </div>
       <CookieBanner />
     </>
   )
