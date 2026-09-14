@@ -1,187 +1,328 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import ProductCarousel from '../components/ProductCarousel'
 import FamilyCarousel from '../components/FamilyCarousel'
-import Reveal, { useMediaFX } from '../components/Reveal'
-import HomeHeader from '../components/HomeHeader'
 import { useCategories } from '../context/CategoriesContext'
+import { useProducts } from '../context/ProductsContext'
 import { ROOT } from '../data/categories'
 
-const advantages = [
-  { num: '01', title: 'Producto técnico y fiable', desc: 'Materiales seleccionados para garantizar un funcionamiento estable y duradero.' },
-  { num: '02', title: 'Asesoramiento especializado', desc: 'Te ayudamos a elegir la solución adecuada según el proyecto, la potencia, la temperatura de color y el sistema de control.' },
-  { num: '03', title: 'Respuesta rápida', desc: 'Facilitamos presupuestos, fichas técnicas y documentación para que puedas avanzar sin perder tiempo.' },
-  { num: '04', title: 'Soluciones personalizadas', desc: 'Adaptamos la propuesta a las necesidades de cada instalación.' },
+const heroFeatures = [
+  'Calidad profesional',
+  'Soluciones para proyectos',
+  'Soporte técnico',
 ]
 
-const professionalLinks = [
-  { label: 'Arquitectos e interioristas', to: '/servicios' },
-  { label: 'Instaladores', to: '/productos' },
-  { label: 'Distribuidores', to: '/contacto' },
-  { label: 'Proyectos especiales', to: '/proyectos' },
+const solutions = [
+  { name: 'Iluminación arquitectónica', desc: 'Luz integrada en arquitectura y diseño.', image: 'images/proyectos/tunel_calle_damas_3.jpg' },
+  { name: 'Iluminación lineal', desc: 'Perfiles y tiras para líneas de luz limpias.', image: 'images/proyectos/centro_cultural_antonio_lopez_1.jpg' },
+  { name: 'Integración en mobiliario', desc: 'Iluminación oculta en muebles y expositores.', image: 'images/proyectos/Madrid-Sur_3.jpg' },
+  { name: 'Exterior y fachada', desc: 'Solución robusta para espacios exteriores.', image: 'images/proyectos/torre_consuerga_1.jpg' },
+  { name: 'Control de iluminación', desc: 'Sistemas inteligentes y conectados.', image: 'images/proyectos/centro_eventos.jpg' },
 ]
 
-const applications = [
-  { label: 'Iluminación indirecta', img: 'images/proyectos/Madrid-Sur1.jpg' },
-  { label: 'Iluminación de muebles', img: 'images/proyectos/decoracion_hogar.jpg' },
-  { label: 'Hoteles y restauración', img: 'images/proyectos/centro_eventos.jpg' },
-  { label: 'Tiendas y comercios', img: 'images/productos.png' },
-  { label: 'Oficinas', img: 'images/proyectos/oficinas.jpg' },
-  { label: 'Viviendas', img: 'images/proyectos/torre_consuerga_1.jpg' },
+const projects = [
+  { name: 'Túnel de Calle Damas', type: 'Equipamiento público', image: 'images/proyectos/tunel_calle_damas_3.jpg' },
+  { name: 'Centro Cultural Antonio López', type: 'Espacios interiores', image: 'images/proyectos/centro_cultural_antonio_lopez_1.jpg' },
+  { name: 'Torre Consuegra', type: 'Arquitectura y paisaje', image: 'images/proyectos/torre_consuerga_1.jpg' },
 ]
 
-const stats = [
-  { num: '+', target: 500000, label: 'proyectos realizados por toda España' },
-  { num: '100%', label: 'asesoramiento técnico personalizado' },
-  { num: 'LED', label: 'soluciones profesionales' },
+const reasons = [
+  { title: 'Asesoramiento técnico', text: 'Te ayudamos a encontrar la mejor solución.' },
+  { title: 'Soluciones para proyectos', text: 'Productos y soporte para proyectos exigentes.' },
+  { title: 'Catálogo profesional', text: 'Información técnica clara y actualizada.' },
+  { title: 'Soporte cercano', text: 'Un equipo disponible para ayudarte.' },
 ]
 
-const testimonials = [
-  ['Desde el primer contacto recibimos un asesoramiento impecable. La selección de perfiles y tiras LED encajó perfectamente con el proyecto de iluminación indirecta del nuevo restaurante.', 'Carlos Ruiz', 'Arquitecto · Estudio Ruiz'],
-  ['Respuesta rápida, documentación técnica clara y productos de calidad. Son el aliado perfecto para cualquier instalación LED profesional.', 'María González', 'Instaladora eléctrica'],
-  ['Nos ayudaron a diseñar la iluminación completa de nuestra tienda, desde la tira LED hasta el control inteligente. El resultado final superó todas las expectativas.', 'Javier Moreno', 'Directora de retail'],
+const resources = [
+  { title: 'Fichas técnicas', desc: 'Datos técnicos detallados de cada producto.', to: '/servicios' },
+  { title: 'Catálogos', desc: 'Catálogos de producto y de soluciones.', to: '/servicios' },
+  { title: 'Documentación', desc: 'Guías de instalación y normativa.', to: '/servicios' },
+  { title: 'Descargas', desc: 'Archivos, mediciones y recursos útiles.', to: '/servicios' },
 ]
 
-const faqs = [
-  ['¿Qué tira LED necesito para mi proyecto?', 'Depende de la tensión, la potencia, el color y la longitud necesaria. Para largas tiradas recomendamos tiras de 24V y para distancias muy grandes opciones de 220V. Nuestro equipo te asesora sobre la opción más adecuada según cada instalación.'],
-  ['¿Qué diferencia hay entre IP20 e IP65?', 'La tira IP20 está pensada para instalaciones en interior protegidas. La IP65 lleva una protección adicional contra polvo y agua, ideal para exteriores, baños o zonas expuestas a humedad.'],
-  ['¿Podéis ayudarme a elegir el perfil adecuado?', 'Sí. El perfil correcto depende del tipo de tira, el acabado deseado y la disipación de calor. Guiamos la selección según el uso y la forma de instalación.'],
-  ['¿Qué driver necesito?', 'El driver debe coincidir con la tensión y la potencia total consumida por las tiras. También hay que decidir si es regulable y el protocolo de control.'],
-  ['¿Disponéis de soluciones DALI, DMX o Casambi?', 'Sí, trabajamos con DALI, DMX y Casambi, así como otros sistemas de control profesional.'],
-  ['¿Podéis preparar un presupuesto personalizado?', 'Por supuesto. Cuéntanos tu proyecto y preparamos un presupuesto personalizado.'],
+const reasonsIcons = [
+  <path d="M8 9l3 3-3 3M13 15h4" key="0" />,
+  <path d="M12 3l1 2h3l1 2-1 2h-3l-1 2-1-2-3-0.5-1-1.5 1-2h3l1-2z" key="1" />,
+  <path d="M4 10v10M4 10c3 0 4-5 4-5s1 5 4 5 4-8 4-8 1 8 4 8 2-6 4-6v10" key="2" />,
+  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" key="3" />,
 ]
 
-function Heading({ number, eyebrow, title, children }) {
-  return <div className="editorial-heading"><p className="eyebrow"><b>{number}</b>{eyebrow}</p><h2>{title}</h2>{children && <p>{children}</p>}</div>
-}
+const resourcesIcons = [
+  <>
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+  </>,
+  <>
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  </>,
+  <>
+    <path d="M6 2h12v4H6zM6 6v14h12V6" />
+    <path d="M9 10h6M9 14h6" />
+  </>,
+  <>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+  </>,
+]
 
-function ApplicationsStrip() {
-  const trackRef = useRef(null)
-  const scrollBy = (direction) => trackRef.current?.scrollBy({ left: direction * 316, behavior: 'smooth' })
-  return <div className="editorial-app-strip"><button type="button" onClick={() => scrollBy(-1)} aria-label="Aplicaciones anteriores">‹</button><div ref={trackRef}>{applications.map((item, index) => <figure key={item.label}><img src={item.img} alt={item.label} loading="lazy" /><figcaption><small>{String(index + 1).padStart(2, '0')}</small>{item.label}</figcaption></figure>)}</div><button type="button" onClick={() => scrollBy(1)} aria-label="Siguientes aplicaciones">›</button></div>
-}
-
-function ProfessionalScene() {
-  const videoRef = useRef(null)
-  const playVideo = () => videoRef.current?.play().catch(() => {})
-  const pauseVideo = () => {
-    if (!videoRef.current) return
-    videoRef.current.pause()
-    videoRef.current.currentTime = 0
-  }
-
-  return <div className="professional-scene professional-video-scene" onMouseEnter={playVideo} onMouseLeave={pauseVideo}><video ref={videoRef} src="images/video tira.mp4" poster="images/IMAGEN 3D.png" loop muted playsInline preload="metadata" aria-label="Animación del perfil y la tira LED" /></div>
-  /*
-  return <div className="professional-scene" aria-hidden="true">
-    <div className="reference-product-stage">
-      <div className="reference-product-shadow" />
-      <img className="reference-profile-image" src="images/perfiles.png" alt="" />
-      <img className="reference-strip-image" src="images/tira 3d.jpg" alt="" />
-    </div>
-    <svg viewBox="0 0 620 520" role="presentation">
-      <defs>
-        <linearGradient id="scene-aluminium" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#e1e4e1" /><stop offset=".25" stopColor="#a8aeab" /><stop offset=".62" stopColor="#737a77" /><stop offset="1" stopColor="#454b49" /></linearGradient>
-        <linearGradient id="scene-diffuser" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffffff" stopOpacity=".96" /><stop offset=".55" stopColor="#e9ece8" stopOpacity=".88" /><stop offset="1" stopColor="#c6cbc7" stopOpacity=".9" /></linearGradient>
-        <filter id="scene-shadow" x="-30%" y="-100%" width="160%" height="300%"><feDropShadow dx="0" dy="16" stdDeviation="14" floodColor="#202522" floodOpacity=".2" /></filter>
-        <filter id="scene-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="7" /></filter>
-      </defs>
-      <g className="scene-camera">
-        <ellipse className="scene-product-shadow" cx="310" cy="365" rx="205" ry="18" fill="#c5c9c5" opacity=".4" />
-        <g className="scene-product" filter="url(#scene-shadow)">
-          <g className="scene-profile">
-            <path d="M106 276L128 262H500L522 276L500 309H128Z" fill="url(#scene-aluminium)" stroke="#4a514e" strokeWidth="2" />
-            <path d="M128 309H500L488 327H140Z" fill="#555c59" stroke="#3f4643" strokeWidth="2" />
-            <path d="M128 262L150 248H478L500 262Z" fill="#d7dad7" opacity=".7" />
-          </g>
-          <path className="scene-led-glow" d="M154 278H474" fill="none" stroke="#fff0a5" strokeWidth="22" filter="url(#scene-glow)" />
-          <path className="scene-led" d="M154 278H474" fill="none" stroke="#fff3b8" strokeWidth="7" />
-          <g className="scene-led-details">
-            <path d="M154 270H474" stroke="#d6d9d6" strokeWidth="10" />
-            <path d="M154 270H474" stroke="#b9784f" strokeWidth="2" strokeDasharray="18 14" />
-            <rect x="170" y="265" width="11" height="10" rx="2" fill="#f1c94b" /><rect x="205" y="265" width="11" height="10" rx="2" fill="#f1c94b" /><rect x="240" y="265" width="11" height="10" rx="2" fill="#f1c94b" /><rect x="275" y="265" width="11" height="10" rx="2" fill="#f1c94b" /><rect x="310" y="265" width="11" height="10" rx="2" fill="#f1c94b" /><rect x="345" y="265" width="11" height="10" rx="2" fill="#f1c94b" /><rect x="380" y="265" width="11" height="10" rx="2" fill="#f1c94b" /><rect x="415" y="265" width="11" height="10" rx="2" fill="#f1c94b" /><rect x="450" y="265" width="11" height="10" rx="2" fill="#f1c94b" />
-          </g>
-          <g className="scene-diffuser">
-            <path d="M130 252L149 240H479L498 252L479 273H149Z" fill="url(#scene-diffuser)" stroke="#aab0ad" strokeWidth="2" />
-            <path d="M149 273H479" fill="none" stroke="#f7f8f4" strokeWidth="3" opacity=".9" />
-          </g>
-        </g>
-      </g>
-    </svg>
-  </div> */
-}
-
-function AnimatedStat({ stat }) {
+function Reveal({ children, className = '', delay = 0 }) {
   const ref = useRef(null)
-  const [value, setValue] = useState(stat.target ? 0 : null)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (!stat.target || !ref.current) return
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    if (reduced) {
-      setValue(stat.target)
+    const el = ref.current
+    if (!el) return
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) {
+      setVisible(true)
       return
     }
-    let frame
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) {
-        cancelAnimationFrame(frame)
-        setValue(0)
-        return
-      }
-      const start = performance.now()
-      const duration = 1400
-      const tick = (now) => {
-        const progress = Math.min((now - start) / duration, 1)
-        const eased = 1 - (1 - progress) ** 3
-        setValue(Math.round(stat.target * eased))
-        if (progress < 1) frame = requestAnimationFrame(tick)
-      }
-      frame = requestAnimationFrame(tick)
-    }, { threshold: 0.2 })
-    observer.observe(ref.current)
-    return () => {
-      observer.disconnect()
-      cancelAnimationFrame(frame)
-    }
-  }, [stat.target])
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisible(true)
+            obs.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
-  return <div ref={ref} className={stat.target ? 'stat-featured' : ''}><strong>{stat.target ? <><i>+</i><em>{new Intl.NumberFormat('es-ES').format(value)}</em></> : stat.num}</strong><span>{stat.label}</span></div>
-}
-
-function TestimonialSlider() {
-  const [index, setIndex] = useState(0)
-  const item = testimonials[index]
-  return <div className="editorial-testimonial"><span>“</span><p>{item[0]}</p><strong>{item[1]}</strong><small>{item[2]}</small><div><button type="button" onClick={() => setIndex((index + testimonials.length - 1) % testimonials.length)} aria-label="Testimonio anterior">←</button><button type="button" onClick={() => setIndex((index + 1) % testimonials.length)} aria-label="Siguiente testimonio">→</button></div></div>
-}
-
-function FaqAccordion() {
-  const [open, setOpen] = useState(null)
-  return <div className="editorial-faq-list">{faqs.map(([question, answer], index) => <div key={question} className={open === index ? 'is-open' : ''}><button type="button" onClick={() => setOpen(open === index ? null : index)} aria-expanded={open === index}><span>{question}</span><b>{open === index ? '−' : '+'}</b></button><p>{answer}</p></div>)}</div>
+  return (
+    <div
+      ref={ref}
+      className={`home-reveal ${visible ? 'is-visible' : ''} ${className}`}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    >
+      {children}
+    </div>
+  )
 }
 
 export default function Home() {
   const { categories, getCategory, getChildren } = useCategories()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const heroMediaRef = useMediaFX(0.16, 0)
+  const { products } = useProducts()
   const flagged = categories.filter((category) => category.showInHome).sort((a, b) => (a.homeOrder ?? 999) - (b.homeOrder ?? 999))
-  const homeSource = flagged.length ? flagged : getChildren(ROOT.slug)
-  const families = homeSource.map((category) => ({ slug: category.slug, name: category.name }))
+  const source = flagged.length ? flagged : getChildren(ROOT.slug)
+  const families = source.map((category) => ({ slug: category.slug, name: category.name }))
   const getCatImage = (slug) => getCategory(slug)?.image || 'images/placeholder.svg'
+  const featuredProducts = products.filter((product) => !product.outlet).slice(0, 12)
+  const videoRef = useRef(null)
 
-  return <div className="home redesign-home">
-    <section className="editorial-header"><HomeHeader menuOpen={menuOpen} onMenuToggle={() => setMenuOpen((open) => !open)} onNavigate={() => setMenuOpen(false)} /></section>
-    <main className="editorial-canvas">
-      <section className="editorial-hero"><div className="editorial-hero-copy"><p className="eyebrow">Iluminación técnica para proyectos</p><h1>BORALBA</h1><div className="hero-note"><h2>Soluciones que convierten cada proyecto en una referencia</h2><p>Asesoramiento técnico, producto LED profesional y proyectos que marcan la diferencia.</p><Link to="/productos" className="editorial-button">Explorar productos</Link></div></div><span ref={heroMediaRef} className="editorial-hero-image"><img src="images/lobby.png" alt="Instalación de iluminación arquitectónica" loading="eager" fetchPriority="high" /></span></section>
-      <Reveal as="section" className="editorial-intro"><h2>Una solución profesional de principio a fin</h2><p>Desde la tira LED hasta el control inteligente: todo lo necesario para crear instalaciones profesionales, eficientes y duraderas.</p></Reveal>
-      {families.length > 0 && <Reveal as="section" className="editorial-families editorial-families-after-intro"><FamilyCarousel families={families} getCatImage={getCatImage} /></Reveal>}
-      <Reveal as="section" className="editorial-corporate"><img className="editorial-corporate-image" src="images/almacen.png" alt="Almacén de Boralba Lighting" /><div><p className="eyebrow">Boralba Lighting</p><h2>+ de 30 años en el sector de iluminación</h2><p>En Boralba Lighting trabajamos ofreciendo soluciones de iluminación profesional para proyectos comerciales, arquitectónicos y residenciales a través de distribución.</p></div></Reveal>
-      <Reveal as="section" className="editorial-stats">{stats.map((stat) => <AnimatedStat stat={stat} key={stat.label} />)}</Reveal>
-      <Reveal as="section" className="editorial-why"><ProfessionalScene /><div className="editorial-advantages"><p className="eyebrow">Por qué elegir Boralba</p><h2>Una solución profesional de principio a fin</h2><div>{advantages.map((adv) => <article key={adv.num}><b>{adv.num}</b><span><strong>{adv.title}</strong><small>{adv.desc}</small></span></article>)}</div></div></Reveal>
-      <Reveal as="section" className="editorial-statement"><img src="images/proyectos/tunel_calle_damas_2.jpg" alt="Instalación LED profesional" /><div><p>Proyectos que dejan huella</p><h2>La luz también construye espacios.</h2></div></Reveal>
-      <Reveal as="section" className="editorial-solutions"><div className="solutions-copy"><p className="eyebrow">Soluciones profesionales</p><h2>Diseñado para profesionales</h2><p>Soluciones pensadas para arquitectos, interioristas, instaladores, distribuidores y empresas de proyectos.</p>{professionalLinks.map((link) => <Link to={link.to} key={link.label}>{link.label}<span>↗</span></Link>)}</div><div className="solutions-images"><img className="solution-large" src="images/proyectos/centro_cultural_antonio_lopez_1.jpg" alt="Proyecto de arquitectura" /><img className="solution-small" src="images/proyectos/decoracion_hogar.jpg" alt="Iluminación de muebles" /></div></Reveal>
-      <Reveal as="section" className="editorial-applications"><Heading number="03" eyebrow="Proyectos" title="Iluminación que se adapta al espacio" /><ApplicationsStrip /></Reveal>
-      <Reveal as="section" className="editorial-testimonials"><Heading number="04" eyebrow="Clientes" title="Lo que dicen nuestros clientes" /><TestimonialSlider /></Reveal>
-      <Reveal as="section" className="editorial-faq"><Heading number="05" eyebrow="Ayuda" title="Preguntas frecuentes" /><FaqAccordion /></Reveal>
-      <section className="editorial-contact"><div><p className="eyebrow">Hablemos de tu proyecto</p><h2>¿Tienes un proyecto de iluminación?</h2></div><form action="contacto" method="get"><p>Te ayudamos a encontrar la solución adecuada.</p><input name="nombre" placeholder="Nombre" /><input name="email" type="email" placeholder="Tu correo electrónico" /><textarea name="mensaje" placeholder="Mensaje" rows="2" /><button type="submit" className="editorial-button">Solicitar asesoramiento</button></form></section>
-    </main>
-  </div>
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play()?.catch(() => {})
+          } else {
+            video.pause()
+          }
+        })
+      },
+      { threshold: 0.2 }
+    )
+    obs.observe(video)
+    return () => obs.disconnect()
+  }, [])
+
+  return (
+    <div className="home">
+      {/* ============ 1 · HERO ============ */}
+      <section className="home-hero">
+        <div className="home-hero-media" aria-hidden="true">
+          <video
+            ref={videoRef}
+            src="images/video tira.mp4"
+            poster="images/tira 3d.jpg"
+            muted
+            loop
+            playsInline
+            preload="auto"
+          />
+          <div className="home-hero-side-note">
+            <span>PEQUEÑOS DETALLES.</span>
+            <strong>GRANDES PROYECTOS</strong>
+          </div>
+        </div>
+        <div className="home-hero-copy">
+          <Reveal>
+            <p className="home-eyebrow">Luz que hace grandes proyectos</p>
+            <h1>
+              Iluminación LED para
+              <br />
+              grandes proyectos
+            </h1>
+            <p className="home-hero-sub">
+              Soluciones de iluminación LED que buscan calidad, fiabilidad y un resultado profesional.
+            </p>
+          </Reveal>
+          <Reveal delay={120}>
+            <div className="home-hero-actions">
+              <Link to="/productos" className="home-btn home-btn--red">Ver productos <span>→</span></Link>
+              <Link to="/contacto" className="home-hero-textlink">Cuéntanos tu proyecto <span>→</span></Link>
+            </div>
+          </Reveal>
+        </div>
+        <div className="home-hero-values">
+          {heroFeatures.map((feature) => (
+            <span className="home-hero-value" key={feature}>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5 6.5 12 13 4.5" /></svg>
+              {feature}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ============ 2 · NUESTROS PRODUCTOS ============ */}
+      <section className="home-section">
+        <div className="container">
+          <div className="home-sec-head">
+            <Reveal>
+              <p className="home-eyebrow">Producto</p>
+              <h2>Nuestros productos</h2>
+            </Reveal>
+            <Reveal delay={100}>
+              <Link to="/productos" className="home-sec-link">Ver todos los productos <span>→</span></Link>
+            </Reveal>
+          </div>
+          {featuredProducts.length > 0 ? (
+            <Reveal delay={150}>
+              <ProductCarousel products={featuredProducts} />
+            </Reveal>
+          ) : (
+            <Reveal delay={150}>
+              <FamilyCarousel families={families} getCatImage={getCatImage} />
+            </Reveal>
+          )}
+        </div>
+      </section>
+
+      {/* ============ 5 · PROYECTOS REALES ============ */}
+      <section className="home-section home-section--mist">
+        <div className="container">
+          <div className="home-sec-head">
+            <Reveal>
+              <p className="home-eyebrow">Proyectos</p>
+              <h2>Proyectos e inspiración</h2>
+            </Reveal>
+            <Reveal delay={100}>
+              <Link to="/proyectos" className="home-sec-link">Ver todos los proyectos <span>→</span></Link>
+            </Reveal>
+          </div>
+          <div className="home-projects">
+            {projects.map((project, index) => (
+              <Reveal key={project.name} delay={index * 80}>
+                <Link to="/proyectos" className="home-project">
+                  <div className="home-project-media">
+                    <img src={project.image} alt={project.name} loading="lazy" />
+                    <span className="home-project-foot">
+                      <span className="home-project-name">{project.name}</span>
+                      <span className="home-project-type">{project.type}</span>
+                    </span>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 4 · SOLUCIONES ============ */}
+      <section className="home-section">
+        <div className="container">
+          <div className="home-sec-head">
+            <Reveal>
+              <p className="home-eyebrow">Aplicaciones</p>
+              <h2>Soluciones</h2>
+            </Reveal>
+          </div>
+          <div className="home-solutions">
+            {solutions.map((solution, index) => (
+              <Reveal key={solution.name} delay={index * 60}>
+                <Link to="/servicios" className="home-solution">
+                  <div className="home-solution-media">
+                    <img src={solution.image} alt={solution.name} loading="lazy" />
+                  </div>
+                  <p className="home-solution-name">{solution.name}</p>
+                  <p className="home-solution-desc">{solution.desc}</p>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 6 · POR QUÉ BORALBA ============ */}
+      <section className="home-section">
+        <div className="container">
+          <div className="home-sec-head">
+            <Reveal>
+              <p className="home-eyebrow">Boralba</p>
+              <h2>Por qué Boralba</h2>
+            </Reveal>
+          </div>
+          <div className="home-reasons">
+            {reasons.map((reason, index) => (
+              <Reveal key={reason.title} delay={index * 60}>
+                <div className="home-reason">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    {reasonsIcons[index]}
+                  </svg>
+                  <h3>{reason.title}</h3>
+                  <p>{reason.text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 7 · RECURSOS PROFESIONALES ============ */}
+      <section className="home-section home-section--mist">
+        <div className="container">
+          <div className="home-sec-head">
+            <Reveal>
+              <p className="home-eyebrow">Información técnica</p>
+              <h2>Recursos profesionales</h2>
+            </Reveal>
+          </div>
+          <div className="home-resources">
+            {resources.map((resource, index) => (
+              <Reveal key={resource.title} delay={index * 60}>
+                <Link to={resource.to} className="home-resource">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    {resourcesIcons[index]}
+                  </svg>
+                  <h3>{resource.title}</h3>
+                  <p>{resource.desc}</p>
+                  <span className="home-resource-arrow">→</span>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 8 · CTA FINAL ============ */}
+      <section className="home-cta">
+        <div className="home-cta-bg">
+          <img src="images/proyectos/tunel_calle_damas_2.jpg" alt="" aria-hidden="true" loading="lazy" />
+        </div>
+        <Reveal>
+          <div className="home-cta-copy">
+            <h2>¿Tienes un proyecto de iluminación?</h2>
+            <p>Hablemos. Nuestro equipo te ayudará a encontrar la solución adecuada.</p>
+            <Link to="/contacto" className="home-btn home-btn--red home-btn--light">Hablar con nosotros <span>→</span></Link>
+          </div>
+        </Reveal>
+      </section>
+    </div>
+  )
 }
