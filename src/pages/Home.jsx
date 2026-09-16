@@ -25,25 +25,11 @@ const projects = [
   { name: 'Torre Consuegra', type: 'Iluminación monumental · Arquitectura exterior', image: 'images/proyectos/torre_consuerga_home.png' },
 ]
 
-const reasons = [
-  { title: 'Asesoramiento técnico', text: 'Te ayudamos a encontrar la mejor solución.' },
-  { title: 'Soluciones para proyectos', text: 'Productos y soporte para proyectos exigentes.' },
-  { title: 'Catálogo profesional', text: 'Información técnica clara y actualizada.' },
-  { title: 'Soporte cercano', text: 'Un equipo disponible para ayudarte.' },
-]
-
 const resources = [
   { title: 'Fichas técnicas', desc: 'Datos técnicos detallados de cada producto.', to: '/servicios' },
   { title: 'Catálogos', desc: 'Catálogos de producto y de soluciones.', to: '/servicios' },
   { title: 'Documentación', desc: 'Guías de instalación y normativa.', to: '/servicios' },
   { title: 'Descargas', desc: 'Archivos, mediciones y recursos útiles.', to: '/servicios' },
-]
-
-const reasonsIcons = [
-  <path d="M8 9l3 3-3 3M13 15h4" key="0" />,
-  <path d="M12 3l1 2h3l1 2-1 2h-3l-1 2-1-2-3-0.5-1-1.5 1-2h3l1-2z" key="1" />,
-  <path d="M4 10v10M4 10c3 0 4-5 4-5s1 5 4 5 4-8 4-8 1 8 4 8 2-6 4-6v10" key="2" />,
-  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" key="3" />,
 ]
 
 const resourcesPaths = [
@@ -172,7 +158,7 @@ export default function Home() {
       </section>
 
         {/* ============ 2 · NUESTROS PRODUCTOS ============ */}
-        <section className="home-section">
+        <section className="home-section home-section--products">
         <div className="container">
           <div className="home-sec-head">
             <Reveal>
@@ -196,7 +182,7 @@ export default function Home() {
       </section>
 
       {/* ============ 5 · PROYECTOS REALES ============ */}
-      <section className="home-section">
+      <section className="home-section home-section--projects">
         <div className="container">
           <div className="projects-content">
             <div className="home-projects">
@@ -291,7 +277,7 @@ export default function Home() {
       </section>
 
       {/* ============ 4b · CONFIANZA Y MARCA ============ */}
-      <section className="home-section">
+      <section className="home-section home-section--trust">
         <div className="container">
           <div className="home-trust">
             <div className="home-trust-col">
@@ -325,33 +311,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ 6 · POR QUÉ BORALBA ============ */}
-      <section className="home-section">
+      {/* ============ 6 · SOBRE BORALBA ============ */}
+      <section className="home-section home-section--company">
         <div className="container">
-          <div className="home-sec-head">
-            <Reveal>
-              <p className="home-eyebrow">Boralba</p>
-              <h2>Por qué Boralba</h2>
-            </Reveal>
-          </div>
-          <div className="home-reasons">
-            {reasons.map((reason, index) => (
-              <Reveal key={reason.title} delay={index * 60}>
-                <div className="home-reason">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                    {reasonsIcons[index]}
-                  </svg>
-                  <h3>{reason.title}</h3>
-                  <p>{reason.text}</p>
+          <div className="home-company">
+            <div className="home-company-content">
+              <Reveal>
+                <p className="home-eyebrow">Sobre Boralba</p>
+                <h2 className="home-company-title">Más de 30 años evolucionando con la iluminación.</h2>
+              </Reveal>
+              <Reveal delay={80}>
+<p className="home-company-text">Contamos con más de 30 años de experiencia en el sector. Desde 2006, Boralba Lighting ha evolucionado desde la distribución y comercialización hacia soluciones más completas para proyectos profesionales.</p>
+              <p className="home-company-text">Hoy combinamos iluminación, asesoramiento, diseño, control, puesta en marcha y soluciones propias bajo HALOPACK.</p>
+              </Reveal>
+              <Reveal delay={140}>
+                <div className="home-company-hits">
+                  <div className="home-company-hit">
+                    <strong>+30 AÑOS</strong>
+                    <span>Experiencia en iluminación</span>
+                  </div>
+                  <div className="home-company-hit">
+                    <strong>2006</strong>
+                    <span>Boralba Lighting S.L.</span>
+                  </div>
+                  <div className="home-company-hit">
+                    <strong>HOY</strong>
+                    <span>Proyectos · Tecnología · HALOPACK</span>
+                  </div>
                 </div>
               </Reveal>
-            ))}
+              <Reveal delay={180}>
+                <Link to="/empresa" className="home-company-link">Conocer Boralba <span>→</span></Link>
+              </Reveal>
+            </div>
+            <Reveal delay={120} className="home-company-media">
+              <img src="images/almacen.png" alt="Instalaciones de Boralba" loading="lazy" />
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* ============ 7 · RECURSOS PROFESIONALES ============ */}
-      <section className="home-section">
+      <section className="home-section home-section--resources">
         <div className="container">
           <div className="home-sec-head">
             <Reveal>
