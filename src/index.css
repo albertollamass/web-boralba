@@ -7373,6 +7373,13 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* ---------- 4 · Servicios (recorrido de proceso) ---------- */
+.home-section--services {
+  background: #f6f5f2;
+  padding-block: clamp(64px, 8vw, 100px);
+}
+.home-section--services .container {
+  max-width: none;
+}
 .home-services {
   display: grid;
   grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
@@ -7392,14 +7399,14 @@ body:not(:has(.redesign-home)) .flyout {
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.04;
-  color: #16161a;
+  color: #171719;
 }
 .home-services-sub {
   margin: 18px 0 0;
   max-width: 46ch;
   font-size: 1.02rem;
   line-height: 1.6;
-  color: #76767f;
+  color: #7c7c82;
 }
 .home-services-steps-wrap {
   width: 100%;
@@ -7413,8 +7420,8 @@ body:not(:has(.redesign-home)) .flyout {
   --svc-line-box: calc(var(--svc-title-fs) * 1.25);
   --svc-node-center: calc(var(--svc-line-box) / 2);
   --svc-dot: 11px;
-  --svc-line: #dedcd8;
-  --svc-line-strong: #cbc8c3;
+  --svc-line: #d9d8d4;
+  --svc-line-strong: #d9d8d4;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -7440,7 +7447,7 @@ body:not(:has(.redesign-home)) .flyout {
   line-height: var(--svc-line-box);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
-  color: #16161a;
+  color: #171719;
   transition: color 0.25s ease;
 }
 .home-service-rail {
@@ -7498,7 +7505,7 @@ body:not(:has(.redesign-home)) .flyout {
   font-size: var(--svc-title-fs);
   line-height: var(--svc-line-box);
   font-weight: 600;
-  color: #16161a;
+  color: #171719;
   transition: transform 0.25s ease, color 0.25s ease;
 }
 .home-service-desc {
@@ -7506,7 +7513,7 @@ body:not(:has(.redesign-home)) .flyout {
   font-size: clamp(0.82rem, 1vw, 0.9rem);
   line-height: 1.5;
   font-weight: 400;
-  color: #8a8a92;
+  color: #7c7c82;
   transition: transform 0.25s ease;
 }
 .home-service-step:hover .home-service-num,
@@ -7532,7 +7539,7 @@ body:not(:has(.redesign-home)) .flyout {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #16161a;
+  color: #171719;
   text-decoration: none;
   transition: color 0.25s ease;
 }
@@ -8230,5 +8237,262 @@ body:not(:has(.redesign-home)) .flyout {
   }
   .bh-mobile {
     transition: none;
+  }
+}
+
+/* ============================================================
+   DISEÑA TU LUMINARIA (HALOPACK) — /disena-tu-luminaria
+   ============================================================ */
+.disena {
+  background: #ffffff;
+  color: #16161a;
+  overflow: clip;
+}
+.disena .container {
+  max-width: none;
+  margin: 0 auto;
+  padding: 0 clamp(28px, 4vw, 78px);
+}
+
+/* ---------- Hero ---------- */
+.disena-hero {
+  position: relative;
+  min-height: clamp(640px, calc(100svh - 76px), 920px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  color: #fff;
+  background: #1a1b1c;
+}
+.disena-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.disena-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.disena-hero-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(12, 12, 15, 0.88) 0%, rgba(12, 12, 15, 0.62) 34%, rgba(12, 12, 15, 0.16) 68%, rgba(12, 12, 15, 0.04) 100%);
+}
+.disena-hero-copy {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: clamp(90px, 10vh, 140px) clamp(28px, 4vw, 78px) clamp(80px, 9vh, 120px);
+}
+.disena-hero-copy > div {
+  max-width: 560px;
+}
+.disena-hero-eyebrow {
+  margin: 0 0 22px;
+  color: #dd3531;
+  font-family: var(--font-montserrat);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.disena-hero-copy h1 {
+  margin: 0 0 26px;
+  font-family: var(--font-montserrat);
+  font-size: clamp(42px, 5.2vw, 74px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.disena-hero-sub {
+  margin: 0 0 34px;
+  font-size: clamp(1rem, 1.3vw, 1.12rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 540px;
+}
+.disena .home-btn {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* ---------- Sections wrapper ---------- */
+.disena-sections {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 6.5vw, 96px);
+  padding-top: clamp(72px, 6.5vw, 96px);
+  padding-bottom: clamp(40px, 5vw, 72px);
+}
+
+/* ---------- Intro (2-col editorial) ---------- */
+.disena-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  gap: clamp(40px, 6vw, 110px);
+  align-items: start;
+}
+.disena-intro h2 {
+  margin: 0;
+  font-family: var(--font-montserrat);
+  font-size: clamp(1.9rem, 3.4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: #16161a;
+}
+.disena-intro-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 48ch;
+}
+.disena-intro-body p {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: #76767f;
+}
+
+/* ---------- Process (red accent on dots by default) ---------- */
+.disena .home-service-dot {
+  background: #dd3531;
+}
+
+/* ---------- Headings ---------- */
+.disena-head {
+  margin-bottom: clamp(34px, 5vw, 58px);
+}
+.disena-head h2 {
+  margin: 0;
+  font-family: var(--font-montserrat);
+  font-size: clamp(1.9rem, 3.4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: #16161a;
+}
+.disena-head-sub {
+  margin-top: 12px;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: #76767f;
+  max-width: 52ch;
+}
+
+/* ---------- Customize grid ---------- */
+.disena-custom {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: clamp(28px, 4vw, 52px);
+  row-gap: clamp(24px, 3vw, 40px);
+}
+.disena-custom-item {
+  border-top: 1px solid #e7e4e0;
+  padding-top: clamp(14px, 1.6vw, 20px);
+}
+.disena-custom-num {
+  display: block;
+  font-family: var(--font-montserrat);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: #dd3531;
+  margin-bottom: 10px;
+}
+.disena-custom-item h3 {
+  margin: 0;
+  font-family: var(--font-montserrat);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #16161a;
+}
+
+/* ---------- Visual section ---------- */
+.disena-visual-media {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #efeeeb;
+}
+.disena-visual-media img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center;
+}
+.disena-visual-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  gap: clamp(30px, 5vw, 80px);
+  align-items: start;
+  margin-top: clamp(30px, 4vw, 52px);
+}
+.disena-visual-copy h2 {
+  margin: 0;
+  font-family: var(--font-montserrat);
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  color: #16161a;
+}
+.disena-visual-copy p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #76767f;
+  max-width: 46ch;
+}
+
+/* ---------- Form section ---------- */
+.disena-form-wrap {
+  max-width: 820px;
+}
+.disena-form-anchor {
+  scroll-margin-top: 100px;
+}
+.form-optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.06em;
+  color: #9a9aa2;
+  font-size: 0.74rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .disena-intro {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .disena-visual-copy {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .disena-custom {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .disena-custom {
+    grid-template-columns: 1fr;
+  }
+  .disena-hero-copy h1 {
+    font-size: clamp(34px, 9vw, 46px);
+  }
+  .disena-hero-media::after {
+    background: linear-gradient(180deg, rgba(12, 12, 15, 0.42) 0%, rgba(12, 12, 15, 0.24) 45%, rgba(12, 12, 15, 0.9) 100%);
+  }
+  .disena-visual-media img {
+    aspect-ratio: 3 / 4;
+    object-position: top;
   }
 }

@@ -254,7 +254,7 @@ export default function Home() {
       </section>
 
       {/* ============ 4 · SERVICIOS ============ */}
-      <section className="home-section">
+      <section className="home-section home-section--services">
         <div className="container">
           <div className="home-services">
             <div className="home-services-content">
@@ -317,7 +317,7 @@ export default function Home() {
                 <div className="home-trust-callout">
                   <p className="home-trust-callout-title">Diseña tu propia luminaria</p>
                   <p className="home-trust-callout-text">Creamos soluciones de iluminación a medida para las necesidades específicas de cada proyecto.</p>
-                  <Link to="/contacto" className="home-trust-callout-link">Diseñar mi luminaria <span>→</span></Link>
+                  <Link to="/disena-tu-luminaria" className="home-trust-callout-link">Diseñar mi luminaria <span>→</span></Link>
                 </div>
               </Reveal>
             </div>
