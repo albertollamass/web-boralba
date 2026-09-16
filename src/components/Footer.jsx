@@ -15,10 +15,9 @@ export default function Footer({ home = false }) {
               <img src="images/logo.png" alt="Boralba Lighting" />
             </div>
             <p>
-              Boralba Lighting, S.L. Soluciones de iluminación profesional para proyectos
-              comerciales, arquitectónicos y residenciales a través de distribución.
+              Soluciones de iluminación LED profesional para arquitectos, instaladores,
+              interioristas y proyectos que buscan calidad, fiabilidad y un resultado profesional.
             </p>
-            <p>Partner tecnológico de TRIDONIC.</p>
           </div>
           <div>
             <h4>Productos</h4>
@@ -31,33 +30,40 @@ export default function Footer({ home = false }) {
             </ul>
           </div>
           <div>
-            <h4>Visítanos en</h4>
-            <p>
-              Calle Destreza, 3. Nave D10
-              <br />
-              Polígono Los Olivos
-              <br />
-              28906 Getafe
-            </p>
-            <h4>Contacto</h4>
-            <p>
-              <a href="mailto:boralba@boralba.es">boralba@boralba.es</a>
-              <br />
-              <a href="tel:+34918707113">Tel: (34) 91 870 71 13</a>
-            </p>
-            <h4>Síguenos en</h4>
-            <p>
+            <h4>Soluciones</h4>
+            <ul>
+              <li><Link to="/servicios">Iluminación arquitectónica</Link></li>
+              <li><Link to="/servicios">Iluminación lineal</Link></li>
+              <li><Link to="/servicios">Exterior y fachada</Link></li>
+              <li><Link to="/servicios">Control de iluminación</Link></li>
+              <li><Link to="/proyectos">Proyectos</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Empresa</h4>
+            <ul>
+              <li><Link to="/servicios">Sobre Boralba</Link></li>
+              <li><Link to="/servicios">Área profesional</Link></li>
+              <li><Link to="/contacto">Contacto</Link></li>
+            </ul>
+            <h4 style={{ marginTop: 26 }}>Síguenos</h4>
+            <p className="footer-social">
               <a
                 href="https://www.facebook.com/profile.php?id=100063786154063"
                 target="_blank"
                 rel="noreferrer"
               >
                 Facebook
-              </a>{' '}
-              ·{' '}
+              </a>
+              <span>·</span>
               <a href="https://www.instagram.com/boralbalighting/" target="_blank" rel="noreferrer">
                 Instagram
               </a>
+            </p>
+            <p className="footer-contact">
+              <a href="mailto:boralba@boralba.es">boralba@boralba.es</a>
+              <br />
+              <a href="tel:+34918707113">(34) 91 870 71 13</a>
             </p>
           </div>
         </div>
@@ -69,8 +75,6 @@ export default function Footer({ home = false }) {
             <Link to="/legal/politica-cookies">Política de Cookies</Link>
           </span>
         </div>
-        <div className="footer-wordmark" aria-hidden="true">BORALBA</div>
-        {home && <img className="footer-home-image" src="images/proyectos/tunel_calle_damas_3.jpg" alt="Instalación LED profesional" />}
       </div>
     </footer>
   )

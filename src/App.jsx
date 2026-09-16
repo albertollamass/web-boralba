@@ -5,6 +5,7 @@ import Productos from './pages/Productos'
 import Categoria from './pages/Categoria'
 import ProductoDetalle from './pages/ProductoDetalle'
 import Outlet from './pages/Outlet'
+import Buscar from './pages/Buscar'
 import Proyectos from './pages/Proyectos'
 import Servicios from './pages/Servicios'
 import Contacto from './pages/Contacto'
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/categoria/:slug" element={<Categoria />} />
           <Route path="/producto/:id" element={<ProductoDetalle />} />
           <Route path="/outlet" element={<Outlet />} />
+          <Route path="/buscar" element={<Buscar />} />
           <Route path="/proyectos" element={<Proyectos />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/contacto" element={<Contacto />} />

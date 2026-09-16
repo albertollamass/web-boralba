@@ -12,18 +12,17 @@ const heroFeatures = [
   'Soporte técnico',
 ]
 
-const solutions = [
-  { name: 'Iluminación arquitectónica', desc: 'Luz integrada en arquitectura y diseño.', image: 'images/proyectos/tunel_calle_damas_3.jpg' },
-  { name: 'Iluminación lineal', desc: 'Perfiles y tiras para líneas de luz limpias.', image: 'images/proyectos/centro_cultural_antonio_lopez_1.jpg' },
-  { name: 'Integración en mobiliario', desc: 'Iluminación oculta en muebles y expositores.', image: 'images/proyectos/Madrid-Sur_3.jpg' },
-  { name: 'Exterior y fachada', desc: 'Solución robusta para espacios exteriores.', image: 'images/proyectos/torre_consuerga_1.jpg' },
-  { name: 'Control de iluminación', desc: 'Sistemas inteligentes y conectados.', image: 'images/proyectos/centro_eventos.jpg' },
+const services = [
+  { num: '01', title: 'Asesoramiento técnico', desc: 'Analizamos las necesidades del proyecto y proponemos la solución de iluminación más adecuada.' },
+  { num: '02', title: 'Diseño de iluminación', desc: 'Definimos la distribución, niveles de luz y solución técnica para cada espacio.' },
+  { num: '03', title: 'Suministro profesional', desc: 'Seleccionamos y suministramos luminarias, componentes y sistemas adaptados a cada proyecto.' },
+  { num: '04', title: 'Puesta en marcha', desc: 'Configuramos, programamos y comprobamos el funcionamiento de los sistemas de iluminación.' },
 ]
 
 const projects = [
-  { name: 'Túnel de Calle Damas', type: 'Equipamiento público', image: 'images/proyectos/tunel_calle_damas_3.jpg' },
-  { name: 'Centro Cultural Antonio López', type: 'Espacios interiores', image: 'images/proyectos/centro_cultural_antonio_lopez_1.jpg' },
-  { name: 'Torre Consuegra', type: 'Arquitectura y paisaje', image: 'images/proyectos/torre_consuerga_1.jpg' },
+  { name: 'Obra con panel LED flexible', type: '', image: 'images/proyectos/obra_panel_led.png' },
+  { name: 'Chalet en Pozuelo de Alarcón', type: '', image: 'images/proyectos/chalet_pozuelo.png' },
+  { name: 'Torre Consuegra', type: 'Iluminación monumental · Arquitectura exterior', image: 'images/proyectos/torre_consuerga_home.png' },
 ]
 
 const reasons = [
@@ -47,22 +46,11 @@ const reasonsIcons = [
   <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" key="3" />,
 ]
 
-const resourcesIcons = [
-  <>
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
-  </>,
-  <>
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-  </>,
-  <>
-    <path d="M6 2h12v4H6zM6 6v14h12V6" />
-    <path d="M9 10h6M9 14h6" />
-  </>,
-  <>
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-  </>,
+const resourcesPaths = [
+  ['M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', 'M14 2v6h6M16 13H8M16 17H8M10 9H8'],
+  ['M4 19.5A2.5 2.5 0 0 1 6.5 17H20', 'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'],
+  ['M6 2h12v4H6zM6 6v14h12V6', 'M9 10h6M9 14h6'],
+  ['M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3'],
 ]
 
 function Reveal({ children, className = '', delay = 0 }) {
@@ -134,6 +122,9 @@ export default function Home() {
 
   return (
     <div className="home">
+      {/* ============ CONTENT SECTIONS ============ */}
+      <div className="home-sections">
+
       {/* ============ 1 · HERO ============ */}
       <section className="home-hero">
         <div className="home-hero-media" aria-hidden="true">
@@ -180,8 +171,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ 2 · NUESTROS PRODUCTOS ============ */}
-      <section className="home-section">
+        {/* ============ 2 · NUESTROS PRODUCTOS ============ */}
+        <section className="home-section">
         <div className="container">
           <div className="home-sec-head">
             <Reveal>
@@ -205,56 +196,131 @@ export default function Home() {
       </section>
 
       {/* ============ 5 · PROYECTOS REALES ============ */}
-      <section className="home-section home-section--mist">
+      <section className="home-section">
         <div className="container">
-          <div className="home-sec-head">
-            <Reveal>
-              <p className="home-eyebrow">Proyectos</p>
-              <h2>Proyectos e inspiración</h2>
-            </Reveal>
-            <Reveal delay={100}>
-              <Link to="/proyectos" className="home-sec-link">Ver todos los proyectos <span>→</span></Link>
-            </Reveal>
-          </div>
-          <div className="home-projects">
-            {projects.map((project, index) => (
-              <Reveal key={project.name} delay={index * 80}>
-                <Link to="/proyectos" className="home-project">
+          <div className="projects-content">
+            <div className="home-projects">
+              <Reveal delay={0} className="home-projects-main">
+                <Link to="/proyectos" className="home-project home-project--main">
                   <div className="home-project-media">
-                    <img src={project.image} alt={project.name} loading="lazy" />
-                    <span className="home-project-foot">
-                      <span className="home-project-name">{project.name}</span>
-                      <span className="home-project-type">{project.type}</span>
-                    </span>
+                    <img src={projects[0].image} alt={projects[0].name} loading="lazy" />
+                    <div className="home-project-foot">
+                      <span className="home-project-name">{projects[0].name}</span>
+                      {projects[0].type && <span className="home-project-type">{projects[0].type}</span>}
+                      <span className="home-project-link">Ver proyecto <span>→</span></span>
+                    </div>
                   </div>
                 </Link>
               </Reveal>
-            ))}
+              <div className="home-projects-side">
+                <Reveal delay={80}>
+                  <Link to="/proyectos" className="home-project">
+                    <div className="home-project-media">
+                      <img src={projects[1].image} alt={projects[1].name} loading="lazy" />
+                      <div className="home-project-foot">
+                        <span className="home-project-name">{projects[1].name}</span>
+                        {projects[1].type && <span className="home-project-type">{projects[1].type}</span>}
+                        <span className="home-project-link">Ver proyecto <span>→</span></span>
+                      </div>
+                    </div>
+                  </Link>
+                </Reveal>
+                <Reveal delay={160}>
+                  <Link to="/proyectos" className="home-project">
+                    <div className="home-project-media">
+                      <img src={projects[2].image} alt={projects[2].name} loading="lazy" />
+                      <div className="home-project-foot">
+                        <span className="home-project-name">{projects[2].name}</span>
+                        <span className="home-project-type">{projects[2].type}</span>
+                        <span className="home-project-link">Ver proyecto <span>→</span></span>
+                      </div>
+                    </div>
+                  </Link>
+                </Reveal>
+              </div>
+            </div>
+            <div className="projects-text">
+              <Reveal delay={0}>
+                <p className="home-eyebrow">PROYECTOS</p>
+                <h2>Proyectos e inspiración</h2>
+                <p className="home-sec-sub">Aplicaciones reales de nuestras soluciones de iluminación en arquitectura, interiorismo y espacios públicos.</p>
+              </Reveal>
+              <Reveal delay={120} className="projects-text-more">
+                <Link to="/proyectos" className="home-projects-more-link">Ver todos los proyectos <span>→</span></Link>
+              </Reveal>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ============ 4 · SOLUCIONES ============ */}
+      {/* ============ 4 · SERVICIOS ============ */}
       <section className="home-section">
         <div className="container">
-          <div className="home-sec-head">
-            <Reveal>
-              <p className="home-eyebrow">Aplicaciones</p>
-              <h2>Soluciones</h2>
+          <div className="home-services">
+            <div className="home-services-content">
+              <Reveal>
+                <p className="home-eyebrow">Servicios</p>
+                <h2 className="home-services-title">Todo lo que necesita tu proyecto de iluminación</h2>
+                <p className="home-services-sub">Le acompañamos desde el asesoramiento y el diseño hasta el suministro y la puesta en marcha de la instalación.</p>
+              </Reveal>
+              <Reveal delay={80} className="home-services-steps-wrap">
+                <div className="home-services-steps">
+                  {services.map((service) => (
+                    <Link key={service.num} to="/servicios" className="home-service-step">
+                      <span className="home-service-num">{service.num}</span>
+                      <span className="home-service-rail" aria-hidden="true">
+                        <span className="home-service-dot" />
+                      </span>
+                      <span className="home-service-body">
+                        <span className="home-service-title">{service.title}</span>
+                        <span className="home-service-desc">{service.desc}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </Reveal>
+              <Reveal delay={120}>
+                <Link to="/servicios" className="home-services-cta">Ver todos los servicios <span>→</span></Link>
+              </Reveal>
+            </div>
+            <Reveal delay={120} className="home-services-media">
+              <img src="images/puesta_en_marcha.png" alt="Puesta en marcha y control de iluminación" loading="lazy" />
             </Reveal>
           </div>
-          <div className="home-solutions">
-            {solutions.map((solution, index) => (
-              <Reveal key={solution.name} delay={index * 60}>
-                <Link to="/servicios" className="home-solution">
-                  <div className="home-solution-media">
-                    <img src={solution.image} alt={solution.name} loading="lazy" />
-                  </div>
-                  <p className="home-solution-name">{solution.name}</p>
-                  <p className="home-solution-desc">{solution.desc}</p>
-                </Link>
+        </div>
+      </section>
+
+      {/* ============ 4b · CONFIANZA Y MARCA ============ */}
+      <section className="home-section">
+        <div className="container">
+          <div className="home-trust">
+            <div className="home-trust-col">
+              <Reveal>
+                <p className="home-trust-label">Partner tecnológico</p>
+                <img className="home-trust-logo" src="images/LOGO TIDONIC.png" alt="TRIDONIC" loading="lazy" />
+                <div className="home-trust-media">
+                  <img src="images/tridonic.png" alt="Control e iluminación profesional TRIDONIC" loading="lazy" />
+                </div>
+                <p className="home-trust-text">Integramos soluciones TRIDONIC de control e iluminación profesional en nuestros proyectos.</p>
+                <Link to="/servicios" className="home-trust-link">Conocer colaboración <span>→</span></Link>
               </Reveal>
-            ))}
+            </div>
+            <div className="home-trust-col">
+              <Reveal delay={100}>
+                <p className="home-trust-label">Marca propia</p>
+                <img className="home-trust-logo" src="images/LOGO HALOPACK .png" alt="HALOPACK" loading="lazy" />
+                <div className="home-trust-media">
+                  <img src="images/Foto halopack.png" alt="Soluciones LED HALOPACK" loading="lazy" />
+                </div>
+                <p className="home-trust-text">Nuestra marca propia de soluciones LED para proyectos profesionales.</p>
+                <Link to="/productos" className="home-trust-link">Descubrir Halopack <span>→</span></Link>
+                <div className="home-trust-callout">
+                  <p className="home-trust-callout-title">Diseña tu propia luminaria</p>
+                  <p className="home-trust-callout-text">Creamos soluciones de iluminación a medida para las necesidades específicas de cada proyecto.</p>
+                  <Link to="/contacto" className="home-trust-callout-link">Diseñar mi luminaria <span>→</span></Link>
+                </div>
+              </Reveal>
+            </div>
           </div>
         </div>
       </section>
@@ -285,7 +351,7 @@ export default function Home() {
       </section>
 
       {/* ============ 7 · RECURSOS PROFESIONALES ============ */}
-      <section className="home-section home-section--mist">
+      <section className="home-section">
         <div className="container">
           <div className="home-sec-head">
             <Reveal>
@@ -298,7 +364,7 @@ export default function Home() {
               <Reveal key={resource.title} delay={index * 60}>
                 <Link to={resource.to} className="home-resource">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    {resourcesIcons[index]}
+                    {resourcesPaths[index].map((d, i) => <path key={i} d={d} />)}
                   </svg>
                   <h3>{resource.title}</h3>
                   <p>{resource.desc}</p>
@@ -309,6 +375,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      </div>
 
       {/* ============ 8 · CTA FINAL ============ */}
       <section className="home-cta">

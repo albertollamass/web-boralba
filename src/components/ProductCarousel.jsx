@@ -23,9 +23,9 @@ function getPosition(distance, cardWidth) {
   }
 }
 
-export default function FamilyCarousel({ families, getCatImage }) {
+export default function ProductCarousel({ products }) {
   const navigate = useNavigate()
-  const total = families.length
+  const total = products.length
   const containerRef = useRef(null)
   const dragRef = useRef({ startX: 0, offset: 0, moved: false, active: false })
   const [active, setActive] = useState(0)
@@ -86,7 +86,7 @@ export default function FamilyCarousel({ families, getCatImage }) {
       moveTo(index)
       return
     }
-    navigate(`/categoria/${families[index].slug}`)
+    navigate(`/producto/${products[index].id}`)
   }
 
   if (total === 0) return null
@@ -101,13 +101,13 @@ export default function FamilyCarousel({ families, getCatImage }) {
       onPointerCancel={endDrag}
       onPointerLeave={endDrag}
     >
-      {families.map((family, index) => {
+      {products.map((product, index) => {
         const distance = wrapDelta(index - (active + drag), total)
         const position = getPosition(distance, cardWidth)
         const isActive = index === active && Math.abs(drag) < 0.5
         return (
           <button
-            key={family.slug}
+            key={product.id}
             type="button"
             className={`coverflow-card${isActive ? ' is-active' : ''}`}
             onClick={(event) => onCardClick(event, index)}
@@ -118,24 +118,25 @@ export default function FamilyCarousel({ families, getCatImage }) {
               visibility: position.visible ? 'visible' : 'hidden',
               pointerEvents: position.visible ? 'auto' : 'none',
             }}
-            aria-label={`Ver categoría ${family.name}`}
+            aria-label={`Ver producto ${product.name}`}
             tabIndex={position.visible ? 0 : -1}
           >
-            <img src={getCatImage(family.slug)} alt={family.name} loading="lazy" draggable={false} />
-            <h3>{family.name}</h3>
+            <img src={product.image || 'images/placeholder.svg'} alt={product.name} loading="lazy" draggable={false} />
+            <h3>{product.name}</h3>
+            {product.ref && <span className="coverflow-ref">{product.ref}</span>}
           </button>
         )
       })}
 
-      <button type="button" className="coverflow-arrow coverflow-arrow--prev" onClick={() => advance(-1)} aria-label="Familia anterior">
+      <button type="button" className="coverflow-arrow coverflow-arrow--prev" onClick={() => advance(-1)} aria-label="Producto anterior">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
       </button>
-      <button type="button" className="coverflow-arrow coverflow-arrow--next" onClick={() => advance(1)} aria-label="Siguiente familia">
+      <button type="button" className="coverflow-arrow coverflow-arrow--next" onClick={() => advance(1)} aria-label="Siguiente producto">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
       </button>
 
-      <div className="coverflow-pagination" aria-label="Seleccionar familia">
-        {families.map((family, index) => <button key={family.slug} type="button" className={index === active ? 'is-active' : ''} onClick={() => moveTo(index)} aria-label={`Mostrar ${family.name}`} />)}
+      <div className="coverflow-pagination" aria-label="Seleccionar producto">
+        {products.map((product, index) => <button key={product.id} type="button" className={index === active ? 'is-active' : ''} onClick={() => moveTo(index)} aria-label={`Mostrar ${product.name}`} />)}
       </div>
     </div>
   )
