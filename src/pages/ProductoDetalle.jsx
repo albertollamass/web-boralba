@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams, Navigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import { useCategories } from '../context/CategoriesContext'
 import Carousel from '../components/Carousel'
+import Seo from '../components/Seo'
+import { SITE, canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 import { openPdfDataUrl } from '../lib/pdf'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 
@@ -66,6 +68,28 @@ export default function ProductoDetalle() {
   </div>
 
   return <>
+    <Seo
+      title={`${product.name}${product.ref ? ` ${product.ref}` : ''} — Producto LED`}
+      description={product.description || `Ficha técnica de ${product.name}${product.ref ? ` (${product.ref})` : ''}: especificaciones, aplicaciones y soluciones compatibles Boralba Lighting.`}
+      path={`/producto/${product.id}`}
+      image={product.image ? `${SITE.url}/${String(product.image).replace(/^\//, '')}` : undefined}
+      jsonLd={[
+        breadcrumbJsonLd([
+          { name: 'Home', url: canonicalFor('/') },
+          { name: 'Productos', url: canonicalFor('/productos') },
+          { name: product.name, url: canonicalFor(`/producto/${product.id}`) },
+        ]),
+        {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.name,
+          sku: product.ref || undefined,
+          description: product.description || undefined,
+          image: product.image ? `${SITE.url}/${String(product.image).replace(/^\//, '')}` : undefined,
+          brand: { '@type': 'Brand', name: 'Boralba Lighting' },
+        },
+      ]}
+    />
     <main className="product-page"><div className="container product-container">
       <nav className="breadcrumb product-breadcrumb" aria-label="Migas de pan"><Link to="/">Inicio</Link><span>/</span><Link to="/productos">Productos</Link>{categoryTrail.map((cat) => <span key={cat.slug}><span>/</span>{cat.slug === product.category ? <span>{cat.name}</span> : <Link to={`/categoria/${cat.slug}`}>{cat.name}</Link>}</span>)}</nav>
       <div className="product-detail"><div className="product-gallery"><Carousel images={gallery} alt={product.name} onImageClick={setZoomImage} /></div><div className="product-info"><p className="product-kicker">{family || 'Producto'}</p><h1>{product.name}</h1>{product.ref && <p className="ref product-ref">Ref. {product.ref}</p>}{product.description && <p className="product-short-description">{product.description}</p>}

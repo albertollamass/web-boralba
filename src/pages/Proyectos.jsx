@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Reveal from '../components/Reveal'
+import Seo from '../components/Seo'
 import { PROJECT_CATEGORIES, PROJECTS } from '../data/proyectos'
+import { canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
 const DEFAULT_PROJECT_CATEGORY = 'residencial'
 
@@ -22,6 +24,15 @@ export default function Proyectos() {
 
   return (
     <div className="proyectos-redesign">
+      <Seo
+        title="Proyectos de iluminación LED en espacios reales"
+        description="Selección de proyectos Boralba: residencial, retail, hostelería, oficinas, cultura y arquitectura singular. Iluminación LED aplicada a espacios reales."
+        path="/proyectos"
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', url: canonicalFor('/') },
+          { name: 'Proyectos', url: canonicalFor('/proyectos') },
+        ])}
+      />
       <section className="proy-hero">
         <div className="container">
           <nav className="breadcrumb" aria-label="Ruta de navegación">

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard from '../components/ProductCard'
+import Seo from '../components/Seo'
 
 export default function Outlet() {
   const { products, hydrated } = useProducts()
@@ -9,6 +10,12 @@ export default function Outlet() {
 
   return (
     <>
+      <Seo
+        title="Outlet de iluminación LED"
+        description="Ofertas y oportunidades en iluminación LED profesional Boralba. Stock limitado con asesoramiento técnico incluido."
+        path="/outlet"
+        noindex
+      />
       <div className="container section">
         <div className="outlet-banner">
           <h1>Outlet</h1>

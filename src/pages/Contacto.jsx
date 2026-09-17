@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useSiteSettings } from '../context/SiteSettingsContext'
+import Seo from '../components/Seo'
+import { canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
 const icons = {
   phone: (
@@ -63,6 +65,15 @@ export default function Contacto() {
 
   return (
     <>
+      <Seo
+        title="Contacto — Respuesta en menos de 24h"
+        description="Cuéntanos tu proyecto de iluminación LED: asesoramiento técnico especializado sin compromiso. Getafe, Madrid. Tel. (34) 91 870 71 13, boralba@boralba.es."
+        path="/contacto"
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', url: canonicalFor('/') },
+          { name: 'Contacto', url: canonicalFor('/contacto') },
+        ])}
+      />
       <div className="page-header">
         <div className="container">
           <div className="breadcrumb">

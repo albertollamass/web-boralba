@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom'
 const NAV_ITEMS = [
   { label: 'Productos', to: '/productos' },
   { label: 'Proyectos', to: '/proyectos' },
-  { label: 'Soluciones', to: '/servicios' },
-  { label: 'Recursos', to: '/servicios' },
-  { label: 'Empresa', to: '/servicios' },
+  { label: 'Servicios', to: '/servicios' },
+  { label: 'Diseña tu luminaria', to: '/disena-tu-luminaria' },
+  { label: 'Empresa', to: '/empresa' },
   { label: 'Contacto', to: '/contacto' },
 ]
 
@@ -49,8 +49,9 @@ export default function HomeHeader({ home = false, menuOpen, onMenuToggle, onNav
 
           <div className="bh-actions">
             <SearchIcon onClick={onSearchOpen} />
+            <a href="tel:+34918707113" className="bh-phone">(34) 91 870 71 13</a>
             <Link to="/contacto" className="bh-cta" onClick={onNavigate}>
-              Área profesional <span className="bh-cta-arrow">→</span>
+              Pide presupuesto <span className="bh-cta-arrow">→</span>
             </Link>
           </div>
 
@@ -87,8 +88,11 @@ export default function HomeHeader({ home = false, menuOpen, onMenuToggle, onNav
           <button type="button" className="bh-mobile-link" onClick={onSearchOpen}>
             Buscar productos
           </button>
+          <a href="tel:+34918707113" className="bh-mobile-link">
+            Llamar: (34) 91 870 71 13
+          </a>
           <Link to="/contacto" className="bh-mobile-cta" onClick={onNavigate}>
-            Área profesional →
+            Pide presupuesto →
           </Link>
         </nav>
       </div>

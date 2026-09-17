@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom'
+import Seo from '../components/Seo'
+import { canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
 const icon = (path, opts = {}) => (
   <svg
@@ -81,6 +83,15 @@ const servicios = [
 export default function Servicios() {
   return (
     <>
+      <Seo
+        title="Servicios: asesoramiento, diseño, suministro y puesta en marcha"
+        description="Asesoramiento técnico, diseño de iluminación con cálculos fotométricos, suministro profesional, sistemas inteligentes Tridonic y puesta en marcha para tu proyecto LED."
+        path="/servicios"
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', url: canonicalFor('/') },
+          { name: 'Servicios', url: canonicalFor('/servicios') },
+        ])}
+      />
       <div className="page-header">
         <div className="container">
           <div className="breadcrumb">
@@ -117,7 +128,7 @@ export default function Servicios() {
 
         <div className="split mt-3" style={{ marginTop: 48 }}>
           <div className="split-img">
-            <img src="images/tridonic.png" alt="Tridonic" />
+            <img src="images/tridonic.png" alt="Soluciones de iluminación conectada Tridonic" loading="lazy" width="1200" height="800" />
           </div>
           <div className="split-text">
             <span className="tag">Partner tecnológico</span>

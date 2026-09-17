@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Reveal from '../components/Reveal'
+import Seo from '../components/Seo'
+import { canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
 const proceso = [
   { num: '01', title: 'Cuéntanos tu necesidad', desc: 'Analizamos el espacio, aplicación y requisitos del proyecto.' },
@@ -58,9 +60,18 @@ export default function DisenaTuLuminaria() {
 
   return (
     <div className="disena">
+      <Seo
+        title="Diseña tu propia luminaria a medida — HALOPACK"
+        description="Desarrollamos luminarias LED a medida bajo la marca HALOPACK: formato, potencia, temperatura de color, ópticas, acabados y control para tu proyecto."
+        path="/disena-tu-luminaria"
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', url: canonicalFor('/') },
+          { name: 'Diseña tu luminaria', url: canonicalFor('/disena-tu-luminaria') },
+        ])}
+      />
       <section className="disena-hero">
         <div className="disena-hero-media" aria-hidden="true">
-          <img src="images/IMAGEN 3D.png" alt="" />
+          <img src="images/imagen-3d.png" alt="" />
         </div>
         <div className="disena-hero-copy">
           <Reveal>
@@ -130,7 +141,7 @@ export default function DisenaTuLuminaria() {
                 </Reveal>
               </div>
               <Reveal delay={120} className="home-services-media">
-                <img src="images/Foto halopack.png" alt="Soluciones LED HALOPACK a medida" loading="lazy" />
+                <img src="images/foto-halopack.png" alt="Soluciones LED HALOPACK a medida" loading="lazy" width="1200" height="800" />
               </Reveal>
             </div>
           </div>
@@ -158,7 +169,7 @@ export default function DisenaTuLuminaria() {
         <section className="disena-section">
           <div className="container">
             <Reveal className="disena-visual-media">
-              <img src="images/lobby.png" alt="Luminaria integrada en un proyecto arquitectónico" loading="lazy" />
+              <img src="images/lobby.png" alt="Luminaria integrada en un proyecto arquitectónico" loading="lazy" width="1600" height="1000" />
             </Reveal>
             <div className="disena-visual-copy">
               <Reveal>

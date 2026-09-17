@@ -32,18 +32,18 @@ export default function Footer({ home = false }) {
           <div>
             <h4>Soluciones</h4>
             <ul>
-              <li><Link to="/servicios">Iluminación arquitectónica</Link></li>
-              <li><Link to="/servicios">Iluminación lineal</Link></li>
-              <li><Link to="/servicios">Exterior y fachada</Link></li>
-              <li><Link to="/servicios">Control de iluminación</Link></li>
+              <li><Link to="/servicios">Asesoramiento y diseño</Link></li>
+              <li><Link to="/servicios">Iluminación arquitectónica y lineal</Link></li>
+              <li><Link to="/servicios">Exterior, fachada y control</Link></li>
+              <li><Link to="/disena-tu-luminaria">Diseña tu luminaria</Link></li>
               <li><Link to="/proyectos">Proyectos</Link></li>
             </ul>
           </div>
           <div>
             <h4>Empresa</h4>
             <ul>
-              <li><Link to="/servicios">Sobre Boralba</Link></li>
-              <li><Link to="/servicios">Área profesional</Link></li>
+              <li><Link to="/empresa">Sobre Boralba</Link></li>
+              <li><Link to="/proyectos">Proyectos</Link></li>
               <li><Link to="/contacto">Contacto</Link></li>
             </ul>
             <h4 style={{ marginTop: 26 }}>Síguenos</h4>

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/login
+Disallow: /buscar?q=
+
+Sitemap: https://albertollamass.github.io/web-boralba/sitemap.xml

@@ -6850,6 +6850,17 @@ body:not(:has(.redesign-home)) .flyout {
 .bh-cta-arrow {
   transition: transform 0.2s ease;
 }
+.bh-phone {
+  font-family: var(--font-montserrat);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #242428;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.bh-phone:hover {
+  color: #dd3531;
+}
 .bh-cta:hover .bh-cta-arrow {
   transform: translateX(3px);
 }
@@ -6952,6 +6963,9 @@ body:not(:has(.redesign-home)) .flyout {
   }
   .bh-actions {
     margin-left: auto;
+  }
+  .bh-phone {
+    display: none;
   }
   .bh-burger {
     display: inline-flex;

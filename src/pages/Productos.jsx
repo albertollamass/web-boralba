@@ -4,6 +4,8 @@ import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 import { normalizeText, searchProducts } from '../lib/search'
+import Seo from '../components/Seo'
+import { canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 import '../catalog.css'
 
 const FILTERS = [
@@ -104,6 +106,15 @@ export default function Productos() {
 
   return (
     <main className="catalog-page">
+      <Seo
+        title="Catálogo de productos LED profesionales"
+        description="Catálogo Boralba: tiras LED, perfiles, neón flex, drivers, proyectores, downlights y paneles LED. Filtra por potencia, temperatura de color, IP, CRI y control."
+        path="/productos"
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', url: canonicalFor('/') },
+          { name: 'Productos', url: canonicalFor('/productos') },
+        ])}
+      />
       <section className="catalog-hero">
         <div className="container">
           <div className="catalog-breadcrumb"><Link to="/">Inicio</Link><span>/</span><span>Productos</span></div>

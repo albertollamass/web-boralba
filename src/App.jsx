@@ -9,9 +9,11 @@ import Buscar from './pages/Buscar'
 import Proyectos from './pages/Proyectos'
 import ProyectoDetalle from './pages/ProyectoDetalle'
 import Servicios from './pages/Servicios'
+import Empresa from './pages/Empresa'
 import Contacto from './pages/Contacto'
 import DisenaTuLuminaria from './pages/DisenaTuLuminaria'
 import Legal from './pages/Legal'
+import NotFound from './pages/NotFound'
 import AdminLogin from './admin/AdminLogin'
 import AdminPanel from './admin/AdminPanel'
 import { useAuth } from './context/AuthContext'
@@ -49,6 +51,7 @@ export default function App() {
           <Route path="/proyectos" element={<Proyectos />} />
           <Route path="/proyectos/:categoria/:slug" element={<ProyectoDetalle />} />
           <Route path="/servicios" element={<Servicios />} />
+          <Route path="/empresa" element={<Empresa />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/disena-tu-luminaria" element={<DisenaTuLuminaria />} />
           <Route path="/legal/:slug" element={<Legal />} />
@@ -63,7 +66,7 @@ export default function App() {
           }
         />
         <Route path="*" element={<Layout />}>
-          <Route path="*" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

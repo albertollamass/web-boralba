@@ -1,6 +1,8 @@
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
+import Seo from '../components/Seo'
+import { canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
 function CategoryProductCard({ product, categoryName }) {
   return (
@@ -40,6 +42,16 @@ export default function Categoria() {
 
   return (
     <>
+      <Seo
+        title={`${category.name} — Iluminación LED`}
+        description={category.tagline || category.description || `Productos LED de ${category.name}: soluciones profesionales Boralba para tu proyecto de iluminación.`}
+        path={`/categoria/${category.slug}`}
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', url: canonicalFor('/') },
+          { name: 'Productos', url: canonicalFor('/productos') },
+          { name: category.name, url: canonicalFor(`/categoria/${category.slug}`) },
+        ])}
+      />
       <div className="page-header">
         <div className="container">
           <div className="breadcrumb">

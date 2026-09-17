@@ -1,10 +1,14 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import ProductCarousel from '../components/ProductCarousel'
 import FamilyCarousel from '../components/FamilyCarousel'
+import Reveal from '../components/Reveal'
+import Seo from '../components/Seo'
 import { useCategories } from '../context/CategoriesContext'
 import { useProducts } from '../context/ProductsContext'
 import { ROOT } from '../data/categories'
+import { PROJECTS } from '../data/proyectos'
+import { canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
 const heroFeatures = [
   'Calidad profesional',
@@ -19,49 +23,11 @@ const services = [
   { num: '04', title: 'Puesta en marcha', desc: 'Configuramos, programamos y comprobamos el funcionamiento de los sistemas de iluminación.' },
 ]
 
-const projects = [
-  { name: 'Obra con panel LED flexible', type: '', image: 'images/proyectos/obra_panel_led.png' },
-  { name: 'Chalet en Pozuelo de Alarcón', type: '', image: 'images/proyectos/chalet_pozuelo.png' },
-  { name: 'Torre Consuegra', type: 'Iluminación monumental · Arquitectura exterior', image: 'images/proyectos/torre_consuerga_home.png' },
+const HOME_PROJECT_SLUGS = [
+  'obra-panel-led-flexible',
+  'chalet-en-pozuelo-de-alarcon',
+  'torre-consuegra-iluminacion-monumental',
 ]
-
-function Reveal({ children, className = '', delay = 0 }) {
-  const ref = useRef(null)
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduce) {
-      setVisible(true)
-      return
-    }
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisible(true)
-            obs.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-
-  return (
-    <div
-      ref={ref}
-      className={`home-reveal ${visible ? 'is-visible' : ''} ${className}`}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-    >
-      {children}
-    </div>
-  )
-}
 
 export default function Home() {
   const { categories, getCategory, getChildren } = useCategories()
@@ -71,6 +37,7 @@ export default function Home() {
   const families = source.map((category) => ({ slug: category.slug, name: category.name }))
   const getCatImage = (slug) => getCategory(slug)?.image || 'images/placeholder.svg'
   const featuredProducts = products.filter((product) => !product.outlet).slice(0, 12)
+  const projects = HOME_PROJECT_SLUGS.map((slug) => PROJECTS.find((p) => p.slug === slug)).filter(Boolean)
   const videoRef = useRef(null)
   const ctaRef = useRef(null)
 
@@ -144,6 +111,12 @@ export default function Home() {
 
   return (
     <div className="home">
+      <Seo
+        title="Iluminación LED profesional para grandes proyectos"
+        description="Boralba Lighting: iluminación LED profesional para arquitectura, retail, hostelería y espacios públicos. +30 años, asesoramiento, diseño, Tridonic, HALOPACK y puesta en marcha en Getafe, Madrid."
+        path="/"
+        jsonLd={breadcrumbJsonLd([{ name: 'Home', url: canonicalFor('/') }])}
+      />
       {/* ============ CONTENT SECTIONS ============ */}
       <div className="home-sections">
 
@@ -152,12 +125,12 @@ export default function Home() {
         <div className="home-hero-media" aria-hidden="true">
           <video
             ref={videoRef}
-            src="images/video tira.mp4"
-            poster="images/tira 3d.jpg"
+            src="images/video-tira.mp4"
+            poster="images/tira-3d.jpg"
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
           />
           <div className="home-hero-side-note">
             <span>PEQUEÑOS DETALLES.</span>
@@ -223,12 +196,12 @@ export default function Home() {
           <div className="projects-content">
             <div className="home-projects">
               <Reveal delay={0} className="home-projects-main">
-                <Link to="/proyectos" className="home-project home-project--main">
+                <Link to={projects[0] ? `/proyectos/${projects[0].category}/${projects[0].slug}` : '/proyectos'} className="home-project home-project--main">
                   <div className="home-project-media">
-                    <img src={projects[0].image} alt={projects[0].name} loading="lazy" />
+                    <img src={projects[0]?.images?.[0]} alt={projects[0]?.name || 'Proyecto de iluminación Boralba'} loading="lazy" width="1200" height="800" />
                     <div className="home-project-foot">
-                      <span className="home-project-name">{projects[0].name}</span>
-                      {projects[0].type && <span className="home-project-type">{projects[0].type}</span>}
+                      <span className="home-project-name">{projects[0]?.name}</span>
+                      {projects[0]?.type && <span className="home-project-type">{projects[0].type}</span>}
                       <span className="home-project-link">Ver proyecto <span>→</span></span>
                     </div>
                   </div>
@@ -236,24 +209,24 @@ export default function Home() {
               </Reveal>
               <div className="home-projects-side">
                 <Reveal delay={80}>
-                  <Link to="/proyectos" className="home-project">
+                  <Link to={projects[1] ? `/proyectos/${projects[1].category}/${projects[1].slug}` : '/proyectos'} className="home-project">
                     <div className="home-project-media">
-                      <img src={projects[1].image} alt={projects[1].name} loading="lazy" />
+                      <img src={projects[1]?.images?.[0]} alt={projects[1]?.name || 'Proyecto de iluminación Boralba'} loading="lazy" width="800" height="600" />
                       <div className="home-project-foot">
-                        <span className="home-project-name">{projects[1].name}</span>
-                        {projects[1].type && <span className="home-project-type">{projects[1].type}</span>}
+                        <span className="home-project-name">{projects[1]?.name}</span>
+                        {projects[1]?.type && <span className="home-project-type">{projects[1].type}</span>}
                         <span className="home-project-link">Ver proyecto <span>→</span></span>
                       </div>
                     </div>
                   </Link>
                 </Reveal>
                 <Reveal delay={160}>
-                  <Link to="/proyectos" className="home-project">
+                  <Link to={projects[2] ? `/proyectos/${projects[2].category}/${projects[2].slug}` : '/proyectos'} className="home-project">
                     <div className="home-project-media">
-                      <img src={projects[2].image} alt={projects[2].name} loading="lazy" />
+                      <img src={projects[2]?.images?.[0]} alt={projects[2]?.name || 'Proyecto de iluminación Boralba'} loading="lazy" width="800" height="600" />
                       <div className="home-project-foot">
-                        <span className="home-project-name">{projects[2].name}</span>
-                        <span className="home-project-type">{projects[2].type}</span>
+                        <span className="home-project-name">{projects[2]?.name}</span>
+                        <span className="home-project-type">{projects[2]?.type}</span>
                         <span className="home-project-link">Ver proyecto <span>→</span></span>
                       </div>
                     </div>
@@ -306,7 +279,7 @@ export default function Home() {
               </Reveal>
             </div>
             <Reveal delay={120} className="home-services-media">
-              <img src="images/puesta_en_marcha.png" alt="Puesta en marcha y control de iluminación" loading="lazy" />
+              <img src="images/puesta_en_marcha.png" alt="Puesta en marcha y control de iluminación Boralba" loading="lazy" width="1200" height="800" />
             </Reveal>
           </div>
         </div>
@@ -319,20 +292,20 @@ export default function Home() {
             <div className="home-trust-col">
               <Reveal>
                 <p className="home-trust-label">Partner tecnológico</p>
-                <img className="home-trust-logo" src="images/LOGO TIDONIC.png" alt="TRIDONIC" loading="lazy" />
+                <img className="home-trust-logo" src="images/logo-tridonic.png" alt="Tridonic — partner tecnológico" loading="lazy" width="300" height="100" />
                 <div className="home-trust-media">
-                  <img src="images/tridonic.png" alt="Control e iluminación profesional TRIDONIC" loading="lazy" />
+                  <img src="images/tridonic.png" alt="Control e iluminación profesional Tridonic" loading="lazy" width="800" height="500" />
                 </div>
-                <p className="home-trust-text">Integramos soluciones TRIDONIC de control e iluminación profesional en nuestros proyectos.</p>
+                <p className="home-trust-text">Integramos soluciones Tridonic de control e iluminación profesional en nuestros proyectos.</p>
                 <Link to="/servicios" className="home-trust-link">Conocer colaboración <span>→</span></Link>
               </Reveal>
             </div>
             <div className="home-trust-col">
               <Reveal delay={100}>
                 <p className="home-trust-label">Marca propia</p>
-                <img className="home-trust-logo" src="images/LOGO HALOPACK .png" alt="HALOPACK" loading="lazy" />
+                <img className="home-trust-logo" src="images/logo-halopack.png" alt="HALOPACK — marca propia Boralba" loading="lazy" width="300" height="100" />
                 <div className="home-trust-media">
-                  <img src="images/Foto halopack.png" alt="Soluciones LED HALOPACK" loading="lazy" />
+                  <img src="images/foto-halopack.png" alt="Soluciones LED HALOPACK" loading="lazy" width="800" height="500" />
                 </div>
                 <p className="home-trust-text">Nuestra marca propia de soluciones LED para proyectos profesionales.</p>
                 <Link to="/productos" className="home-trust-link">Descubrir Halopack <span>→</span></Link>
@@ -381,7 +354,7 @@ export default function Home() {
               </Reveal>
             </div>
             <Reveal delay={120} className="home-company-media">
-              <img src="images/almacen.png" alt="Instalaciones de Boralba" loading="lazy" />
+              <img src="images/almacen.png" alt="Instalaciones de Boralba Lighting en Getafe" loading="lazy" width="1200" height="800" />
             </Reveal>
           </div>
         </div>
@@ -399,7 +372,7 @@ export default function Home() {
               <Link to="/productos" className="home-resources-link">Ver catálogo <span>→</span></Link>
             </Reveal>
             <Reveal delay={120} className="home-resources-media">
-              <img src="images/portada-catalogo.png" alt="Catálogo de productos de Boralba" loading="lazy" />
+              <img src="images/portada-catalogo.png" alt="Catálogo de productos LED de Boralba Lighting" loading="lazy" width="800" height="1000" />
             </Reveal>
           </div>
         </div>
@@ -410,13 +383,16 @@ export default function Home() {
       {/* ============ 8 · CTA FINAL ============ */}
       <section className="home-cta" ref={ctaRef}>
         <div className="home-cta-bg">
-          <img src="images/iluminacion-azul.png" alt="" aria-hidden="true" loading="lazy" />
+          <img src="images/iluminacion-azul.png" alt="" aria-hidden="true" loading="lazy" width="1600" height="900" />
         </div>
         <Reveal>
           <div className="home-cta-copy">
             <h2>¿Tienes un proyecto de iluminación?</h2>
-            <p>Hablemos. Nuestro equipo te ayudará a encontrar la solución adecuada.</p>
-            <Link to="/contacto" className="home-btn home-btn--red home-btn--light">Hablar con nosotros <span>→</span></Link>
+            <p>Hablemos. Respuesta en menos de 24h, sin compromiso. <a href="tel:+34918707113" style={{ color: 'inherit', fontWeight: 700 }}>(34) 91 870 71 13</a></p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/contacto" className="home-btn home-btn--red home-btn--light">Hablar con nosotros <span>→</span></Link>
+              <Link to="/proyectos" className="home-btn home-btn--light">Ver proyectos <span>→</span></Link>
+            </div>
           </div>
         </Reveal>
       </section>

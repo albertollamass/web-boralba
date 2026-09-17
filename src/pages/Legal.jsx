@@ -1,4 +1,5 @@
 import { Link, useParams, Navigate } from 'react-router-dom'
+import Seo from '../components/Seo'
 
 const contents = {
   'aviso-legal': {
@@ -40,6 +41,7 @@ export default function Legal() {
 
   return (
     <>
+      <Seo title={content.title} description={`${content.title} de Boralba Lighting.`} path={`/legal/${slug}`} noindex />
       <div className="page-header">
         <div className="container">
           <div className="breadcrumb">

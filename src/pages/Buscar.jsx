@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useSearchParams } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard from '../components/ProductCard'
+import Seo from '../components/Seo'
 import { searchProducts } from '../lib/search'
 
 export default function Buscar() {
@@ -15,6 +16,12 @@ export default function Buscar() {
 
   return (
     <>
+      <Seo
+        title="Buscador de productos LED"
+        description="Busca luminarias y componentes LED por referencia, potencia o característica en el catálogo Boralba."
+        path="/buscar"
+        noindex
+      />
       <div className="page-header">
         <div className="container">
           <div className="breadcrumb">

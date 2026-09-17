@@ -1,7 +1,9 @@
 import { Fragment } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import Reveal from '../components/Reveal'
+import Seo from '../components/Seo'
 import { getProjectCategory, getProject } from '../data/proyectos'
+import { SITE, canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
 const isDev = import.meta.env.DEV
 
@@ -81,13 +83,32 @@ export default function ProyectoDetalle() {
 
   return (
     <div className="proyectos-redesign proyectos-redesign--editorial">
+      <Seo
+        title={`${project.name} — Proyecto de iluminación`}
+        description={project.intro || project.elProyecto?.slice(0, 155) || `Proyecto de iluminación ${project.name} de Boralba Lighting.`}
+        path={`/proyectos/${project.category}/${project.slug}`}
+        image={images[0] ? `${SITE.url}/${String(images[0]).replace(/^\//, '')}` : undefined}
+        jsonLd={[
+          breadcrumbJsonLd([
+            { name: 'Home', url: canonicalFor('/') },
+            { name: 'Proyectos', url: canonicalFor('/proyectos') },
+            { name: project.name, url: canonicalFor(`/proyectos/${project.category}/${project.slug}`) },
+          ]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: project.name,
+            description: project.intro || project.elProyecto || '',
+            image: images[0] ? `${SITE.url}/${String(images[0]).replace(/^\//, '')}` : undefined,
+            author: { '@type': 'Organization', name: SITE.legalName },
+          },
+        ]}
+      />
       {/* ============ 1 · HERO ============ */}
       <section className="proy-ed-hero">
         <div className="container">
           <nav className="breadcrumb" aria-label="Ruta de navegación">
             <Link to="/">Home</Link>
-            <span>/</span>
-            <Link to="/proyectos">Proyectos</Link>
             <span>/</span>
             <Link to="/proyectos">Proyectos</Link>
             <span>/</span>
