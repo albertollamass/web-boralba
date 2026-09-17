@@ -25,20 +25,6 @@ const projects = [
   { name: 'Torre Consuegra', type: 'Iluminación monumental · Arquitectura exterior', image: 'images/proyectos/torre_consuerga_home.png' },
 ]
 
-const resources = [
-  { title: 'Fichas técnicas', desc: 'Datos técnicos detallados de cada producto.', to: '/servicios' },
-  { title: 'Catálogos', desc: 'Catálogos de producto y de soluciones.', to: '/servicios' },
-  { title: 'Documentación', desc: 'Guías de instalación y normativa.', to: '/servicios' },
-  { title: 'Descargas', desc: 'Archivos, mediciones y recursos útiles.', to: '/servicios' },
-]
-
-const resourcesPaths = [
-  ['M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', 'M14 2v6h6M16 13H8M16 17H8M10 9H8'],
-  ['M4 19.5A2.5 2.5 0 0 1 6.5 17H20', 'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'],
-  ['M6 2h12v4H6zM6 6v14h12V6', 'M9 10h6M9 14h6'],
-  ['M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3'],
-]
-
 function Reveal({ children, className = '', delay = 0 }) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
@@ -86,6 +72,7 @@ export default function Home() {
   const getCatImage = (slug) => getCategory(slug)?.image || 'images/placeholder.svg'
   const featuredProducts = products.filter((product) => !product.outlet).slice(0, 12)
   const videoRef = useRef(null)
+  const ctaRef = useRef(null)
 
   useEffect(() => {
     const video = videoRef.current
@@ -104,6 +91,55 @@ export default function Home() {
     )
     obs.observe(video)
     return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const section = ctaRef.current
+    if (!section) return
+    const img = section.querySelector('.home-cta-bg img')
+    if (!img) return
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const mobile = window.matchMedia('(max-width: 640px)')
+    let raf = 0
+
+    const update = () => {
+      raf = 0
+      const rect = section.getBoundingClientRect()
+      const vh = window.innerHeight || 1
+      const raw = (vh - rect.top) / (vh + rect.height)
+      const progress = Math.min(1, Math.max(0, raw))
+      const maxShift = mobile.matches ? 9 : 60
+      const shift = (progress - 0.5) * 2 * maxShift
+      img.style.transform = `translateY(${shift.toFixed(2)}px) scale(1.08)`
+    }
+
+    const onScroll = () => {
+      if (!raf) raf = window.requestAnimationFrame(update)
+    }
+
+    const apply = () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (reduce.matches) {
+        img.style.transform = ''
+        return
+      }
+      window.addEventListener('scroll', onScroll, { passive: true })
+      window.addEventListener('resize', onScroll)
+      onScroll()
+    }
+
+    apply()
+    reduce.addEventListener?.('change', apply)
+    mobile.addEventListener?.('change', onScroll)
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      reduce.removeEventListener?.('change', apply)
+      mobile.removeEventListener?.('change', onScroll)
+    }
   }, [])
 
   return (
@@ -228,13 +264,13 @@ export default function Home() {
             <div className="projects-text">
               <Reveal delay={0}>
                 <p className="home-eyebrow">PROYECTOS</p>
-                <h2>Proyectos e inspiración</h2>
+                <div className="projects-text-head">
+                  <h2>Proyectos e inspiración</h2>
+                  <Link to="/proyectos" className="home-projects-more-link">Ver todos los proyectos <span>→</span></Link>
+                </div>
                 <p className="home-sec-sub">Aplicaciones reales de nuestras soluciones de iluminación en arquitectura, interiorismo y espacios públicos.</p>
               </Reveal>
             </div>
-            <Reveal delay={120} className="projects-text-more">
-              <Link to="/proyectos" className="home-projects-more-link">Ver todos los proyectos <span>→</span></Link>
-            </Reveal>
           </div>
         </div>
       </section>
@@ -351,28 +387,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ 7 · RECURSOS PROFESIONALES ============ */}
+      {/* ============ 7 · CATÁLOGO DE PRODUCTOS ============ */}
       <section className="home-section home-section--resources">
         <div className="container">
-          <div className="home-sec-head">
-            <Reveal>
-              <p className="home-eyebrow">Información técnica</p>
-              <h2>Recursos profesionales</h2>
-            </Reveal>
-          </div>
           <div className="home-resources">
-            {resources.map((resource, index) => (
-              <Reveal key={resource.title} delay={index * 60}>
-                <Link to={resource.to} className="home-resource">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    {resourcesPaths[index].map((d, i) => <path key={i} d={d} />)}
-                  </svg>
-                  <h3>{resource.title}</h3>
-                  <p>{resource.desc}</p>
-                  <span className="home-resource-arrow">→</span>
-                </Link>
-              </Reveal>
-            ))}
+            <Reveal className="home-resources-content">
+              <p className="home-eyebrow">Recursos</p>
+              <h2 className="home-resources-title">Catálogo de productos</h2>
+              <p className="home-resources-sub">Consulta nuestras gamas de iluminación, soluciones LED y especificaciones de producto.</p>
+              <p className="home-resources-meta">Productos · Soluciones LED · Especificaciones</p>
+              <Link to="/productos" className="home-resources-link">Ver catálogo <span>→</span></Link>
+            </Reveal>
+            <Reveal delay={120} className="home-resources-media">
+              <img src="images/portada-catalogo.png" alt="Catálogo de productos de Boralba" loading="lazy" />
+            </Reveal>
           </div>
         </div>
       </section>
@@ -380,9 +408,9 @@ export default function Home() {
       </div>
 
       {/* ============ 8 · CTA FINAL ============ */}
-      <section className="home-cta">
+      <section className="home-cta" ref={ctaRef}>
         <div className="home-cta-bg">
-          <img src="images/proyectos/tunel_calle_damas_2.jpg" alt="" aria-hidden="true" loading="lazy" />
+          <img src="images/iluminacion-azul.png" alt="" aria-hidden="true" loading="lazy" />
         </div>
         <Reveal>
           <div className="home-cta-copy">
