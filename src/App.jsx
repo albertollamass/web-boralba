@@ -7,6 +7,7 @@ import ProductoDetalle from './pages/ProductoDetalle'
 import Outlet from './pages/Outlet'
 import Buscar from './pages/Buscar'
 import Proyectos from './pages/Proyectos'
+import ProyectoDetalle from './pages/ProyectoDetalle'
 import Servicios from './pages/Servicios'
 import Contacto from './pages/Contacto'
 import DisenaTuLuminaria from './pages/DisenaTuLuminaria'
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/outlet" element={<Outlet />} />
           <Route path="/buscar" element={<Buscar />} />
           <Route path="/proyectos" element={<Proyectos />} />
+          <Route path="/proyectos/:categoria/:slug" element={<ProyectoDetalle />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/disena-tu-luminaria" element={<DisenaTuLuminaria />} />
