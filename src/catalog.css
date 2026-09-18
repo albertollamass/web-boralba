@@ -149,7 +149,7 @@
 }
 
 .pc-hero h1 em {
-  color: var(--boralba-red);
+  color: inherit;
   font-style: normal;
 }
 
