@@ -72,9 +72,41 @@ function PendingImage({ label }) {
   )
 }
 
+function TechnologyPanel() {
+  return (
+    <section className="servicios-technology" aria-label="Tecnología y soluciones">
+      <div className="container">
+        <p className="servicios-eyebrow">TECNOLOGÍA Y SOLUCIONES</p>
+        <h2>Tecnología que integra. Soluciones que se adaptan.</h2>
+        <div className="servicios-brands">
+          <article className="servicios-brand servicios-brand--tridonic">
+            <p className="servicios-brand-label">PARTNER TECNOLÓGICO</p>
+            <img className="servicios-brand-logo" src="images/logo-tridonic.png" alt="TRIDONIC" width="300" height="100" />
+            <img className="servicios-brand-image" src="images/tridonic.png" alt="Tecnología de control e iluminación TRIDONIC" loading="lazy" width="800" height="500" />
+            <p className="servicios-brand-text">Integramos soluciones TRIDONIC de control y gestión de iluminación para desarrollar instalaciones eficientes, conectadas y adaptadas a cada proyecto.</p>
+            <a className="servicios-brand-cta" href="https://www.tridonic.com/en/int" target="_blank" rel="noreferrer">VISITAR TRIDONIC <span aria-hidden="true">↗</span></a>
+          </article>
+          <article className="servicios-brand servicios-brand--halopack">
+            <p className="servicios-brand-label">MARCA PROPIA</p>
+            <img className="servicios-brand-logo" src="images/logo-halopack.png" alt="HALOPACK" width="300" height="100" />
+            <img className="servicios-brand-image" src="images/foto-halopack.png" alt="Soluciones LED HALOPACK" loading="lazy" width="800" height="500" />
+            <p className="servicios-brand-text">Nuestra marca propia de soluciones LED para proyectos profesionales.</p>
+            <Link className="servicios-brand-cta" to="/productos">DESCUBRIR HALOPACK <span aria-hidden="true">→</span></Link>
+            <div className="servicios-custom">
+              <p className="servicios-custom-title">DISEÑA TU PROPIA LUMINARIA</p>
+              <p className="servicios-custom-text">Desarrollamos soluciones de iluminación a medida adaptadas a las necesidades específicas de cada proyecto.</p>
+              <Link className="servicios-brand-cta" to="/disena-tu-luminaria">DISEÑAR MI LUMINARIA <span aria-hidden="true">→</span></Link>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function Servicios() {
-  const [selectedService, setSelectedService] = useState(0)
-  const service = services[selectedService]
+  const [selectedService, setSelectedService] = useState('technology')
+  const service = selectedService === 'technology' ? null : services[selectedService]
 
   return (
     <div className="servicios-redesign">
@@ -98,38 +130,19 @@ export default function Servicios() {
         </div>
       </section>
 
-      <section className="servicios-technology">
-        <div className="container">
-          <p className="servicios-eyebrow">TECNOLOGÍA Y SOLUCIONES</p>
-          <h2>Tecnología que integra. Soluciones que se adaptan.</h2>
-          <div className="servicios-brands">
-            <article className="servicios-brand servicios-brand--tridonic">
-              <p className="servicios-brand-label">PARTNER TECNOLÓGICO</p>
-              <img className="servicios-brand-logo" src="images/logo-tridonic.png" alt="TRIDONIC" width="300" height="100" />
-              <img className="servicios-brand-image" src="images/tridonic.png" alt="Tecnología de control e iluminación TRIDONIC" loading="lazy" width="800" height="500" />
-              <p className="servicios-brand-text">Integramos soluciones TRIDONIC de control y gestión de iluminación para desarrollar instalaciones eficientes, conectadas y adaptadas a cada proyecto.</p>
-              <a className="servicios-brand-cta" href="https://www.tridonic.com/en/int" target="_blank" rel="noreferrer">VISITAR TRIDONIC <span aria-hidden="true">↗</span></a>
-            </article>
-            <article className="servicios-brand servicios-brand--halopack">
-              <p className="servicios-brand-label">MARCA PROPIA</p>
-              <img className="servicios-brand-logo" src="images/logo-halopack.png" alt="HALOPACK" width="300" height="100" />
-              <img className="servicios-brand-image" src="images/foto-halopack.png" alt="Soluciones LED HALOPACK" loading="lazy" width="800" height="500" />
-              <p className="servicios-brand-text">Nuestra marca propia de soluciones LED para proyectos profesionales.</p>
-              <Link className="servicios-brand-cta" to="/productos">DESCUBRIR HALOPACK <span aria-hidden="true">→</span></Link>
-              <div className="servicios-custom">
-                <p className="servicios-custom-title">DISEÑA TU PROPIA LUMINARIA</p>
-                <p className="servicios-custom-text">Desarrollamos soluciones de iluminación a medida adaptadas a las necesidades específicas de cada proyecto.</p>
-                <Link className="servicios-brand-cta" to="/disena-tu-luminaria">DISEÑAR MI LUMINARIA <span aria-hidden="true">→</span></Link>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
       <section className="servicios-explorer" aria-label="Explora nuestros servicios">
         <div className="container">
           <p className="servicios-nav-intro">Explora nuestros servicios</p>
           <div className="servicios-nav" role="tablist" aria-label="Servicios">
+            <button
+              className={`servicios-nav-item${selectedService === 'technology' ? ' is-active' : ''}`}
+              type="button"
+              role="tab"
+              aria-selected={selectedService === 'technology'}
+              onClick={() => setSelectedService('technology')}
+            >
+              Tecnología y soluciones
+            </button>
             {services.map((item, index) => (
               <button
                 key={item.number}
@@ -144,7 +157,7 @@ export default function Servicios() {
             ))}
           </div>
 
-          <article className="servicio-panel" key={service.number} role="tabpanel" aria-label={service.name}>
+          {selectedService === 'technology' ? <TechnologyPanel key="technology" /> : <article className="servicio-panel" key={service.number} role="tabpanel" aria-label={service.name}>
             <div className="servicio-panel-copy">
               <span className="servicio-number">{service.number}</span>
               <h2>{service.name}</h2>
@@ -162,7 +175,7 @@ export default function Servicios() {
               </div>
               {service.note && <p className="servicio-note">{service.note}</p>}
             </div>
-          </article>
+          </article>}
         </div>
       </section>
 

@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Productos from './pages/Productos'
-import Categoria from './pages/Categoria'
+import { useCategories } from './context/CategoriesContext'
 import ProductoDetalle from './pages/ProductoDetalle'
 import Outlet from './pages/Outlet'
 import Buscar from './pages/Buscar'
@@ -36,6 +36,29 @@ function AdminRoute({ children }) {
   return children
 }
 
+/* Las antiguas páginas de categoría redirigen al explorador de Productos para
+   mantener toda la navegación por familia y subcategoría dentro de una sola página. */
+function CategoriaRedirect() {
+  const { slug } = useParams()
+  const { getCategory, ROOT, getChildren } = useCategories()
+
+  const category = getCategory(slug)
+  if (!category) return <Navigate to="/productos" replace />
+
+  const parent = getCategory(category.parent)
+  const isFamily =
+    category.slug !== ROOT.slug &&
+    (category.parent === ROOT.slug ||
+      (!!parent && parent.parent === ROOT.slug && getChildren(category.slug).length > 0))
+
+  return (
+    <Navigate
+      to={{ pathname: '/productos', search: isFamily ? `?g=${category.slug}` : `?c=${category.slug}` }}
+      replace
+    />
+  )
+}
+
 export default function App() {
   return (
     <BrowserRouter basename={BASENAME}>
@@ -44,7 +67,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/productos" element={<Productos />} />
-          <Route path="/categoria/:slug" element={<Categoria />} />
+          <Route path="/categoria/:slug" element={<CategoriaRedirect />} />
           <Route path="/producto/:id" element={<ProductoDetalle />} />
           <Route path="/outlet" element={<Outlet />} />
           <Route path="/buscar" element={<Buscar />} />

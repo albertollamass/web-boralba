@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --color-bg: #ffffff;
   --color-surface: #f4f4f5;
   --color-surface-2: #e4e4e7;
@@ -16,8 +16,8 @@
   --shadow: 0 1px 2px rgba(24, 24, 27, 0.04), 0 1px 3px rgba(24, 24, 27, 0.06);
   --shadow-lg: 0 4px 6px rgba(24, 24, 27, 0.05), 0 12px 24px rgba(24, 24, 27, 0.08);
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
-  --font-display: 'Archivo', 'Inter', 'Segoe UI', system-ui, sans-serif;
-  --font-montserrat: 'Montserrat', 'Archivo', 'Inter', system-ui, sans-serif;
+  --font-display: 'Manrope', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-montserrat: 'Manrope', 'Archivo', 'Inter', system-ui, sans-serif;
   --font-manrope: 'Manrope', 'Montserrat', 'Inter', system-ui, sans-serif;
   --boralba-red: #dd3531;
   --boralba-red-dark: #c02824;
@@ -79,17 +79,26 @@ h4 {
 }
 
 h1 {
-  font-size: clamp(2rem, 4.2vw, 3.2rem);
-  font-weight: 800;
+  font-size: clamp(3.2rem, 4.6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
 }
 
 h2 {
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-size: clamp(2.4rem, 3.6vw, 3.25rem);
   font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
 }
 
 h3 {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+h4 {
+  font-size: 1rem;
   font-weight: 700;
 }
 
@@ -249,10 +258,10 @@ p {
   padding: 10px 14px;
   border-radius: 4px;
   color: var(--color-text);
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 0.92rem;
-  letter-spacing: 0.01em;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
 }
 
 .nav-link:hover {
@@ -386,9 +395,9 @@ p {
   padding: 12px 8px;
   border-bottom: 1px solid var(--color-surface);
   color: var(--color-text);
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 0.98rem;
+  font-size: 0.9rem;
 }
 
 .mobile-toggle {
@@ -401,9 +410,9 @@ p {
   border-bottom: 1px solid var(--color-surface);
   background: none;
   color: var(--color-text);
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 0.98rem;
+  font-size: 0.9rem;
   cursor: pointer;
   text-align: left;
 }
@@ -1356,7 +1365,7 @@ p {
 
 .content-card-number {
   color: var(--color-primary);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 0.82rem;
   letter-spacing: 0.08em;
   margin-right: 10px;
@@ -1385,7 +1394,7 @@ p {
   border-radius: 50%;
   background: rgba(220, 38, 38, 0.1);
   color: var(--color-primary);
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .benefit-card img {
@@ -1923,7 +1932,7 @@ p {
 
 .stat-card .num {
   font-size: 1.8rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--color-primary);
 }
 
@@ -2006,8 +2015,8 @@ p {
 .catalog-breadcrumb { display: flex; gap: 10px; padding: 18px 0 72px; color: #8a8884; font-size: .78rem; }
 .catalog-breadcrumb a { color: inherit; }
 .catalog-heading { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 42px; }
-.catalog-kicker { margin: 0 0 13px; color: var(--boralba-red); font-size: .72rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-.catalog-heading h1 { margin: 0; color: var(--boralba-ink); font: 800 clamp(2.7rem, 6vw, 5.3rem)/.93 var(--font-montserrat); letter-spacing: -.065em; }
+.catalog-kicker { margin: 0 0 13px; color: var(--boralba-red); font-size: .72rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.catalog-heading h1 { margin: 0; color: var(--boralba-ink); font: 700 clamp(2.7rem, 6vw, 5.3rem)/.93 var(--font-montserrat); letter-spacing: -.065em; }
 .catalog-heading h1 em { color: #97938d; font-style: normal; }
 .catalog-intro { max-width: 235px; margin: 0 0 4px; color: #77736e; font-size: .95rem; line-height: 1.6; }
 .catalog-search-wrap { max-width: 960px; }
@@ -2020,7 +2029,7 @@ p {
 .catalog-search-note { margin: 13px 0 0 66px; color: #8b8781; font-size: .78rem; }
 .catalog-search-note button { padding: 0; border: 0; border-bottom: 1px solid #c5c0ba; color: #5f5b56; background: none; font: inherit; cursor: pointer; }
 .catalog-categories { padding-top: 42px; }
-.catalog-section-label { display: flex; align-items: center; gap: 15px; color: var(--boralba-red); font-size: .72rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.catalog-section-label { display: flex; align-items: center; gap: 15px; color: var(--boralba-red); font-size: .72rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
 .catalog-line { width: 52px; height: 1px; background: var(--boralba-red); }
 .catalog-categories h2, .catalog-results-head h2 { margin: 12px 0 24px; font: 700 clamp(1.7rem, 3vw, 2.5rem) var(--font-montserrat); letter-spacing: -.04em; }
 .catalog-category-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
@@ -2576,7 +2585,7 @@ p {
 .ph.section-head.ph--light h2 {
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 3.6vw, 2.8rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
   margin-bottom: 14px;
@@ -2614,7 +2623,7 @@ p {
   background: var(--boralba-red);
   color: #fff;
   font-size: 0.66rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 .ph-eyebrow--light {
   color: rgba(255, 255, 255, 0.85);
@@ -2677,7 +2686,7 @@ p {
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: clamp(2.1rem, 5.6vw, 4.3rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.04;
   letter-spacing: -0.03em;
   margin-bottom: 22px;
@@ -2813,7 +2822,7 @@ p {
 .cat-card-name {
   font-family: var(--font-montserrat);
   font-size: 1.18rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--boralba-ink);
   margin-bottom: 6px;
 }
@@ -3070,7 +3079,7 @@ background: var(--color-surface-2);
 .home-value-text h2 {
   font-family: var(--font-montserrat);
   font-size: clamp(1.7rem, 3.2vw, 2.5rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.12;
   margin-bottom: 16px;
@@ -3186,14 +3195,14 @@ background: var(--color-surface-2);
 .app-card-no {
   font-family: var(--font-montserrat);
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--boralba-red);
   letter-spacing: 0.1em;
 }
 .app-card-label {
   color: #fff;
   font-family: var(--font-montserrat);
-  font-weight: 800;
+  font-weight: 700;
   font-size: clamp(1.15rem, 1.6vw, 1.4rem);
 }
 .app-strip-arrow {
@@ -3250,7 +3259,7 @@ background: var(--color-surface-2);
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: clamp(1.8rem, 3.4vw, 2.7rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
   margin-bottom: 14px;
@@ -3283,7 +3292,7 @@ background: var(--color-surface-2);
   background: var(--boralba-red);
   color: #fff;
   font-family: var(--font-montserrat);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 0.72rem;
   flex-shrink: 0;
 }
@@ -3351,7 +3360,7 @@ background: var(--color-surface-2);
 .home-exp-chip-num {
   font-family: var(--font-montserrat);
   font-size: 2.2rem;
-  font-weight: 900;
+  font-weight: 700;
   color: var(--boralba-red);
   line-height: 1;
 }
@@ -3366,7 +3375,7 @@ background: var(--color-surface-2);
 .home-exp-content h2 {
   font-family: var(--font-montserrat);
   font-size: clamp(1.7rem, 3vw, 2.4rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.12;
   margin-bottom: 24px;
@@ -3423,7 +3432,7 @@ background: var(--color-surface-2);
   background: rgba(221, 53, 49, 0.1);
   color: var(--boralba-red);
   font-family: var(--font-montserrat);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 0.86rem;
   margin-bottom: 16px;
 }
@@ -3487,7 +3496,7 @@ background: var(--color-surface-2);
   bottom: -48px;
   font-family: var(--font-montserrat);
   font-size: clamp(10rem, 16vw, 16rem);
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1;
   opacity: 0.06;
   color: currentColor;
@@ -3496,7 +3505,7 @@ background: var(--color-surface-2);
 .brand-card-logo {
   font-family: var(--font-montserrat);
   font-size: 2.2rem;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.04em;
   margin-bottom: 16px;
   transform: translateZ(24px);
@@ -3522,7 +3531,7 @@ background: var(--color-surface-2);
 .brand-card h3 {
   font-family: var(--font-montserrat);
   font-size: 1.28rem;
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 10px;
   transform: translateZ(28px);
 }
@@ -3583,7 +3592,7 @@ background: var(--color-surface-2);
 .home-outlet-text h2 {
   font-family: var(--font-montserrat);
   font-size: 1.5rem;
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 6px;
 }
 .home-outlet-text p {
@@ -3625,7 +3634,7 @@ background: var(--color-surface-2);
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: clamp(2rem, 4.2vw, 3.2rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.06;
   margin-bottom: 16px;
@@ -3798,7 +3807,7 @@ background: var(--color-surface-2);
   color: var(--boralba-red);
   font-family: var(--font-montserrat);
   font-size: 0.73rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -3823,7 +3832,7 @@ background: var(--color-surface-2);
   color: var(--presentation-ink);
   font-family: var(--font-montserrat);
   font-size: clamp(1.75rem, 4vw, 3.15rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.06;
   letter-spacing: -0.035em;
 }
@@ -3874,7 +3883,7 @@ background: var(--color-surface-2);
   color: var(--presentation-ink);
   font-family: var(--font-montserrat);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 20px;
@@ -3884,7 +3893,7 @@ background: var(--color-surface-2);
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: clamp(2rem, 5.2vw, 4.4rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.02;
   letter-spacing: -0.04em;
 }
@@ -3962,7 +3971,7 @@ background: var(--color-surface-2);
   color: var(--boralba-red);
   font-family: var(--font-montserrat);
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 .presentation-card-link span { display: inline-block; margin-left: 5px; transition: transform 0.2s ease; }
 .presentation-card-link:hover span { transform: translateX(4px); }
@@ -4043,7 +4052,7 @@ background: var(--color-surface-2);
 }
 .presentation-application .media-fx { position: absolute; inset: 0; }
 .presentation-application::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(15, 15, 18, 0.7), transparent 58%); }
-.presentation-application figcaption { position: absolute; z-index: 2; left: 18px; right: 18px; bottom: 17px; display: grid; gap: 4px; color: #fff; font-family: var(--font-montserrat); font-size: 1.05rem; font-weight: 800; }
+.presentation-application figcaption { position: absolute; z-index: 2; left: 18px; right: 18px; bottom: 17px; display: grid; gap: 4px; color: #fff; font-family: var(--font-montserrat); font-size: 1.05rem; font-weight: 700; }
 .presentation-application small { color: #ffb4b1; font-size: 0.68rem; letter-spacing: 0.12em; }
 .presentation-arrow {
   flex: 0 0 auto;
@@ -4079,7 +4088,7 @@ background: var(--color-surface-2);
 .presentation-product > span:last-child { display: flex; flex: 1; flex-direction: column; gap: 5px; padding: 15px; }
 .presentation-product b { font-family: var(--font-montserrat); font-size: 0.84rem; line-height: 1.25; }
 .presentation-product small { color: #77777c; font-size: 0.72rem; }
-.presentation-product em { margin-top: auto; color: var(--boralba-red); font-size: 0.73rem; font-style: normal; font-weight: 800; }
+.presentation-product em { margin-top: auto; color: var(--boralba-red); font-size: 0.73rem; font-style: normal; font-weight: 700; }
 .presentation-outlet { display: block; width: fit-content; margin: 18px auto 0; color: var(--boralba-red); font-size: 0.8rem; font-weight: 700; }
 
 /* Panels 07 and 08 */
@@ -4366,7 +4375,7 @@ background: var(--color-surface-2);
   max-width: 920px;
   font-family: var(--font-montserrat);
   font-size: clamp(2.35rem, 5.4vw, 5rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -.055em;
   line-height: .98;
   margin: 20px 0 18px;
@@ -4397,7 +4406,7 @@ background: var(--color-surface-2);
 .site-main .section-head h2,
 .site-main .section-head h3 {
   font-family: var(--font-montserrat);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -.035em;
 }
 .site-main .section-head h2 { font-size: clamp(1.8rem, 3.6vw, 3rem); }
@@ -4407,7 +4416,7 @@ background: var(--color-surface-2);
   color: var(--boralba-red);
   font-family: var(--font-montserrat);
   font-size: .7rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: .16em;
   text-transform: uppercase;
 }
@@ -4502,7 +4511,7 @@ background: var(--color-surface-2);
 .site-main .product-page { background: transparent; }
 .site-main .product-detail { padding-bottom: clamp(34px, 5vw, 72px); }
 .site-main .product-carousel .carousel { background: #f1f0ee; border-radius: 18px; }
-.site-main .product-info h1 { font-family: var(--font-montserrat); font-weight: 800; }
+.site-main .product-info h1 { font-family: var(--font-montserrat); font-weight: 700; }
 .site-main .product-description { border: 0; border-top: 1px solid var(--boralba-line); border-radius: 0; box-shadow: none; background: transparent; }
 .site-main .tabs { background: transparent; padding: 0; }
 .site-main .desktop-tab-content { padding: 38px 0; }
@@ -4540,7 +4549,7 @@ background: var(--color-surface-2);
 .products-intro { padding: 0 0 clamp(42px, 5vw, 68px); }
 .products-breadcrumb { padding: 9px 0 clamp(34px, 5vw, 58px); }
 .products-intro-copy { max-width: 760px; margin-bottom: 30px; }
-.products-intro-copy h1 { font-family: var(--font-montserrat); font-size: clamp(2.65rem, 6.2vw, 5.4rem); font-weight: 800; letter-spacing: -.06em; line-height: .98; max-width: 930px; margin: 0 0 15px; }
+.products-intro-copy h1 { font-family: var(--font-montserrat); font-size: clamp(2.65rem, 6.2vw, 5.4rem); font-weight: 700; letter-spacing: -.06em; line-height: .98; max-width: 930px; margin: 0 0 15px; }
 .products-intro-copy p { color: var(--boralba-gray); font-size: clamp(1rem, 1.5vw, 1.18rem); margin: 0; }
 .products-search-shell { position: relative; max-width: none; }
 .products-search { display: flex; align-items: center; gap: 16px; padding: 19px 23px; background: rgba(255,255,255,.58); border: 1px solid rgba(255,255,255,.88); border-radius: 18px; box-shadow: 0 24px 55px -38px rgba(26,26,30,.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
@@ -4563,7 +4572,7 @@ background: var(--color-surface-2);
 .products-families { background: rgba(255,255,255,.18); border-top: 1px solid rgba(26,26,30,.08); border-bottom: 1px solid rgba(26,26,30,.08); }
 .products-section-heading { max-width: 670px; margin: 0 auto 26px; text-align: center; }
 .products-section-heading-left { margin-left: 0; text-align: left; }
-.products-section-heading h2, .products-results-top h2 { font: 800 clamp(1.85rem, 3.5vw, 3rem)/1.08 var(--font-montserrat); letter-spacing: -.04em; margin: 0 0 12px; }
+.products-section-heading h2, .products-results-top h2 { font: 700 clamp(1.85rem, 3.5vw, 3rem)/1.08 var(--font-montserrat); letter-spacing: -.04em; margin: 0 0 12px; }
 .products-section-heading p, .products-results-top p { color: var(--boralba-gray); margin: 0; }
 .products-families .coverflow { margin-top: 8px; height: clamp(350px, 42vw, 600px); }
 .products-families .coverflow-card { width: clamp(210px, 26vw, 360px); }
@@ -4877,7 +4886,7 @@ background: var(--color-surface-2);
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 4vw, 3.1rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.035em;
 }
@@ -4896,7 +4905,7 @@ background: var(--color-surface-2);
   color: #ffb4b1;
   font-family: var(--font-montserrat);
   font-size: 0.73rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
@@ -5049,7 +5058,7 @@ background: var(--color-surface-2);
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: clamp(1.8rem, 4.2vw, 3.4rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.025em;
   text-shadow: 0 6px 40px rgba(0, 0, 0, 0.6);
@@ -5129,7 +5138,7 @@ background: var(--color-surface-2);
   color: #ffb4b1;
   font-family: var(--font-montserrat);
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 .redesign-advantage strong {
   display: block;
@@ -5155,7 +5164,7 @@ background: var(--color-surface-2);
   color: #ffb4b1;
   font-family: var(--font-montserrat);
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-bottom: 20px;
@@ -5165,7 +5174,7 @@ background: var(--color-surface-2);
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 3.4vw, 2.9rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.03em;
 }
@@ -5256,7 +5265,7 @@ background: var(--color-surface-2);
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.2;
 }
 .redesign-application small { color: #ffb4b1; font-style: normal; font-size: 0.68rem; letter-spacing: 0.12em; }
@@ -5294,7 +5303,7 @@ background: var(--color-surface-2);
   color: #fff;
   font-family: var(--font-montserrat);
   font-size: clamp(1.7rem, 3.4vw, 2.8rem);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
   margin-bottom: 8px;
 }
@@ -5449,7 +5458,7 @@ background: var(--color-surface-2);
   text-align: center;
   padding: clamp(48px, 7vw, 90px) clamp(24px, 6vw, 60px);
 }
-.redesign-cta-content h2 { margin: 0 0 18px; color: #fff; font-family: var(--font-montserrat); font-size: clamp(2rem, 4.6vw, 3.4rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; }
+.redesign-cta-content h2 { margin: 0 0 18px; color: #fff; font-family: var(--font-montserrat); font-size: clamp(2rem, 4.6vw, 3.4rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; }
 .redesign-cta-content p { color: rgba(255, 255, 255, 0.78); font-size: 1.05rem; line-height: 1.65; max-width: 560px; margin: 0 auto 32px; }
 .redesign-cta-content .redesign-btn-primary { background: var(--boralba-red); }
 .redesign-cta-content .redesign-btn-primary:hover { background: var(--boralba-red-dark); }
@@ -6515,9 +6524,9 @@ body:not(:has(.redesign-home)) .flyout {
 .home-hero .redesign-cta-top { display: none; }
 .home-hero .redesign-menu-toggle { color: #fff; }
 .home-hero-copy { position: absolute; z-index: 2; left: clamp(22px, 10vw, 160px); bottom: clamp(60px, 12vh, 130px); max-width: 700px; }
-.home-eyebrow { margin: 0 0 16px; color: var(--boralba-red); font: 700 .68rem var(--font-montserrat); letter-spacing: .16em; text-transform: uppercase; }
+.home-eyebrow { margin: 0 0 16px; color: var(--boralba-red); font: 700 .78rem var(--font-montserrat); letter-spacing: .14em; text-transform: uppercase; }
 .home-hero .home-eyebrow { color: rgba(255,255,255,.76); }
-.home-hero h1 { margin: 0 0 18px; color: #fff; font: 800 clamp(4rem, 10vw, 8.6rem)/.8 var(--font-montserrat); letter-spacing: -.09em; }
+.home-hero h1 { margin: 0 0 18px; color: #fff; font: 700 clamp(3.4rem, 5.6vw, 4.6rem)/1.02 var(--font-montserrat); letter-spacing: -.03em; }
 .home-hero h2 { max-width: 560px; margin: 0 0 12px; color: #fff; font-size: clamp(1.55rem, 3vw, 2.65rem); letter-spacing: -.05em; }
 .home-hero-copy > p:not(.home-eyebrow) { margin: 0 0 30px; color: rgba(255,255,255,.82); font-size: clamp(1rem, 1.5vw, 1.16rem); }
 .home-actions { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -6786,15 +6795,15 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0 auto;
 }
 .bh-nav-link {
-  font-family: var(--font-montserrat);
-  font-size: 0.84rem;
-  font-weight: 500;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
   letter-spacing: 0.02em;
   color: #16161a;
   text-decoration: none;
   padding: 6px 2px;
   border-bottom: 1px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition: color 0.2s ease, border-bottom-color 0.2s ease;
   white-space: nowrap;
 }
 .bh-nav-link:hover {
@@ -7006,9 +7015,9 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0 0 16px;
   color: #dd3531;
   font-family: var(--font-montserrat);
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -7262,7 +7271,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0;
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 3.4vw, 3rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: #16161a;
@@ -7422,7 +7431,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0;
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 3.4vw, 3rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.04;
   color: #171719;
@@ -7789,7 +7798,7 @@ body:not(:has(.redesign-home)) .flyout {
   font-family: var(--font-montserrat);
   max-width: 24ch;
   font-size: clamp(1.7rem, 2.7vw, 2.45rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: #16161a;
@@ -7937,7 +7946,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0;
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 3.2vw, 2.9rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.08;
   color: #171719;
@@ -8043,7 +8052,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0;
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 3.4vw, 3rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: #16161a;
@@ -8178,7 +8187,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0 0 clamp(24px, 2.4vw, 32px);
   font-family: var(--font-montserrat);
   font-size: clamp(2rem, 4vw, 3.4rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.06;
   color: #ffffff;
@@ -8805,7 +8814,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0;
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 3.4vw, 3rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: #16161a;
@@ -8836,7 +8845,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0;
   font-family: var(--font-montserrat);
   font-size: clamp(1.9rem, 3.4vw, 3rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: #16161a;
@@ -8969,7 +8978,7 @@ body:not(:has(.redesign-home)) .flyout {
   --proy-ink: #1a1a1e;
   --proy-gray: #6b6b74;
   --proy-line: #e7e4e0;
-  font-family: var(--font-manrope);
+  font-family: var(--font-sans);
   --font-montserrat: var(--font-manrope);
   color: var(--proy-ink);
   background: #ffffff;
@@ -8999,9 +9008,9 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0 0 22px;
   color: var(--proy-red);
   font-family: var(--font-montserrat);
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .proy-eyebrow--light { color: rgba(255, 255, 255, 0.72); }
@@ -9023,10 +9032,10 @@ body:not(:has(.redesign-home)) .flyout {
 .proy-hero h1 {
   max-width: 980px;
   margin: 0 0 26px;
-  font-size: clamp(2.35rem, 5.2vw, 4.7rem);
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 0.98;
+  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
 }
 .proy-hero-text {
   max-width: 640px;
@@ -9081,7 +9090,7 @@ body:not(:has(.redesign-home)) .flyout {
 .proy-categoria-head h2 {
   margin: 0;
   font-size: clamp(1.15rem, 1.8vw, 1.55rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
 }
@@ -9163,7 +9172,7 @@ body:not(:has(.redesign-home)) .flyout {
 .proy-item-body h2 {
   margin: 0;
   font-size: clamp(1.25rem, 2vw, 1.7rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.1;
 }
@@ -9247,10 +9256,10 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .proy-ed-head h1 {
   margin: 0;
-  font-size: clamp(2.3rem, 5vw, 4.8rem);
-  font-weight: 800;
-  letter-spacing: -0.055em;
-  line-height: 0.96;
+  font-size: clamp(2.9rem, 5vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
 }
 .proy-ed-head-side { padding-bottom: 8px; }
 .proy-ed-head-meta {
@@ -9316,7 +9325,7 @@ body:not(:has(.redesign-home)) .flyout {
 .proy-ed-copy h2 {
   margin: 0 0 18px;
   font-size: clamp(1.8rem, 3vw, 2.6rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.05;
 }
@@ -9344,7 +9353,7 @@ body:not(:has(.redesign-home)) .flyout {
 .proy-ed-section-head h2 {
   margin: 0;
   font-size: clamp(1.6rem, 2.6vw, 2.3rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.05;
 }
@@ -9409,7 +9418,7 @@ body:not(:has(.redesign-home)) .flyout {
   min-width: 0;
   color: var(--proy-ink);
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 .proy-ed-product-name small {
@@ -9480,7 +9489,7 @@ body:not(:has(.redesign-home)) .flyout {
 .proy-ed-ph--title span {
   font-family: var(--font-montserrat);
   font-size: clamp(0.8rem, 1.2vw, 1.05rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--proy-ink);
@@ -9549,7 +9558,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin: 0 0 clamp(28px, 3vw, 40px);
   color: #fff;
   font-size: clamp(2rem, 4.4vw, 3.6rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.02;
 }
@@ -9618,10 +9627,10 @@ body:not(:has(.redesign-home)) .flyout {
   border: 0;
   background: transparent;
   color: var(--proy-ink);
-  font-family: var(--font-montserrat);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   line-height: 1.2;
   text-transform: uppercase;
   cursor: pointer;
@@ -9684,7 +9693,7 @@ body:not(:has(.redesign-home)) .flyout {
   min-height: 100vh;
   color: var(--serv-ink);
   background: #fff;
-  font-family: var(--font-montserrat);
+  font-family: var(--font-sans);
 }
 .servicios-redesign .container {
   max-width: none;
@@ -9721,18 +9730,18 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-eyebrow {
   margin-bottom: 22px;
   color: var(--serv-red);
-  font-size: .68rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: .18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .servicios-hero h1 {
   max-width: 900px;
   margin-bottom: 26px;
-  font-size: clamp(2.4rem, 5.3vw, 4.8rem);
-  font-weight: 800;
-  letter-spacing: -.055em;
-  line-height: .98;
+  font-size: clamp(3.2rem, 5vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.02;
 }
 .servicios-hero-text {
   max-width: 610px;
@@ -9766,9 +9775,10 @@ body:not(:has(.redesign-home)) .flyout {
   border: 0;
   color: var(--serv-ink);
   background: transparent;
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .1em;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   line-height: 1.2;
   text-transform: uppercase;
   white-space: nowrap;
@@ -9813,9 +9823,9 @@ body:not(:has(.redesign-home)) .flyout {
 .servicio-panel h2 {
   max-width: 12ch;
   margin-bottom: 25px;
-  font-size: clamp(1.9rem, 3.4vw, 3.2rem);
-  font-weight: 800;
-  letter-spacing: -.05em;
+  font-size: clamp(2.2rem, 3.4vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -.03em;
   line-height: 1;
 }
 .servicio-intro {
@@ -9862,7 +9872,7 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .servicios-image-placeholder span,
 .servicios-image-placeholder small { font-family: var(--font-montserrat); text-transform: uppercase; }
-.servicios-image-placeholder span { font-size: .72rem; font-weight: 800; letter-spacing: .15em; }
+.servicios-image-placeholder span { font-size: .72rem; font-weight: 700; letter-spacing: .15em; }
 .servicios-image-placeholder small { max-width: 260px; color: var(--serv-gray); font-size: .7rem; letter-spacing: .08em; line-height: 1.5; }
 .servicio-actions { grid-column: 1; align-self: end; border-top: 1px solid var(--serv-line); padding-top: 22px; }
 .servicio-actions-label { margin-bottom: 17px; color: var(--serv-gray); font-size: .68rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
@@ -9871,7 +9881,7 @@ body:not(:has(.redesign-home)) .flyout {
 .servicio-actions li::before { display: inline-block; width: 22px; color: var(--serv-red); content: '—'; }
 .servicio-note { margin: 24px 0 0; color: var(--serv-gray); font-size: .75rem; line-height: 1.5; }
 .servicios-process { padding: clamp(52px, 7vw, 96px) 0 clamp(72px, 9vw, 132px); border-top: 1px solid var(--serv-line); }
-.servicios-process h2 { margin-bottom: clamp(38px, 5vw, 62px); font-size: clamp(1.8rem, 3.5vw, 3rem); font-weight: 800; letter-spacing: -.05em; }
+.servicios-process h2 { margin-bottom: clamp(38px, 5vw, 62px); font-size: clamp(2.4rem, 3.5vw, 3rem); font-weight: 700; letter-spacing: -.03em; }
 .servicios-process-line { display: flex; align-items: center; justify-content: space-between; gap: 18px; color: var(--serv-ink); font-size: clamp(.68rem, 1vw, .82rem); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .servicios-process-line span { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
 .servicios-process-line b { color: var(--serv-red); font-size: .72rem; }
@@ -9896,15 +9906,16 @@ body:not(:has(.redesign-home)) .flyout {
 /* Tecnologia y marca: dos columnas abiertas, sin tarjetas */
 .servicios-technology {
   padding: clamp(58px, 8vw, 112px) 0 clamp(78px, 10vw, 144px);
-  background: #F6F5F2;
+  background: transparent;
+  animation: servicio-fade .2s ease both;
 }
 .servicios-technology > .container > h2 {
   max-width: 780px;
   margin-bottom: clamp(42px, 6vw, 78px);
-  font-size: clamp(2rem, 4.2vw, 3.8rem);
-  font-weight: 800;
-  letter-spacing: -.055em;
-  line-height: 1;
+  font-size: clamp(2.6rem, 3.8vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.02;
 }
 .servicios-brands {
   display: grid;
@@ -9974,7 +9985,7 @@ body:not(:has(.redesign-home)) .flyout {
   color: var(--serv-ink);
   font-family: var(--font-montserrat);
   font-size: .73rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
 }
@@ -9988,10 +9999,10 @@ body:not(:has(.redesign-home)) .flyout {
   max-width: 650px;
   margin-bottom: 30px;
   color: #fff;
-  font-size: clamp(2rem, 4.5vw, 4rem);
-  font-weight: 800;
-  letter-spacing: -.055em;
-  line-height: 1;
+  font-size: clamp(2.5rem, 4.2vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.02;
 }
 .servicios-final-cta .servicios-eyebrow { color: rgba(255, 255, 255, .68); }
 .servicios-final-cta .servicios-brand-cta { color: #fff; }
