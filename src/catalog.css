@@ -263,7 +263,7 @@
 .pc-product:hover .pc-product-media img { transform: scale(1.04); }
 .pc-product-body { display: block; padding-top: 16px; }
 .pc-product-cat { display: block; margin-bottom: 7px; color: var(--boralba-red); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-.pc-product-name { margin-bottom: 5px; font-size: 1.08rem; }
+.pc-product-name { margin-bottom: 5px; color: #000; font-size: 1.08rem; }
 .pc-product-ref { margin: 0 0 14px; color: var(--pc-muted); font-size: .75rem; letter-spacing: .05em; }
 .pc-product-specs { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0 0 18px; font-size: .76rem; }
 .pc-product-specs dt { color: var(--pc-muted); }
