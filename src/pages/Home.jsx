@@ -237,11 +237,9 @@ export default function Home() {
             <div className="projects-text">
               <Reveal delay={0}>
                 <p className="home-eyebrow">PROYECTOS</p>
-                <div className="projects-text-head">
-                  <h2>Proyectos e inspiración</h2>
-                  <Link to="/proyectos" className="home-projects-more-link">Ver todos los proyectos <span>→</span></Link>
-                </div>
+                <h2>Proyectos e inspiración</h2>
                 <p className="home-sec-sub">Aplicaciones reales de nuestras soluciones de iluminación en arquitectura, interiorismo y espacios públicos.</p>
+                <Link to="/proyectos" className="home-projects-more-link">Ver todos los proyectos <span>→</span></Link>
               </Reveal>
             </div>
           </div>
