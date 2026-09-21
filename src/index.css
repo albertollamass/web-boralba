@@ -10100,20 +10100,43 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-redesign .servicio-cta,
 .servicios-redesign .servicios-process-line { font-family: var(--font-montserrat); }
 .servicios-hero {
-  padding: clamp(56px, 8vw, 112px) 0 clamp(48px, 7vw, 96px);
-  background: var(--boralba-mist);
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 82vh;
+  padding: clamp(88px, 10vw, 132px) 0;
+  background: var(--boralba-mist) url('/images/fondo servicios.png') center / cover no-repeat;
 }
+.servicios-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 8, 12, 0.74) 0%,
+      rgba(8, 8, 12, 0.46) 52%,
+      rgba(8, 8, 12, 0.22) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 8, 12, 0.42) 0%,
+      rgba(8, 8, 12, 0.2) 50%,
+      rgba(8, 8, 12, 0.46) 100%
+    );
+}
+.servicios-hero .container { position: relative; z-index: 1; }
 .servicios-hero .breadcrumb {
   display: flex;
   gap: 12px;
   margin-bottom: clamp(38px, 5vw, 72px);
-  color: var(--serv-gray);
+  color: rgba(255, 255, 255, 0.78);
   font-size: .7rem;
   letter-spacing: .12em;
   text-transform: uppercase;
 }
-.servicios-hero .breadcrumb a { color: var(--serv-gray); }
-.servicios-hero .breadcrumb a:hover { color: var(--serv-red); }
+.servicios-hero .breadcrumb a { color: rgba(255, 255, 255, 0.78); }
+.servicios-hero .breadcrumb a:hover { color: #fff; }
 .servicios-eyebrow {
   margin-bottom: 22px;
   color: var(--serv-red);
@@ -10125,6 +10148,7 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-hero h1 {
   max-width: 900px;
   margin-bottom: 26px;
+  color: #fff;
   font-size: clamp(3.2rem, 5vw, 4.5rem);
   font-weight: 700;
   letter-spacing: -.03em;
@@ -10133,7 +10157,7 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-hero-text {
   max-width: 610px;
   margin-bottom: 0;
-  color: var(--serv-gray);
+  color: #fff;
   font-size: clamp(1rem, 1.4vw, 1.16rem);
   line-height: 1.7;
 }
@@ -10389,6 +10413,8 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-final-cta .servicios-eyebrow { color: rgba(255, 255, 255, .68); }
 .servicios-final-cta .servicios-brand-cta { color: #fff; }
 @media (max-width: 760px) {
+  .servicios-hero { min-height: 58vh; padding: clamp(64px, 13vw, 96px) 0; }
+  .servicios-hero h1 { font-size: clamp(2.1rem, 9vw, 3rem); }
   .servicios-technology { padding-top: 58px; }
   .servicios-technology > .container > h2 { margin-bottom: 44px; }
   .servicios-brands { display: block; }
