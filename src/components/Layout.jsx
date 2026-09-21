@@ -29,7 +29,7 @@ export default function Layout() {
     <>
       {header}
       <div className={`site-frame${isHome ? ' home-frame' : ''}`}>
-        <main className="site-main">
+        <main className={`site-main${isHome ? ' home-main' : ' internal-page-container'}`}>
           <Outlet />
         </main>
         <Footer home={isHome} />

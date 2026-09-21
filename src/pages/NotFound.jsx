@@ -10,7 +10,7 @@ export default function NotFound() {
         path="/404"
         noindex
       />
-      <div className="container section" style={{ textAlign: 'center', padding: '80px 20px' }}>
+      <div className="container section" style={{ textAlign: 'center' }}>
         <p className="tag">Error 404</p>
         <h1>Página no encontrada</h1>
         <p className="muted" style={{ maxWidth: 560, margin: '12px auto 24px' }}>

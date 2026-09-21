@@ -63,8 +63,13 @@ export default function Contacto() {
     setSent(true)
   }
 
+  const scrollToForm = (e) => {
+    e.preventDefault()
+    document.getElementById('contacto-form')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
-    <>
+    <div className="contacto-page">
       <Seo
         title="Contacto — Respuesta en menos de 24h"
         description="Cuéntanos tu proyecto de iluminación LED: asesoramiento técnico especializado sin compromiso. Getafe, Madrid. Tel. (34) 91 870 71 13, boralba@boralba.es."
@@ -74,157 +79,192 @@ export default function Contacto() {
           { name: 'Contacto', url: canonicalFor('/contacto') },
         ])}
       />
-      <div className="page-header">
+
+      {/* 1 · Hero: imagen de fondo a sangre completa, texto superpuesto */}
+      <section
+        className="contacto-hero"
+        style={{
+          backgroundImage:
+            'linear-gradient(90deg, rgba(26,26,30,.82) 0%, rgba(26,26,30,.58) 42%, rgba(26,26,30,.16) 72%, rgba(26,26,30,0) 100%), url("images/lobby.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="container contacto-hero-grid">
+          <div className="contacto-hero-copy">
+            <p className="eyebrow">Contacto</p>
+            <h1>¿Tienes un proyecto de iluminación?</h1>
+            <p className="contacto-hero-text">
+              Te ayudamos a hacerlo realidad: asesoramiento técnico especializado, respuesta en
+              menos de 24h y sin compromiso.
+            </p>
+            <a href="#contacto-form" onClick={scrollToForm} className="btn btn-primary">
+              Cuéntanos tu proyecto
+              <span className="btn-arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 2 · Cuéntanos tu proyecto: grid 32 / 68 */}
+      <section className="contacto-contacto">
         <div className="container">
-          <div className="breadcrumb">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <span>Contacto</span>
+          <div className="contacto-section-head">
+            <h2 className="contacto-section-title">Cuéntanos tu proyecto</h2>
+            <p className="contacto-section-sub">
+              Cuéntanos qué necesitas y te ayudaremos a encontrar la solución más adecuada.
+            </p>
           </div>
-          <h1>¿Tienes un proyecto de iluminación?</h1>
-          <p>Te ayudamos a hacerlo realidad. Respuesta en menos de 24h, sin compromiso.</p>
-          <ul className="checklist mt-2">
-            <li>Respuesta en menos de 24h</li>
-            <li>Asesoramiento técnico especializado</li>
-            <li>Sin compromiso</li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="container section" style={{ paddingTop: 0 }}>
-        <div className="section-head left">
-          <h2>Cuéntanos tu proyecto</h2>
-          <p>Te ayudamos a encontrar la mejor solución.</p>
-        </div>
-
-        <div className="contact-grid">
-          <div className="contact-info">
-            <div className="contact-item">
-              <span className="icon">{icons.phone}</span>
-              <div>
-                <h4>Llámanos</h4>
-                <p>
+          <div className="contacto-info-grid">
+            <aside className="contacto-info">
+              <div className="contacto-info-item">
+                <span className="contacto-info-icon">{icons.phone}</span>
+                <div>
+                  <h4>Llámanos</h4>
+                  <p>
                     <a href={`tel:${settings.phone}`}>{settings.phone}</a>
-                </p>
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="contact-item">
-              <span className="icon">{icons.mail}</span>
-              <div>
-                <h4>Email</h4>
-                <p>
+              <div className="contacto-info-item">
+                <span className="contacto-info-icon">{icons.mail}</span>
+                <div>
+                  <h4>Email</h4>
+                  <p>
                     <a href={`mailto:${settings.email}`}>{settings.email}</a>
-                </p>
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="contact-item">
-              <span className="icon">{icons.pin}</span>
-              <div>
-                <h4>Dirección</h4>
-                <p>
-                  Calle Destreza, 3. Nave D10
-                  <br />
-                  Polígono Los Olivos, 28906 Getafe
-                </p>
+              <div className="contacto-info-item">
+                <span className="contacto-info-icon">{icons.pin}</span>
+                <div>
+                  <h4>Dirección</h4>
+                  <p>
+                    Calle Destreza, 3. Nave D10
+                    <br />
+                    Polígono Los Olivos, 28906 Getafe
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="contact-item">
-              <span className="icon">{icons.clock}</span>
-              <div>
-                <h4>Horario</h4>
-                <p>{settings.hours}</p>
+              <div className="contacto-info-item">
+                <span className="contacto-info-icon">{icons.clock}</span>
+                <div>
+                  <h4>Horario</h4>
+                  <p>{settings.hours}</p>
+                </div>
               </div>
+            </aside>
+
+            <div className="contacto-main" id="contacto-form">
+              {sent ? (
+                <div className="form">
+                  <div className="form-success">
+                    ¡Gracias por contactar con nosotros! Nos pondremos en contacto contigo lo antes
+                    posible para ayudarte con tu proyecto y ofrecerte la mejor solución.
+                  </div>
+                </div>
+              ) : (
+                <form className="form" onSubmit={submit}>
+                  <div className="contacto-form-grid">
+                    <div>
+                      <label>Nombre</label>
+                      <input required value={form.nombre} onChange={update('nombre')} />
+                    </div>
+                    <div>
+                      <label>Tu correo electrónico</label>
+                      <input required type="email" value={form.email} onChange={update('email')} />
+                    </div>
+                    <div>
+                      <label>Teléfono</label>
+                      <input value={form.telefono} onChange={update('telefono')} />
+                    </div>
+                    <div>
+                      <label>Tipo de consulta</label>
+                      <select value={form.tipo} onChange={update('tipo')}>
+                        <option value="">Selecciona...</option>
+                        <option>Asesoramiento</option>
+                        <option>Presupuesto</option>
+                        <option>Productos</option>
+                        <option>Proyecto</option>
+                        <option>Outlet</option>
+                        <option>Otros</option>
+                      </select>
+                    </div>
+                    <div className="span-2">
+                      <label>Mensaje</label>
+                      <textarea value={form.mensaje} onChange={update('mensaje')} />
+                    </div>
+                  </div>
+                  <label className="check">
+                    <input type="checkbox" checked={form.privacidad} onChange={updateCheck('privacidad')} />
+                    <span>
+                      He leído y acepto la{' '}
+                      <Link to="/legal/politica-privacidad">política de privacidad de esta Web.</Link>
+                    </span>
+                  </label>
+                  <label className="check">
+                    <input type="checkbox" checked={form.cookies} onChange={updateCheck('cookies')} />
+                    <span>
+                      He leído y acepto la{' '}
+                      <Link to="/legal/politica-cookies">política de cookies de esta Web.</Link>
+                    </span>
+                  </label>
+                  <label className="check">
+                    <input type="checkbox" checked={form.legal} onChange={updateCheck('legal')} />
+                    <span>
+                      He leído y acepto el <Link to="/legal/aviso-legal">aviso legal de esta Web.</Link>
+                    </span>
+                  </label>
+                  <div className="captcha-row">
+                    <span className="captcha-label">
+                      {captcha.num1} + {captcha.num2} =
+                    </span>
+                    <input
+                      required
+                      className="captcha-input"
+                      inputMode="numeric"
+                      value={captcha.answer}
+                      onChange={(e) => setCaptcha((c) => ({ ...c, answer: e.target.value }))}
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    Enviar consulta
+                    <span className="btn-arrow" aria-hidden="true">→</span>
+                  </button>
+                </form>
+              )}
             </div>
           </div>
+        </div>
+      </section>
 
-          {sent ? (
-            <div className="form">
-              <div className="form-success">
-                ¡Gracias por contactar con nosotros! Nos pondremos en contacto contigo lo antes
-                posible para ayudarte con tu proyecto y ofrecerte la mejor solución.
-              </div>
+      {/* 3 · Ubicación: sección independiente */}
+      <section className="contacto-ubicacion">
+        <div className="container">
+          <div className="contacto-ubicacion-head">
+            <div>
+              <h2>Nuestra ubicación</h2>
+              <p>Calle Destreza, 3. Nave D10 · Polígono Los Olivos, 28906 Getafe</p>
             </div>
-          ) : (
-            <form className="form" onSubmit={submit}>
-              <div>
-                <label>Nombre</label>
-                <input required value={form.nombre} onChange={update('nombre')} />
-              </div>
-              <div>
-                <label>Tu correo electrónico</label>
-                <input required type="email" value={form.email} onChange={update('email')} />
-              </div>
-              <div>
-                <label>Teléfono</label>
-                <input value={form.telefono} onChange={update('telefono')} />
-              </div>
-              <div>
-                <label>Tipo de consulta</label>
-                <select value={form.tipo} onChange={update('tipo')}>
-                  <option value="">Selecciona...</option>
-                  <option>Asesoramiento</option>
-                  <option>Presupuesto</option>
-                  <option>Productos</option>
-                  <option>Proyecto</option>
-                  <option>Outlet</option>
-                  <option>Otros</option>
-                </select>
-              </div>
-              <div>
-                <label>Mensaje</label>
-                <textarea value={form.mensaje} onChange={update('mensaje')} />
-              </div>
-              <label className="check">
-                <input type="checkbox" checked={form.privacidad} onChange={updateCheck('privacidad')} />
-                <span>
-                  He leído y acepto la{' '}
-                  <Link to="/legal/politica-privacidad">política de privacidad de esta Web.</Link>
-                </span>
-              </label>
-              <label className="check">
-                <input type="checkbox" checked={form.cookies} onChange={updateCheck('cookies')} />
-                <span>
-                  He leído y acepto la{' '}
-                  <Link to="/legal/politica-cookies">política de cookies de esta Web.</Link>
-                </span>
-              </label>
-              <label className="check">
-                <input type="checkbox" checked={form.legal} onChange={updateCheck('legal')} />
-                <span>
-                  He leído y acepto el <Link to="/legal/aviso-legal">aviso legal de esta Web.</Link>
-                </span>
-              </label>
-              <div>
-                <label>
-                  {captcha.num1} + {captcha.num2} =
-                </label>
-                <input
-                  required
-                  inputMode="numeric"
-                  value={captcha.answer}
-                  onChange={(e) => setCaptcha((c) => ({ ...c, answer: e.target.value }))}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Solicitar asesoramiento
-              </button>
-            </form>
-          )}
+            <a
+              href="https://maps.app.goo.gl/JMsuqrwod9QZHpHs7"
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-primary"
+            >
+              VER EN GOOGLE MAPS
+              <span className="btn-arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+          <figure className="contacto-ubicacion-media">
+            <img
+              src="images/almacen.png"
+              alt="Instalaciones de Boralba Lighting en el Polígono Los Olivos, Getafe"
+              loading="lazy"
+            />
+          </figure>
         </div>
-
-        <div className="section-head mt-3" style={{ marginTop: 56 }}>
-          <h2>Nuestra ubicación</h2>
-          <a
-            href="https://maps.app.goo.gl/JMsuqrwod9QZHpHs7"
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-primary mt-2"
-            style={{ display: 'inline-flex' }}
-          >
-            VER EN GOOGLE MAPS
-          </a>
-        </div>
-      </div>
-    </>
+      </section>
+    </div>
   )
 }
