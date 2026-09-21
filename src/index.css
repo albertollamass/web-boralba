@@ -7397,7 +7397,7 @@ body:not(:has(.redesign-home)) .flyout {
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  border-radius: clamp(14px, 1.6vw, 24px);
+  border-radius: 0;
   background: #ffffff;
   pointer-events: none;
 }
