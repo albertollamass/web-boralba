@@ -106,12 +106,15 @@
 
 .pc-hero {
   position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 82vh;
+  padding: clamp(88px, 10vw, 132px) 0;
   background-image: linear-gradient(90deg, rgba(20, 22, 26, 0.88) 0%, rgba(20, 22, 26, 0.62) 52%, rgba(20, 22, 26, 0.28) 100%), url('/images/TIRA%20LED%20AZUL.png');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   color: #fff;
-  padding: clamp(56px, 8vw, 112px) 0 clamp(40px, 6vw, 88px);
 }
 
 .pc-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr); align-items: stretch; }
@@ -376,6 +379,10 @@
   .pc-custom { grid-template-columns: 1fr; width: calc(100% + 64px); height: auto; min-height: 0; margin-left: -32px; margin-right: -32px; padding: 0; }
   .pc-custom-copy { height: auto; min-height: 0; padding: 64px 24px; }
   .pc-custom-media { min-height: 330px; height: 330px; }
+}
+
+@media (max-width: 760px) {
+  .pc-hero { min-height: 58vh; padding: clamp(64px, 13vw, 96px) 0; }
 }
 
 @media (max-width: 600px) {
