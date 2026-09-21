@@ -8975,542 +8975,84 @@ body:not(:has(.redesign-home)) .flyout {
 
 /* ============================================================
    DISEÑA TU LUMINARIA (HALOPACK) — /disena-tu-luminaria
-   Página editorial: mucho aire, imágenes grandes, rojo y tinta.
+   Configurador minimalista: introducción, especificaciones,
+   idea, adjuntos, datos y envío vía Web3Forms.
+   Fondo blanco, sin tarjetas, rojo solo en selección, foco y CTA.
    ============================================================ */
-.disena {
+.disena-conf {
   --ink: #1a1a1e;
   --red: #dd3531;
   --gray: #6b6b74;
-  --line: #e7e4e0;
-  --mist: #f6f5f3;
+  --line: #e7e4e6;
   background: #ffffff;
   color: var(--ink);
   font-family: var(--font-sans);
-  overflow: clip;
 }
 
-/* ---------- Secciones y cabeceras comunes ---------- */
-.disena-section {
-  padding: clamp(84px, 10vw, 148px) 0;
-}
-.disena-section--mist {
-  background: var(--mist);
+/* ---------- Introducción ---------- */
+.disena-intro {
+  padding: clamp(80px, 10vw, 148px) 0 clamp(52px, 7vw, 88px);
 }
 .disena-eyebrow {
-  margin: 0 0 18px;
-  color: var(--red);
-  font-family: var(--font-montserrat);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.disena-head {
-  margin-bottom: clamp(38px, 5vw, 64px);
-  max-width: 780px;
-}
-.disena-head h2,
-.disena-form-copy h2,
-.disena-meaning h2 {
-  margin: 0 0 24px;
-  color: var(--ink);
-  font-family: var(--font-montserrat);
-  font-size: clamp(2rem, 3.6vw, 3.2rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.04;
-}
-.disena-head-sub {
-  margin: 0;
+  margin: 0 0 22px;
   color: var(--gray);
-  font-size: 1.02rem;
-  line-height: 1.7;
-  max-width: 54ch;
-}
-
-/* ---------- 1 · HERO ---------- */
-.disena-hero {
-  position: relative;
-  min-height: clamp(600px, calc(100svh - 76px), 900px);
-  display: flex;
-  align-items: flex-end;
-  overflow: hidden;
-  color: #fff;
-  background: #191a1b;
-}
-.disena-hero-media {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-.disena-hero-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 62% center;
-}
-.disena-hero-media::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(90deg, rgba(12, 12, 15, 0.88) 0%, rgba(12, 12, 15, 0.62) 40%, rgba(12, 12, 15, 0.18) 72%, rgba(12, 12, 15, 0.04) 100%);
-}
-.disena-hero-copy {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  padding: clamp(90px, 10vh, 140px) clamp(28px, 4vw, 78px) clamp(84px, 10vh, 130px);
-}
-.disena-breadcrumb {
-  display: flex;
-  gap: 12px;
-  margin: 0 0 clamp(28px, 4vw, 44px);
-  color: rgba(255, 255, 255, 0.55);
-  font-family: var(--font-montserrat);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-.disena-breadcrumb a {
-  color: rgba(255, 255, 255, 0.55);
-  transition: color 0.2s ease;
-}
-.disena-breadcrumb a:hover {
-  color: #fff;
-}
-.disena-breadcrumb span {
-  color: var(--red);
-}
-.disena-hero-eyebrow {
-  margin: 0 0 24px;
-  color: var(--red);
   font-family: var(--font-montserrat);
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
-.disena-hero h1 {
-  max-width: 780px;
-  margin: 0 0 26px;
-  color: #fff;
+.disena-intro h1 {
+  max-width: 900px;
+  margin: 0;
+  color: var(--ink);
   font-family: var(--font-montserrat);
-  font-size: clamp(2.6rem, 5.6vw, 5.1rem);
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
   font-weight: 700;
   letter-spacing: -0.03em;
-  line-height: 0.98;
+  line-height: 1.02;
 }
-.disena-hero-sub {
-  max-width: 540px;
-  margin: 0 0 38px;
-  color: rgba(255, 255, 255, 0.86);
-  font-size: clamp(1rem, 1.3vw, 1.14rem);
-  line-height: 1.65;
-}
-.disena-hero-actions {
-  display: flex;
-  align-items: center;
-  gap: clamp(20px, 3vw, 36px);
-  flex-wrap: wrap;
-}
-.disena-hero-link {
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-  color: #fff;
-  font-family: var(--font-montserrat);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-.disena-hero-link span {
-  color: var(--red);
-}
-.disena-hero-link:hover {
-  border-color: var(--red);
-  color: var(--red);
-}
-.disena-hero-meta {
-  position: absolute;
-  right: clamp(28px, 4vw, 78px);
-  bottom: clamp(30px, 5vh, 52px);
-  z-index: 2;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.5);
-  font-family: var(--font-montserrat);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.26em;
-  line-height: 2;
-  text-align: right;
-  text-transform: uppercase;
-}
-.disena .home-btn {
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-/* ---------- 2 · SOLUCIÓN A MEDIDA ---------- */
-.disena-meaning {
-  display: grid;
-  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
-  gap: clamp(44px, 6vw, 110px);
-  align-items: center;
-}
-.disena-meaning-copy p {
-  color: var(--gray);
-  font-size: 1.02rem;
-  line-height: 1.75;
-}
-.disena-meaning-copy p + p {
-  margin-top: 18px;
-}
-.disena-meaning-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 32px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--red);
-  color: var(--ink);
-  font-family: var(--font-montserrat);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  transition: color 0.2s ease;
-}
-.disena-meaning-link span {
-  color: var(--red);
-}
-.disena-meaning-link:hover {
-  color: var(--red);
-}
-.disena-meaning-media {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: #efeeeb;
-}
-
-/* ---------- 3 · PROCESO ---------- */
-.disena-steps {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  column-gap: clamp(28px, 4vw, 56px);
-  row-gap: clamp(34px, 4vw, 54px);
-}
-.disena-step {
-  position: relative;
-  min-width: 0;
-  padding-top: 36px;
-}
-.disena-step::before {
-  content: '';
-  position: absolute;
-  top: 6px;
-  left: 0;
-  width: 30px;
-  height: 3px;
-  background: var(--red);
-}
-.disena-step-num {
-  display: block;
-  margin-bottom: 16px;
-  color: var(--ink);
-  font-family: var(--font-montserrat);
-  font-size: clamp(1.4rem, 2vw, 1.8rem);
-  font-weight: 700;
-  line-height: 1;
-}
-.disena-step h3 {
-  margin: 0 0 10px;
-  color: var(--ink);
-  font-family: var(--font-montserrat);
-  font-size: 1.08rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-.disena-step p {
-  margin: 0;
-  color: var(--gray);
-  font-size: 0.92rem;
-  line-height: 1.6;
-  max-width: 30ch;
-}
-
-/* ---------- 4 · QUÉ PUEDES PERSONALIZAR ---------- */
-.disena-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.disena-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 13px 22px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--ink);
-  font-family: var(--font-montserrat);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color 0.22s ease, border-color 0.22s ease, background 0.22s ease;
-}
-.disena-chip::before {
-  content: '+';
-  color: var(--red);
-  font-size: 1.05rem;
-  line-height: 1;
-}
-.disena-chip:hover {
-  border-color: var(--red);
-  color: var(--red);
-}
-.disena-chip.is-active {
-  background: var(--red);
-  border-color: var(--red);
-  color: #fff;
-}
-.disena-chip.is-active::before {
-  content: '✓';
-  font-size: 0.8rem;
-}
-.disena-chip-note {
-  margin: 34px 0 0;
+.disena-lead {
   max-width: 640px;
+  margin: clamp(20px, 3vw, 32px) 0 0;
   color: var(--gray);
-  font-size: 1.02rem;
-  line-height: 1.65;
-}
-.disena-chip-note b {
-  color: var(--ink);
+  font-size: clamp(1rem, 1.3vw, 1.14rem);
+  line-height: 1.7;
 }
 
-/* ---------- 5 · EJEMPLOS ---------- */
-.disena-example {
-  margin: 0;
-  min-width: 0;
-}
-.disena-example-media {
-  position: relative;
-  display: block;
-  overflow: hidden;
-  background: #efeeeb;
-}
-.disena-example-media img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.disena-example:hover .disena-example-media img {
-  transform: scale(1.045);
-}
-.disena-example--feature .disena-example-media {
-  aspect-ratio: 21 / 9;
-}
-.disena-example--row .disena-example-media {
-  aspect-ratio: 4 / 3;
-}
-.disena-example-cap {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
-  padding-top: 14px;
-}
-.disena-example-name {
-  color: var(--ink);
-  font-family: var(--font-montserrat);
-  font-size: 0.98rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  transition: color 0.2s ease;
-}
-.disena-example-role {
-  color: var(--gray);
-  font-family: var(--font-montserrat);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-.disena-example:hover .disena-example-name {
-  color: var(--red);
-}
-.disena-examples-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(48px, 5vw, 72px) clamp(16px, 2vw, 28px);
-  margin-top: clamp(40px, 5vw, 68px);
-}
-.disena-more {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: clamp(40px, 5vw, 64px);
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--red);
-  color: var(--ink);
-  font-family: var(--font-montserrat);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  transition: color 0.2s ease;
-}
-.disena-more span {
-  color: var(--red);
-}
-.disena-more:hover {
-  color: var(--red);
-}
-
-/* ---------- 6 · DE LA IDEA AL RESULTADO ---------- */
-.disena-flow {
-  display: flex;
-  align-items: flex-start;
-  gap: clamp(12px, 2vw, 22px);
-}
-.disena-stage-wrap {
-  display: flex;
-  flex: 1 1 0;
-  align-items: center;
-  min-width: 0;
-}
-.disena-stage {
-  flex: 1 1 0;
-  min-width: 0;
-}
-.disena-stage-num {
-  display: block;
-  margin-bottom: 9px;
-  color: var(--red);
-  font-family: var(--font-montserrat);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-}
-.disena-stage-media {
-  margin: 0 0 18px;
-  overflow: hidden;
-  background: #efeeeb;
-}
-.disena-stage-media img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.disena-stage-media:hover img {
-  transform: scale(1.04);
-}
-.disena-stage-label {
-  margin: 0 0 8px;
-  color: var(--ink);
-  font-family: var(--font-montserrat);
-  font-size: 1.02rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.disena-stage-text {
-  margin: 0;
-  color: var(--gray);
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-.disena-flow-arrow {
-  flex: 0 0 auto;
-  align-self: center;
-  color: var(--red);
-  font-size: clamp(1.3rem, 2vw, 1.8rem);
-}
-
-/* ---------- 7 · ÁMBITOS ---------- */
-.disena-fields {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  column-gap: clamp(44px, 6vw, 96px);
-}
-.disena-fields > .disena-field {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 12px;
-  padding: clamp(20px, 2.4vw, 30px) 0;
+/* ---------- Secciones del formulario ---------- */
+.disena-form-section {
+  padding: clamp(56px, 7vw, 96px) 0;
   border-top: 1px solid var(--line);
 }
-.disena-fields .disena-field-num {
-  padding-top: 4px;
-  color: var(--red);
-  font-family: var(--font-montserrat);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-}
-.disena-fields .disena-field-name {
-  display: block;
-  margin-bottom: 6px;
+.disena-section-title {
+  margin: 0 0 clamp(34px, 4vw, 54px);
   color: var(--ink);
   font-family: var(--font-montserrat);
-  font-size: 1.06rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  transition: color 0.2s ease;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
-.disena-fields > .disena-field:hover .disena-field-name {
-  color: var(--red);
-}
-.disena-fields .disena-field-desc {
-  margin: 0;
-  color: var(--gray);
-  font-size: 0.92rem;
-  line-height: 1.6;
-  max-width: 42ch;
-}
-
-/* ---------- 8 · CONTACTO ---------- */
-.disena-contacto {
-  background: #ffffff;
-  scroll-margin-top: 90px;
-}
-.disena-contacto-head {
-  margin-bottom: clamp(48px, 6vw, 84px);
-  max-width: 760px;
-}
-.disena-form {
-  display: grid;
-  gap: clamp(30px, 3.2vw, 44px);
-  max-width: 880px;
-  align-items: start;
-}
-.disena-form-row {
+.disena-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(30px, 3.2vw, 44px);
+  column-gap: clamp(36px, 5vw, 72px);
+  row-gap: clamp(36px, 4vw, 52px);
 }
-.disena-form-field {
+.disena-span-2 {
+  grid-column: 1 / -1;
+}
+
+/* ---------- Campos ---------- */
+.disena-field {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
   min-width: 0;
 }
-.disena-form-field label {
-  display: block;
-  margin-bottom: 10px;
+.disena-label {
   color: var(--gray);
   font-family: var(--font-montserrat);
   font-size: 0.66rem;
@@ -9518,11 +9060,14 @@ body:not(:has(.redesign-home)) .flyout {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.disena-form-field input,
-.disena-form-field textarea,
-.disena-form-file {
+.disena-req {
+  color: var(--gray);
+  font-weight: 700;
+}
+.disena-input,
+.disena-textarea {
   width: 100%;
-  padding: 12px 0 14px;
+  padding: 10px 0 14px;
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
@@ -9531,26 +9076,81 @@ body:not(:has(.redesign-home)) .flyout {
   font-family: var(--font-sans);
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.15s ease;
 }
-.disena-form-field input:focus,
-.disena-form-field textarea:focus,
-.disena-form-file:focus-within {
+.disena-textarea {
+  min-height: 180px;
+  resize: vertical;
+  line-height: 1.6;
+}
+.disena-input:focus,
+.disena-textarea:focus {
   border-color: var(--red);
 }
-.disena-form-field textarea {
-  min-height: 130px;
-  resize: vertical;
+.disena-input:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
-.disena-form-file {
+.disena-input::placeholder,
+.disena-textarea::placeholder {
+  color: #b6b4b9;
+}
+
+/* ---------- Opciones (botones de selección) ---------- */
+.disena-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.disena-opt {
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-montserrat);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.disena-opt:hover {
+  border-color: var(--gray);
+}
+.disena-opt:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+.disena-opt.is-selected {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* ---------- Errores ---------- */
+.disena-error {
+  color: var(--red);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* ---------- Adjuntos ---------- */
+.disena-file {
   position: relative;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 18px;
+  width: 100%;
+  padding: 14px 0 16px;
+  border-bottom: 1px solid var(--line);
   cursor: pointer;
+  transition: border-color 0.15s ease;
 }
-.disena-form-file input[type='file'] {
+.disena-file:focus-within {
+  border-color: var(--red);
+}
+.disena-file input[type='file'] {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -9559,150 +9159,177 @@ body:not(:has(.redesign-home)) .flyout {
   opacity: 0;
   cursor: pointer;
 }
-.disena-form-file-btn {
-  color: var(--red);
+.disena-file-btn {
+  color: var(--ink);
   font-family: var(--font-montserrat);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  border-bottom: 1px solid var(--red);
+  padding-bottom: 2px;
 }
-.disena-form-file-name {
-  overflow: hidden;
-  min-width: 0;
+.disena-file-hint {
+  color: var(--gray);
+  font-size: 0.86rem;
+  text-align: right;
+}
+.disena-files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.disena-files li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.disena-files button {
+  padding: 2px 6px;
+  border: 0;
+  background: none;
+  color: var(--gray);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.disena-files button:hover {
+  color: var(--red);
+}
+
+/* ---------- Checkbox privacidad ---------- */
+.disena-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   color: var(--gray);
   font-size: 0.92rem;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.6;
+  cursor: pointer;
 }
-.disena-form-actions {
-  display: grid;
-  gap: 14px;
-  margin-top: 4px;
+.disena-check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+.disena-check a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+.disena-check a:hover {
+  color: var(--red);
+}
+
+/* ---------- Alerta y éxito ---------- */
+.disena-alert {
+  margin: 0;
+  color: var(--red);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.disena-success {
+  max-width: 680px;
+  padding: clamp(24px, 3vw, 40px) 0;
+}
+.disena-success h2 {
+  margin: 0 0 16px;
+  color: var(--ink);
+  font-family: var(--font-montserrat);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  letter-spacing: -0.02em;
+}
+.disena-success h2::before {
+  content: '✓ ';
+  color: var(--red);
+}
+.disena-success p {
+  margin: 0;
+  color: var(--gray);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* ---------- Acciones ---------- */
+.disena-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: clamp(40px, 5vw, 64px);
 }
 .disena-submit {
-  width: 100%;
-  justify-content: space-between;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 36px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--red);
+  color: #ffffff;
+  font-family: var(--font-montserrat);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
-.disena-form-legal {
+.disena-submit:hover {
+  background: #c02824;
+}
+.disena-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.disena-submit span {
+  transition: transform 0.2s ease;
+}
+.disena-submit:hover span {
+  transform: translateX(3px);
+}
+.disena-note {
   margin: 0;
   color: var(--gray);
   font-size: 0.8rem;
   line-height: 1.6;
+  text-align: right;
 }
-.disena-form-legal a {
-  color: var(--gray);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 0.2s ease;
-}
-.disena-form-legal a:hover {
-  color: var(--red);
-}
-.disena-form-success {
-  max-width: 880px;
-  color: var(--ink);
-  font-size: 1.02rem;
-  line-height: 1.7;
-}
-.disena-form-success::before {
-  content: '✓ Hecho.';
-  display: block;
-  margin-bottom: 12px;
-  color: var(--red);
-  font-family: var(--font-montserrat);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.form-optional {
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  color: #9a9aa2;
-  text-transform: none;
+
+/* ---------- Honeypot ---------- */
+.disena-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1024px) {
-  .disena-steps {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .disena-fields {
-    grid-template-columns: 1fr;
-  }
-  .disena-hero-meta {
-    display: none;
-  }
-  .disena-examples-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .disena-example--feature .disena-example-media {
-    aspect-ratio: 16 / 9;
-  }
-}
 @media (max-width: 720px) {
-  .disena-meaning {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
-  .disena-meaning-media {
-    aspect-ratio: 4 / 3;
-  }
-  .disena-examples-grid {
+  .disena-grid {
     grid-template-columns: 1fr;
   }
-  .disena-flow {
-    flex-direction: column;
+  .disena-actions {
+    align-items: stretch;
   }
-  .disena-stage-wrap {
-    flex-direction: column;
+  .disena-submit {
+    justify-content: space-between;
+    width: 100%;
   }
-  .disena-flow-arrow {
-    margin: 8px 0;
-    transform: rotate(90deg);
-  }
-}
-@media (max-width: 640px) {
-  .disena-hero-copy {
-    padding: clamp(64px, 12vh, 96px) clamp(20px, 5vw, 32px) 56px;
-  }
-  .disena-hero h1 {
-    font-size: clamp(2.1rem, 11vw, 2.9rem);
-  }
-  .disena-hero-media::after {
-    background: linear-gradient(180deg, rgba(12, 12, 15, 0.42) 0%, rgba(12, 12, 15, 0.26) 45%, rgba(12, 12, 15, 0.92) 100%);
-  }
-  .disena-steps {
-    grid-template-columns: 1fr;
-  }
-  .disena-steps::before {
-    display: none;
-  }
-  .disena-fields > .disena-field {
-    grid-template-columns: 36px 1fr;
-  }
-  .disena-form-row {
-    grid-template-columns: 1fr;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .disena .disena-example-media img,
-  .disena .disena-stage-media img,
-  .disena .disena-hero-link,
-  .disena .disena-chip,
-  .disena .disena-example-name,
-  .disena .disena-field-name,
-  .disena .disena-meaning-link,
-  .disena .disena-form-field input,
-  .disena .disena-form-field textarea,
-  .disena .disena-form-file {
-    transition: none;
-  }
-  .disena .disena-example-media img,
-  .disena .disena-stage-media img {
-    transform: none;
+  .disena-note {
+    text-align: left;
   }
 }
 
