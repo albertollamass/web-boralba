@@ -76,10 +76,7 @@ function TechnologyPanel() {
   return (
     <section className="servicios-technology" aria-label="Tecnología y soluciones">
       <div className="technology-wrapper">
-        <div className="technology-heading">
-          <p className="servicios-eyebrow">TECNOLOGÍA Y SOLUCIONES</p>
-          <h2>Tecnología que integra. Soluciones que se adaptan.</h2>
-        </div>
+        <p className="servicios-eyebrow">TECNOLOGÍA Y SOLUCIONES</p>
         <div className="technology-grid">
           <article className="technology-card technology-card--tridonic">
             <p className="servicios-brand-label">PARTNER TECNOLÓGICO</p>
