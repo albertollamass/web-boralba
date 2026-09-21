@@ -9361,7 +9361,7 @@ body:not(:has(.redesign-home)) .flyout {
 /* ---------- Eyebrow comun Proyectos ---------- */
 .proy-eyebrow {
   margin: 0 0 22px;
-  color: var(--proy-red);
+  color: #dd3531;
   font-family: var(--font-montserrat);
   font-size: 0.78rem;
   font-weight: 700;
@@ -9372,32 +9372,73 @@ body:not(:has(.redesign-home)) .flyout {
 
 /* ---------- Hero de pagina ---------- */
 .proy-hero {
-  padding: clamp(56px, 8vw, 112px) 0 clamp(40px, 6vw, 88px);
-  background: var(--boralba-mist);
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 82vh;
+  padding: clamp(88px, 10vw, 132px) 0;
+  background: var(--boralba-mist) url('/images/lluvia de luz.png') center / cover no-repeat;
 }
+.proy-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 8, 12, 0.74) 0%,
+      rgba(8, 8, 12, 0.46) 52%,
+      rgba(8, 8, 12, 0.22) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 8, 12, 0.42) 0%,
+      rgba(8, 8, 12, 0.2) 50%,
+      rgba(8, 8, 12, 0.46) 100%
+    );
+}
+.proy-hero .container { position: relative; z-index: 1; }
 .proy-hero .breadcrumb {
   margin-bottom: clamp(36px, 5vw, 68px);
-  color: var(--proy-gray);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.proy-hero .breadcrumb a { color: var(--proy-gray); }
-.proy-hero .breadcrumb a:hover { color: var(--proy-red); }
+.proy-hero .breadcrumb a { color: rgba(255, 255, 255, 0.78); }
+.proy-hero .breadcrumb a:hover { color: #fff; }
 .proy-hero h1 {
   max-width: 980px;
   margin: 0 0 26px;
+  color: #fff;
   font-size: clamp(3rem, 5vw, 4.5rem);
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.02;
 }
 .proy-hero-text {
-  max-width: 640px;
+  max-width: 620px;
   margin: 0;
-  color: var(--proy-gray);
-  font-size: clamp(1rem, 1.4vw, 1.16rem);
+  color: #fff;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-weight: 500;
   line-height: 1.7;
+}
+.proy-hero .proy-eyebrow,
+.proy-hero .section-label {
+  color: #dd3531 !important;
+  opacity: 1 !important;
+}
+.proy-hero h1 {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+.proy-hero .proy-hero-text,
+.proy-hero .subtitle,
+.proy-hero .description,
+.proy-hero p {
+  color: #ffffff !important;
+  opacity: 1 !important;
 }
 
 /* ---------- Pagina principal: bloques de categorias ---------- */
@@ -9934,6 +9975,7 @@ body:not(:has(.redesign-home)) .flyout {
   .proy-ed-gallery-item { margin-bottom: clamp(20px, 3vw, 32px); aspect-ratio: 4 / 3; }
 }
 @media (max-width: 640px) {
+  .proy-hero { min-height: 58vh; padding: clamp(64px, 13vw, 96px) 0; }
   .proy-hero h1 { font-size: clamp(2.1rem, 9vw, 3rem); }
   .proy-ed-hero-media { height: clamp(300px, 76vw, 430px); }
   .proy-ed-hero h1 { font-size: clamp(2rem, 8.5vw, 2.8rem); }
