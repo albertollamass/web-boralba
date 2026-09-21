@@ -431,7 +431,6 @@ export default function Productos() {
               </p>
               <div className="pc-search" ref={searchWrapRef}>
                 <form className="pc-search-bar" onSubmit={commitSearch} role="search" aria-label="Buscar en el catálogo">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
                   <input
                     ref={inputRef}
                     type="text"
@@ -443,7 +442,7 @@ export default function Productos() {
                     aria-label="Buscar productos, referencias o categorías"
                   />
                   {input && <button type="button" className="pc-search-clear" onClick={() => { setInput(''); inputRef.current?.focus() }} aria-label="Borrar búsqueda">×</button>}
-                  <button type="submit" className="pc-search-go">Buscar</button>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
                 </form>
 
                 {suggestionsVisible && (
