@@ -10318,21 +10318,50 @@ body:not(:has(.redesign-home)) .flyout {
   background: transparent;
   animation: servicio-fade .2s ease both;
 }
-.servicios-technology > .container > h2 {
-  max-width: 780px;
+.technology-wrapper {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: clamp(20px, 6vw, 24px);
+}
+.technology-heading {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+.technology-wrapper h2 {
   margin-bottom: clamp(42px, 6vw, 78px);
+  color: var(--serv-ink);
   font-size: clamp(2.6rem, 3.8vw, 3.2rem);
   font-weight: 700;
   letter-spacing: -.03em;
   line-height: 1.02;
 }
-.servicios-brands {
+@media (min-width: 600px) {
+  .technology-wrapper { padding-inline: clamp(40px, 5.5vw, 48px); }
+}
+@media (min-width: 1025px) {
+  .technology-wrapper { padding-inline: clamp(72px, 7vw, 120px); }
+}
+@media (min-width: 1521px) {
+  .technology-wrapper { padding-inline: clamp(160px, 9.5vw, 190px); }
+}
+.technology-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: clamp(80px, 7vw, 140px);
+  align-items: start;
+  width: 100%;
 }
-.servicios-brand { min-width: 0; }
-.servicios-brand--halopack {
-  padding-left: clamp(30px, 6vw, 100px);
+.technology-card {
+  width: 100%;
+  min-width: 0;
+}
+.technology-card .servicios-brand-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
 }
 .servicios-brand-label {
   margin-bottom: 18px;
@@ -10354,7 +10383,7 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-brand-image {
   display: block;
   width: 100%;
-  height: clamp(230px, 28vw, 390px);
+  height: auto;
   margin-bottom: 26px;
   object-fit: cover;
 }
@@ -10412,18 +10441,23 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .servicios-final-cta .servicios-eyebrow { color: rgba(255, 255, 255, .68); }
 .servicios-final-cta .servicios-brand-cta { color: #fff; }
+@media (max-width: 1100px) {
+  .technology-grid { gap: clamp(40px, 5vw, 64px); }
+}
 @media (max-width: 760px) {
   .servicios-hero { min-height: 58vh; padding: clamp(64px, 13vw, 96px) 0; }
   .servicios-hero h1 { font-size: clamp(2.1rem, 9vw, 3rem); }
   .servicios-technology { padding-top: 58px; }
-  .servicios-technology > .container > h2 { margin-bottom: 44px; }
-  .servicios-brands { display: block; }
-  .servicios-brand--halopack {
-    margin-top: 44px;
-    padding: 44px 0 0;
+  .technology-wrapper h2 { margin-bottom: 44px; }
+  .technology-grid {
+    grid-template-columns: 1fr;
+    row-gap: 56px;
+  }
+  .technology-card--halopack {
+    padding-top: 44px;
+    border-top: 1px solid rgba(26, 26, 30, .1);
   }
   .servicios-brand-logo { margin-bottom: 25px; }
-  .servicios-brand-image { height: min(72vw, 360px); }
   .servicios-custom { margin-top: 48px; }
 }
 @media (prefers-reduced-motion: reduce) {
