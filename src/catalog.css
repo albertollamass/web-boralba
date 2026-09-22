@@ -15,15 +15,14 @@
 
 .catalog-category {
   position: relative;
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  transition: transform .2s ease, border-color .2s ease;
 }
 
 .catalog-category:hover,
 .catalog-category:focus-visible {
   border-color: rgba(221, 53, 49, .3);
   background: #fff;
-  box-shadow: 0 16px 30px -22px rgba(45, 42, 39, .7);
-  transform: translateY(-5px);
+  transform: translateY(-3px);
 }
 
 .catalog-category-image {
@@ -99,7 +98,7 @@
 
 /* ---------- Product catalogue ---------- */
 .pc-page {
-  --pc-line: #e6e3df;
+  --pc-line: #e7e4e0;
   --pc-muted: #77736e;
   background: #fff;
 }
@@ -148,7 +147,8 @@
   margin-bottom: 22px;
   color: #fff;
   font-size: clamp(2.2rem, 3.7vw, 3.6rem);
-  letter-spacing: -.055em;
+  font-weight: 600;
+  letter-spacing: -.04em;
   white-space: nowrap;
 }
 
@@ -173,7 +173,7 @@
   padding: 0 18px;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.36);
-  border-radius: 6px;
+  border-radius: 2px;
 }
 
 .pc-search-bar:focus-within { border-color: rgba(255, 255, 255, 0.65); }
