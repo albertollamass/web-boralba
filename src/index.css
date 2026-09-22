@@ -11316,3 +11316,8 @@ body:not(:has(.redesign-home)) .flyout {
   .emp-partner-media,
   .emp-history-media { width: 100%; }
 }
+/* ---------- EMPRESA · sin líneas grises ---------- */
+.emp-wrap {
+  --emp-line: transparent;
+  --emp-line-soft: transparent;
+}
