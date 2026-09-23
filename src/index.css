@@ -9816,6 +9816,7 @@ body:not(:has(.redesign-home)) .flyout {
   aspect-ratio: 4 / 3;
   background: #efeeeb;
 }
+.proy-item--portrait .proy-item-media { aspect-ratio: 3 / 4; }
 .proy-item-media img {
   width: 100%;
   height: 100%;
@@ -11469,4 +11470,271 @@ body:not(:has(.redesign-home)) .flyout {
 .emp-wrap {
   --emp-line: transparent;
   --emp-line-soft: transparent;
+}
+
+/* ==================================================================
+   PROYECTO REPORTaje editorial · CENTRO DE PILATES
+   Estética de revista de arquitectura e interiorismo:
+   fondo blanco, tinta #171717, gris #666666 y rojo Boralba #DD3531
+   solo en etiquetas, números y detalles. Composición limpia y
+   asimétrica, proporciones originales de las imágenes.
+   ================================================================== */
+.pilates-editorial {
+  --pil-red: #dd3531;
+  --pil-red-dark: #c02824;
+  --pil-ink: #171717;
+  --pil-gray: #666666;
+  --pil-line: rgba(23, 23, 23, 0.16);
+  background: #ffffff;
+  color: var(--pil-ink);
+}
+.pil-wrap {
+  max-width: 1408px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 64px);
+}
+
+/* ---------- Etiqueta y migas ---------- */
+.pil-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: clamp(44px, 6vw, 72px);
+  font-family: var(--font-montserrat);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pil-gray);
+}
+.pil-breadcrumb a { color: var(--pil-gray); transition: color 0.2s ease; }
+.pil-breadcrumb a:hover { color: var(--pil-red); }
+.pil-eyebrow {
+  margin: 0 0 24px;
+  font-family: var(--font-montserrat);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pil-red);
+}
+.pil-num {
+  display: block;
+  margin-bottom: 16px;
+  font-family: var(--font-montserrat);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--pil-red);
+}
+
+/* ---------- 1 · Cabecera ---------- */
+.pil-hero { padding: clamp(52px, 7vw, 88px) 0 0; }
+.pil-hero h1 {
+  max-width: 14ch;
+  margin: 0 0 22px;
+  font-size: clamp(44px, 5vw, 68px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+}
+.pil-hero-sub {
+  max-width: 620px;
+  margin: 0 0 18px;
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  line-height: 1.65;
+  color: var(--pil-gray);
+}
+.pil-hero-meta {
+  margin: 0;
+  font-family: var(--font-montserrat);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pil-gray);
+}
+.pil-hero-media {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(44px, 6vw, 72px);
+}
+.pil-hero-media .pil-fig {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pil-hero-media .pil-fig img {
+  width: auto;
+  max-width: 100%;
+  max-height: 620px;
+  height: auto;
+}
+
+/* ---------- Figuras y pies de fotografía ---------- */
+.pil-fig { margin: 0; }
+.pil-fig img {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #efeeeb;
+}
+.pil-fig figcaption {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pil-line);
+  font-family: var(--font-montserrat);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  color: var(--pil-gray);
+}
+
+/* ---------- Secciones ---------- */
+.pil-section { padding-top: clamp(80px, 9vw, 96px); }
+.pil-sec-head h2,
+.pil-intro-left h2,
+.pil-acceso-copy h2,
+.pil-aux-copy h2 {
+  margin: 0 0 20px;
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+.pil-sec-head h2 { max-width: 18ch; }
+.pil-lead,
+.pil-intro-right p,
+.pil-acceso-copy p,
+.pil-aux-copy p {
+  max-width: 560px;
+  margin: 0 0 1.35em;
+  font-size: clamp(1.03rem, 1.3vw, 1.125rem);
+  line-height: 1.8;
+  color: var(--pil-gray);
+}
+.pil-lead { margin-top: clamp(20px, 3vw, 32px); }
+.pil-lead:last-child,
+.pil-intro-right p:last-child,
+.pil-acceso-copy p:last-child,
+.pil-aux-copy p:last-child { margin-bottom: 0; }
+
+/* ---------- 2 · Introducción ---------- */
+.pil-intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(48px, 7vw, 120px);
+  align-items: start;
+}
+.pil-intro-left h2 { max-width: 14ch; }
+.pil-intro-right { padding-top: clamp(8px, 2vw, 28px); }
+
+/* ---------- 3 · Las salas ---------- */
+.pil-salas-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 58fr) minmax(0, 38fr);
+  gap: 32px;
+  align-items: start;
+  margin-top: clamp(56px, 8vw, 96px);
+}
+.pil-fig--offset { margin-top: clamp(48px, 7vw, 88px); }
+
+/* ---------- 4 · El acceso ---------- */
+.pil-acceso-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 60fr) minmax(0, 32fr);
+  gap: 72px;
+  align-items: start;
+}
+.pil-acceso-media { min-width: 0; }
+.pil-acceso-copy { padding-top: clamp(8px, 2vw, 28px); }
+
+/* ---------- 5 · Recorridos y conexiones ---------- */
+.pil-gallery {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 32px);
+  align-items: start;
+  margin-top: clamp(56px, 8vw, 96px);
+}
+.pil-gallery .pil-fig { grid-column: span 6; }
+.pil-gallery .pil-gallery--top { grid-column: 1 / -1; }
+
+/* ---------- 6 · Espacios auxiliares ---------- */
+.pil-aux-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(48px, 7vw, 110px);
+  align-items: start;
+}
+.pil-aux-copy { max-width: 560px; }
+.pil-aux-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 32px);
+  align-items: start;
+  margin-top: clamp(56px, 8vw, 96px);
+}
+
+/* ---------- 7 · Cierre ---------- */
+.pil-close {
+  padding: clamp(120px, 16vw, 220px) 0 clamp(96px, 10vw, 132px);
+}
+.pil-close-inner { max-width: 760px; }
+.pil-close-statement {
+  margin: 0 0 clamp(20px, 3vw, 32px);
+  max-width: 18ch;
+  font-family: var(--font-montserrat);
+  font-size: clamp(2.2rem, 4.4vw, 3.8rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  color: var(--pil-ink);
+}
+.pil-close-question {
+  margin: 0 0 clamp(32px, 4vw, 48px);
+  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+  line-height: 1.6;
+  color: var(--pil-gray);
+}
+
+/* ---------- Responsive Pilates ---------- */
+@media (max-width: 920px) {
+  .pil-intro-grid,
+  .pil-acceso-grid,
+  .pil-aux-head { grid-template-columns: 1fr; }
+  .pil-intro-grid { gap: clamp(40px, 6vw, 64px); }
+  .pil-acceso-grid { gap: clamp(40px, 6vw, 56px); }
+  .pil-salas-grid,
+  .pil-aux-grid { grid-template-columns: 1fr; gap: 40px; }
+  .pil-fig--offset { margin-top: 0; }
+  .pil-gallery { grid-template-columns: 1fr; gap: 40px; }
+  .pil-gallery .pil-fig,
+  .pil-gallery .pil-gallery--top { grid-column: 1 / -1; }
+}
+@media (max-width: 680px) {
+  .pil-wrap { padding-inline: clamp(20px, 5vw, 24px); }
+  .pil-hero { padding-top: 64px; }
+  .pil-hero h1 { font-size: clamp(38px, 10vw, 42px); }
+  .pil-hero-media .pil-fig { align-items: stretch; }
+  .pil-hero-media .pil-fig img {
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
+  }
+  .pil-section { padding-top: clamp(64px, 9vw, 72px); }
+  .pil-sec-head h2,
+  .pil-intro-left h2,
+  .pil-acceso-copy h2,
+  .pil-aux-copy h2 { font-size: clamp(1.75rem, 8vw, 2rem); }
+  .pil-acceso-grid { gap: 32px; }
+  .pil-salas-grid,
+  .pil-aux-grid,
+  .pil-gallery { gap: 32px; }
+  .pil-lead { margin-top: 20px; }
+  .pil-close { padding: clamp(88px, 14vw, 120px) 0 clamp(72px, 10vw, 96px); }
+  .pil-close-statement { font-size: clamp(2rem, 9vw, 2.4rem); }
 }

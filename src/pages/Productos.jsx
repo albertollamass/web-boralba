@@ -117,7 +117,8 @@ export default function Productos() {
   const inputRef = useRef(null)
   const searchWrapRef = useRef(null)
   const drillRef = useRef(null)
-  const hasDrilledRef = useRef(false)
+  const productsRef = useRef(null)
+  const scrollPendingRef = useRef(false)
   const setParams = (params) => setSearchParams(params)
 
   /* Sincroniza el campo con la búsqueda "confirmada" de la URL. */
@@ -245,6 +246,7 @@ export default function Productos() {
   /* ---------- navegación ---------- */
 
   const selectCategory = (slug) => {
+    scrollPendingRef.current = true
     if (familySlugs.has(slug)) { setParams({ g: slug }); return }
     if (family) { setParams({ g: family.slug, c: slug }); return }
     const famSlug = getBreadcrumb(slug).find((item) => familySlugs.has(item.slug))?.slug
@@ -254,18 +256,19 @@ export default function Productos() {
     if (event?.preventDefault) event.preventDefault()
     const clean = input.trim()
     if (!clean) return
+    scrollPendingRef.current = true
     setInput(clean)
     setSuggestionsOpen(false)
     setParams({ q: clean })
   }
 
-  /* Al elegir una familia en la cuadrícula, lleva la atención al explorador inferior. */
+  /* Al navegar (familia, subcategoría o búsqueda), baja hasta los productos. */
   useEffect(() => {
-    if (!family) return
-    const node = drillRef.current
-    if (hasDrilledRef.current && node) node.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    hasDrilledRef.current = true
-  }, [effectiveFamilySlug, family])
+    if (!scrollPendingRef.current) return
+    scrollPendingRef.current = false
+    const node = productsRef.current || drillRef.current
+    if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [effectiveFamilySlug, c, q])
 
   /* ---------- sugerencias del buscador (datos reales en vivo) ---------- */
   const liveCategories = useMemo(() => {
@@ -316,6 +319,7 @@ export default function Productos() {
             key={category.slug}
             className={`pc-family ${family?.slug === category.slug ? 'is-active' : ''}`}
             to={{ pathname: '/productos', search: `?g=${category.slug}` }}
+            onClick={() => { scrollPendingRef.current = true }}
           >
             <span className="pc-family-media"><img src={imageForFamily(category)} alt={displayName(category)} loading="lazy" /></span>
             <span className="pc-family-copy">
@@ -339,7 +343,7 @@ export default function Productos() {
             {index === crumbItems.length - 1 ? (
               <span className="is-current">{displayName(item)}</span>
             ) : (
-              <Link to={{ pathname: '/productos', search: crumbSearch(item.slug) }}>{displayName(item)}</Link>
+              <Link to={{ pathname: '/productos', search: crumbSearch(item.slug) }} onClick={() => { scrollPendingRef.current = true }}>{displayName(item)}</Link>
             )}
           </Fragment>
         ))}
@@ -372,7 +376,7 @@ export default function Productos() {
       ))}
 
       {showProducts.visible && (
-        <section className="pc-products" aria-labelledby="pc-products-title">
+        <section className="pc-products" ref={productsRef} aria-labelledby="pc-products-title">
           <div className="pc-products-head">
             <div>
               <p className="home-eyebrow">Productos</p>
@@ -390,7 +394,7 @@ export default function Productos() {
   )
 
   const searchView = (
-    <section className="pc-search-view" aria-labelledby="pc-search-title">
+    <section className="pc-search-view" ref={productsRef} aria-labelledby="pc-search-title">
       <header className="pc-sec-head">
         <div>
           <p className="home-eyebrow">Búsqueda</p>
@@ -486,7 +490,7 @@ export default function Productos() {
                       </div>
                     )}
                     {liveProducts.total > 0 && (
-                      <button type="button" className="pc-search-dd-more" onClick={() => setParams({ q: input.trim() })}>
+                      <button type="button" className="pc-search-dd-more" onClick={() => { scrollPendingRef.current = true; setParams({ q: input.trim() }) }}>
                         Ver todos los resultados ({liveProducts.total}) <i>→</i>
                       </button>
                     )}

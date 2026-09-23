@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import Reveal from '../components/Reveal'
 import Seo from '../components/Seo'
+import ProyectoPilates from '../components/ProyectoPilates'
 import { getProjectCategory, getProject } from '../data/proyectos'
 import { SITE, canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
@@ -46,6 +47,10 @@ export default function ProyectoDetalle() {
 
   if (!category || !project) {
     return <Navigate to="/proyectos" replace />
+  }
+
+  if (project.template === 'reportaje') {
+    return <ProyectoPilates project={project} />
   }
 
   const images = project.images || []

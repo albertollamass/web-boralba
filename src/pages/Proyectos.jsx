@@ -73,14 +73,22 @@ export default function Proyectos() {
             <div className="proy-grid proy-grid--filtered" key={selectedCategory}>
               {visibleProjects.map((project, index) => (
                 <Reveal key={project.slug} delay={(index % 3) * 45} className="proy-item-reveal">
-                  <Link className="proy-item" to={`/proyectos/${project.category}/${project.slug}`}>
+                  <Link
+                    className={`proy-item${project.portraitCover ? ' proy-item--portrait' : ''}`}
+                    to={`/proyectos/${project.category}/${project.slug}`}
+                  >
                     <div className="proy-item-media">
                       <img src={project.images[0]} alt={project.name} loading="lazy" />
                     </div>
                     <div className="proy-item-body">
                       <div className="proy-item-meta">
                         <span className="proy-item-type">{getCategoryName(project.category)}</span>
-                        {project.location && <span className="proy-item-loc">{project.location}</span>}
+                        {project.location && (
+                          <span className="proy-item-loc">
+                            {project.location}
+                            {project.year ? ` · ${project.year}` : ''}
+                          </span>
+                        )}
                       </div>
                       <h2>{project.name}</h2>
                       {project.intro && <p className="proy-item-phrase">{project.intro}</p>}
