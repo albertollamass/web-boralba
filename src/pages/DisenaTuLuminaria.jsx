@@ -225,19 +225,30 @@ export default function DisenaTuLuminaria() {
       />
 
       <header className="disena-intro">
-        <div className="container">
-          <p className="disena-eyebrow">HALOPACK · Soluciones a medida</p>
-          <h1>Una luminaria adaptada a tu proyecto</h1>
+        <div className="container disena-shell">
+          <p className="disena-eyebrow">Diseña tu propia luminaria</p>
+          <h1>Creamos una solución adaptada a tu proyecto</h1>
           <p className="disena-lead">
-            Define las principales características de la luminaria que necesitas. Indícanos tus
-            requisitos y estudiaremos contigo la solución más adecuada.
+            Configura las características principales, cuéntanos qué necesitas y nuestro equipo
+            estudiará la solución más adecuada.
           </p>
+          <ol className="disena-guide" aria-hidden="true">
+            <li className="disena-guide-item">
+              <span className="disena-guide-num">01</span>Configuración
+            </li>
+            <li className="disena-guide-item">
+              <span className="disena-guide-num">02</span>Tu proyecto
+            </li>
+            <li className="disena-guide-item">
+              <span className="disena-guide-num">03</span>Datos de contacto
+            </li>
+          </ol>
         </div>
       </header>
 
       {status === 'success' ? (
         <section className="disena-form-section">
-          <div className="container">
+          <div className="container disena-shell">
             <div className="disena-success" role="status">
               <h2>Solicitud enviada</h2>
               <p>
@@ -249,9 +260,17 @@ export default function DisenaTuLuminaria() {
         </section>
       ) : (
         <form className="disena-form" onSubmit={submit} noValidate>
-          <section className="disena-form-section">
-            <div className="container">
-              <h2 className="disena-section-title">Configura tu luminaria</h2>
+          <section className="disena-form-section disena-step">
+            <div className="container disena-shell">
+              <header className="disena-step-head">
+                <span className="disena-step-num">01</span>
+                <h2 className="disena-step-title">Configura tu luminaria</h2>
+                <p className="disena-step-desc">
+                  Selecciona las características que ya conozcas. Si tienes dudas, puedes marcar
+                  «No lo sé».
+                </p>
+              </header>
+              <hr className="disena-step-rule" />
               <div className="disena-grid">
                 <div className="disena-field">
                   <span className="disena-label">
@@ -372,9 +391,17 @@ export default function DisenaTuLuminaria() {
             </div>
           </section>
 
-          <section className="disena-form-section">
-            <div className="container">
-              <h2 className="disena-section-title">Cuéntanos tu idea</h2>
+          <section className="disena-form-section disena-step">
+            <div className="container disena-shell">
+              <header className="disena-step-head">
+                <span className="disena-step-num">02</span>
+                <h2 className="disena-step-title">Cuéntanos tu idea</h2>
+                <p className="disena-step-desc">
+                  Explícanos brevemente el espacio, el uso y el efecto de luz que quieres
+                  conseguir.
+                </p>
+              </header>
+              <hr className="disena-step-rule" />
               <div className="disena-grid">
                 <div className="disena-field disena-span-2">
                   <span className="disena-label">
@@ -395,16 +422,37 @@ export default function DisenaTuLuminaria() {
 
                 <div className="disena-field disena-span-2">
                   <span className="disena-label">Adjuntar documentación</span>
-                  <label className="disena-file">
-                    <input
-                      type="file"
-                      multiple
-                      accept={ACCEPT_EXT}
-                      onChange={onFiles}
-                    />
-                    <span className="disena-file-btn">Añadir archivos</span>
-                    <span className="disena-file-hint">Plano · Boceto · Fotografía · PDF</span>
-                  </label>
+                  <div className="disena-drop-wrap">
+                    <label className="disena-drop">
+                      <input
+                        type="file"
+                        multiple
+                        accept={ACCEPT_EXT}
+                        onChange={onFiles}
+                      />
+                      <svg
+                        className="disena-drop-icon"
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <path d="M17 8l-5-5-5 5" />
+                        <path d="M12 3v13" />
+                      </svg>
+                      <span className="disena-drop-msg">
+                        Arrastra aquí tus archivos o selecciónalos desde tu equipo
+                      </span>
+                      <span className="disena-file-btn">Seleccionar archivos</span>
+                    </label>
+                    <p className="disena-drop-hint">Planos, bocetos, fotografías o PDF</p>
+                  </div>
                   {fileError && (
                     <span className="disena-error" role="alert">
                       {fileError}
@@ -431,9 +479,16 @@ export default function DisenaTuLuminaria() {
             </div>
           </section>
 
-          <section className="disena-form-section">
-            <div className="container">
-              <h2 className="disena-section-title">Tus datos</h2>
+          <section className="disena-form-section disena-step disena-step-contact">
+            <div className="container disena-shell">
+              <header className="disena-step-head">
+                <span className="disena-step-num">03</span>
+                <h2 className="disena-step-title">¿Dónde podemos contactarte?</h2>
+                <p className="disena-step-desc">
+                  Déjanos tus datos y nuestro equipo revisará tu propuesta.
+                </p>
+              </header>
+              <hr className="disena-step-rule" />
               <div className="disena-grid">
                 <div className="disena-field">
                   <span className="disena-label">
@@ -524,10 +579,9 @@ export default function DisenaTuLuminaria() {
                   {status === 'sending' ? 'Enviando…' : 'Enviar solicitud'}
                   <span aria-hidden="true">→</span>
                 </button>
-                <p className="disena-note">
-                  Tus datos se tratarán conforme a la política de privacidad. No enviamos
-                  publicidad.
-                </p>
+<p className="disena-note">
+                    Revisaremos tu proyecto y nos pondremos en contacto contigo.
+                  </p>
               </div>
             </div>
           </section>
