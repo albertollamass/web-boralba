@@ -10282,13 +10282,12 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .proy-filters {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: clamp(24px, 3.5vw, 58px);
-  overflow-x: auto;
+  justify-content: space-between;
+  gap: 10px;
   padding: 0 0 22px;
-  scrollbar-width: none;
 }
-.proy-filters::-webkit-scrollbar { display: none; }
 .proy-filter {
   flex: 0 0 auto;
   position: relative;
@@ -10297,9 +10296,9 @@ body:not(:has(.redesign-home)) .flyout {
   background: transparent;
   color: var(--proy-ink);
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: clamp(0.5rem, 0.95vw, 0.68rem);
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.07em;
   line-height: 1.2;
   text-transform: uppercase;
   cursor: pointer;
@@ -10344,7 +10343,6 @@ body:not(:has(.redesign-home)) .flyout {
   .proy-grid--filtered { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
-  .proy-filters { margin-right: -20px; padding-right: 20px; }
   .proy-grid--filtered { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {

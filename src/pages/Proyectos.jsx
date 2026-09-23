@@ -5,15 +5,16 @@ import Seo from '../components/Seo'
 import { PROJECT_CATEGORIES, PROJECTS } from '../data/proyectos'
 import { canonicalFor, breadcrumbJsonLd } from '../lib/seo'
 
-const DEFAULT_PROJECT_CATEGORY = 'residencial'
+const DEFAULT_PROJECT_CATEGORY = 'salud-y-bienestar'
 
 const FILTER_LABELS = {
-  residencial: 'Residencial',
-  'retail-comercial': 'Retail',
-  'hosteleria-restauracion': 'Hostelería',
-  'corporativo-oficinas': 'Oficinas',
-  'publico-cultural': 'Público',
-  'arquitectura-espacios-singulares': 'Singulares',
+  'salud-y-bienestar': 'Salud y bienestar',
+  'oficinas-y-espacios-de-trabajo': 'Oficinas y espacios de trabajo',
+  'comercios-y-hosteleria': 'Comercios y hostelería',
+  'soluciones-especiales': 'Soluciones especiales',
+  'espacios-publicos-y-educativos': 'Espacios públicos y educativos',
+  'exterior-y-fachadas': 'Exterior y fachadas',
+  viviendas: 'Viviendas',
 }
 
 export default function Proyectos() {
@@ -26,7 +27,7 @@ export default function Proyectos() {
     <div className="proyectos-redesign">
       <Seo
         title="Proyectos de iluminación LED en espacios reales"
-        description="Selección de proyectos Boralba: residencial, retail, hostelería, oficinas, cultura y arquitectura singular. Iluminación LED aplicada a espacios reales."
+        description="Selección de proyectos Boralba: salud y bienestar, oficinas, comercios, hostelería, espacios públicos y viviendas. Iluminación LED aplicada a espacios reales."
         path="/proyectos"
         jsonLd={breadcrumbJsonLd([
           { name: 'Home', url: canonicalFor('/') },

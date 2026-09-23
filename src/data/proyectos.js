@@ -2,46 +2,53 @@ const BASE = `${import.meta.env.BASE_URL}images/proyectos/`
 
 export const PROJECT_CATEGORIES = [
   {
-    slug: 'residencial',
-    name: 'Residencial',
-    tagline: 'Luz para habitar: hogares donde la iluminación acompaña el día a día.',
-    intro: 'Proyectos de iluminación para viviendas y espacios del hogar, donde la luz se diseña para acompañar cada momento y realzar la arquitectura interior.',
-    image: `${BASE}chalet_pozuelo.png`,
+    slug: 'salud-y-bienestar',
+    name: 'Salud y bienestar',
+    tagline: 'Luz que cuida: confort visual para espacios asistenciales y de bienestar.',
+    intro: 'Espacios asistenciales y de bienestar donde la iluminación aporta calma, confort visual y un ambiente acogedor.',
+    image: `${BASE}centro_medico_1.jpg`,
   },
   {
-    slug: 'retail-comercial',
-    name: 'Retail & Comercial',
-    tagline: 'La luz como herramienta de presentación del producto y de la marca.',
-    intro: 'Espacios comerciales donde la iluminación define el recorrido, presenta el producto y construye una experiencia de compra reconocible.',
-    image: `${BASE}Madrid-Sur1.jpg`,
-  },
-  {
-    slug: 'hosteleria-restauracion',
-    name: 'Hostelería & Restauración',
-    tagline: 'Atmósferas propias y confort visual para hoteles y espacios de restauración.',
-    intro: 'Hoteles y espacios de restauración donde la iluminación crea ambiente, confort y un carácter propio que invita a quedarse.',
-    image: `${BASE}jc-santo-domingo-1.jpg`,
-  },
-  {
-    slug: 'corporativo-oficinas',
-    name: 'Corporativo & Oficinas',
+    slug: 'oficinas-y-espacios-de-trabajo',
+    name: 'Oficinas y espacios de trabajo',
     tagline: 'Iluminación equilibrada que cuida el bienestar y la efectividad en el trabajo.',
-    intro: 'Espacios de trabajo e institucionales con una iluminación uniforme y confortable, pensada para quien los utiliza cada día.',
+    intro: 'Espacios de trabajo con una iluminación uniforme y confortable, pensada para quien los utiliza cada día.',
     image: `${BASE}oficinas.jpg`,
   },
   {
-    slug: 'publico-cultural',
-    name: 'Público & Cultural',
+    slug: 'comercios-y-hosteleria',
+    name: 'Comercios y hostelería',
+    tagline: 'La luz como herramienta de marca, producto y atmósfera.',
+    intro: 'Comercios, hoteles y espacios de restauración donde la iluminación define el recorrido, presenta el producto y crea ambiente.',
+    image: `${BASE}Madrid-Sur1.jpg`,
+  },
+  {
+    slug: 'soluciones-especiales',
+    name: 'Soluciones especiales',
+    tagline: 'Proyectos donde la luz se integra en la propia arquitectura.',
+    intro: 'Intervenciones a medida en las que la iluminación forma parte del proyecto, poniendo en escena volumen, material y lugar.',
+    image: `${BASE}obra_panel_led.png`,
+  },
+  {
+    slug: 'espacios-publicos-y-educativos',
+    name: 'Espacios públicos y educativos',
     tagline: 'La luz al servicio de la cultura, la ciudad y quienes la habitan.',
-    intro: 'Equipamientos culturales y espacios públicos donde la iluminación aporta identidad, seguridad y presencia al entorno urbano.',
+    intro: 'Equipamientos culturales, educativos y espacios públicos donde la iluminación aporta identidad, seguridad y presencia al entorno urbano.',
     image: `${BASE}centro_cultural_antonio_lopez_1.jpg`,
   },
   {
-    slug: 'arquitectura-espacios-singulares',
-    name: 'Arquitectura & Espacios Singulares',
-    tagline: 'Proyectos donde la luz dialoga con la arquitectura y su carácter.',
-    intro: 'Intervenciones singulares en las que la iluminación forma parte del proyecto arquitectónico, poniendo en escena volumen, material y lugar.',
+    slug: 'exterior-y-fachadas',
+    name: 'Exterior y fachadas',
+    tagline: 'La arquitectura exterior puesta en escena con luz.',
+    intro: 'Iluminación de exteriores y fachadas que realza la arquitectura y acompaña el entorno durante la noche.',
     image: `${BASE}torre_consuerga_home.png`,
+  },
+  {
+    slug: 'viviendas',
+    name: 'Viviendas',
+    tagline: 'Luz para habitar: hogares donde la iluminación acompaña el día a día.',
+    intro: 'Proyectos de iluminación para viviendas, donde la luz se diseña para acompañar cada momento y realzar la arquitectura interior.',
+    image: `${BASE}chalet_pozuelo.png`,
   },
 ]
 
@@ -130,7 +137,7 @@ export const PROJECTS = [
     slug: 'hotel-rural-torre-de-consuegra',
     name: 'Hotel Rural Torre de Consuegra',
     location: 'Consuegra, Toledo',
-    category: 'hosteleria-restauracion',
+    category: 'comercios-y-hosteleria',
     type: 'Bañadores de pared',
     intro: 'Luz cálida que dialoga con el carácter histórico de la estancia.',
     images: [
@@ -149,7 +156,7 @@ export const PROJECTS = [
     slug: 'tunel-calle-damas',
     name: 'Túnel Calle Damas',
     location: 'Calle Damas',
-    category: 'publico-cultural',
+    category: 'espacios-publicos-y-educativos',
     type: 'Bañadores de pared',
     intro: 'Un paso urbano que se transforma en elemento luminoso.',
     images: [
@@ -168,7 +175,7 @@ export const PROJECTS = [
     slug: 'centro-medico',
     name: 'Centro Médico',
     location: '',
-    category: 'corporativo-oficinas',
+    category: 'salud-y-bienestar',
     type: 'Tiras LED y perfiles',
     intro: 'Líneas de luz integradas para un ambiente asistencial uniforme y confortable.',
     images: [
@@ -187,7 +194,7 @@ export const PROJECTS = [
     slug: 'centro-cultural-antonio-lopez',
     name: 'Centro Cultural Antonio López',
     location: '',
-    category: 'publico-cultural',
+    category: 'espacios-publicos-y-educativos',
     type: 'Neón flex LED',
     intro: 'Neón flex LED que firma la identidad luminosa del equipamiento.',
     images: [
@@ -206,7 +213,7 @@ export const PROJECTS = [
     slug: 'centro-comercial-madrid-sur',
     name: 'Centro Comercial Madrid Sur',
     location: 'Madrid',
-    category: 'retail-comercial',
+    category: 'comercios-y-hosteleria',
     type: 'Bañadores de pared',
     intro: 'Luz uniforme y eficiente para un gran espacio de tránsito.',
     images: [
@@ -225,7 +232,7 @@ export const PROJECTS = [
     slug: 'hotel-jc-santo-domingo',
     name: 'Hotel JC Santo Domingo',
     location: 'A Coruña',
-    category: 'hosteleria-restauracion',
+    category: 'comercios-y-hosteleria',
     type: 'Bañadores de pared',
     intro: 'Bañadores de pared para unas zonas comunes cálidas y elegantes.',
     images: [
@@ -242,7 +249,7 @@ export const PROJECTS = [
     slug: 'obra-panel-led-flexible',
     name: 'Obra con panel LED flexible',
     location: '',
-    category: 'arquitectura-espacios-singulares',
+    category: 'soluciones-especiales',
     type: 'Paneles LED flexibles',
     intro: 'Paneles LED flexibles integrados en la arquitectura de la obra.',
     images: [
@@ -259,7 +266,7 @@ export const PROJECTS = [
     slug: 'chalet-en-pozuelo-de-alarcon',
     name: 'Chalet en Pozuelo de Alarcón',
     location: 'Pozuelo de Alarcón, Madrid',
-    category: 'residencial',
+    category: 'viviendas',
     type: '',
     intro: 'Iluminación cálida y funcional para el día a día del hogar.',
     images: [
@@ -276,7 +283,7 @@ export const PROJECTS = [
     slug: 'torre-consuegra-iluminacion-monumental',
     name: 'Torre Consuegra',
     location: 'Consuegra, Toledo',
-    category: 'arquitectura-espacios-singulares',
+    category: 'exterior-y-fachadas',
     type: 'Iluminación monumental · Arquitectura exterior',
     intro: 'La arquitectura exterior puesta en escena con luz.',
     images: [
