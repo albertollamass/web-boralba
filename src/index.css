@@ -10448,7 +10448,7 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-nav {
   display: flex;
   gap: clamp(8px, 1.4vw, 22px);
-  padding-bottom: 20px;
+  padding-bottom: 8px;
 }
 .servicios-nav::-webkit-scrollbar { display: none; }
 .servicios-nav-item {
@@ -10490,9 +10490,9 @@ body:not(:has(.redesign-home)) .flyout {
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   grid-template-rows: auto auto;
   column-gap: clamp(32px, 7vw, 120px);
-  row-gap: clamp(34px, 5vw, 72px);
-  min-height: 650px;
-  padding-top: clamp(42px, 6vw, 84px);
+  row-gap: clamp(24px, 3vw, 44px);
+  min-height: 500px;
+  padding-top: clamp(20px, 3vw, 40px);
   animation: servicio-fade .2s ease both;
 }
 @keyframes servicio-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -10507,25 +10507,25 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .servicio-panel h2 {
   max-width: 12ch;
-  margin-bottom: 25px;
-  font-size: clamp(2.2rem, 3.4vw, 3.2rem);
+  margin-bottom: 16px;
+  font-size: clamp(2rem, 3vw, 2.9rem);
   font-weight: 700;
   letter-spacing: -.03em;
   line-height: 1;
 }
 .servicio-intro {
   max-width: 35ch;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   color: var(--serv-ink);
-  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
   line-height: 1.45;
 }
 .servicio-text {
   max-width: 43ch;
-  margin-bottom: 34px;
+  margin-bottom: 22px;
   color: var(--serv-gray);
-  font-size: .98rem;
-  line-height: 1.75;
+  font-size: .96rem;
+  line-height: 1.7;
 }
 .servicio-cta {
   display: inline-flex;
@@ -10541,7 +10541,7 @@ body:not(:has(.redesign-home)) .flyout {
 .servicio-cta span { color: var(--serv-red); transition: transform .2s ease; }
 .servicio-cta:hover { color: var(--serv-red); }
 .servicio-cta:hover span { transform: translateX(4px); }
-.servicio-panel-media { grid-column: 2; grid-row: 1 / span 2; min-height: 500px; margin: 0; }
+.servicio-panel-media { grid-column: 2; grid-row: 1 / span 2; min-height: 400px; margin: 0; }
 .servicio-panel-media img,
 .servicios-image-placeholder { display: block; width: 100%; height: 100%; object-fit: cover; background: #efeeeb; }
 .servicios-image-placeholder {
@@ -10559,9 +10559,9 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-image-placeholder small { font-family: var(--font-montserrat); text-transform: uppercase; }
 .servicios-image-placeholder span { font-size: .72rem; font-weight: 700; letter-spacing: .15em; }
 .servicios-image-placeholder small { max-width: 260px; color: var(--serv-gray); font-size: .7rem; letter-spacing: .08em; line-height: 1.5; }
-.servicio-actions { grid-column: 1; align-self: end; padding-top: 22px; }
-.servicio-actions-label { margin-bottom: 17px; color: var(--serv-gray); font-size: .68rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
-.servicio-actions ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.servicio-actions { grid-column: 1; align-self: end; padding-top: 14px; }
+.servicio-actions-label { margin-bottom: 12px; color: var(--serv-gray); font-size: .68rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+.servicio-actions ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
 .servicio-actions li { color: var(--serv-ink); font-size: .92rem; line-height: 1.4; }
 .servicio-actions li::before { display: inline-block; width: 22px; color: var(--serv-red); content: '—'; }
 .servicio-note { margin: 24px 0 0; color: var(--serv-gray); font-size: .75rem; line-height: 1.5; }
