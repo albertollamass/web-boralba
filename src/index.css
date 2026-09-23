@@ -10588,7 +10588,7 @@ body:not(:has(.redesign-home)) .flyout {
 
 /* Tecnologia y marca: dos columnas abiertas, sin tarjetas */
 .servicios-technology {
-  padding: clamp(58px, 8vw, 112px) 0 clamp(78px, 10vw, 144px);
+  padding: clamp(20px, 3vw, 40px) 0 clamp(60px, 8vw, 110px);
   background: transparent;
   animation: servicio-fade .2s ease both;
 }
