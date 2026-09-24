@@ -11,7 +11,7 @@ export default function ProyectoEditorial({ project }) {
   const hero = images[0]
   const b1 = images[1]
   const b2Photos = [images[2], images[3]].filter(Boolean)
-  const carousel = images.slice(4)
+  const carousel = project.gallery || images.slice(4)
   const metaParts = [project.location, project.year].filter(Boolean)
 
   return (

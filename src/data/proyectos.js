@@ -71,6 +71,8 @@ const elProyecto = {
     'Vivienda unifamiliar donde la iluminación se diseña para acompañar el día a día de la casa y realzar cada espacio del hogar.',
   'torre-consuegra-iluminacion-monumental':
     'Iluminación exterior de la Torre de Consuegra, poniendo en valor un elemento arquitectónico singular durante la noche.',
+  'hotel-jc-santo-domingo-exteriores':
+    'Iluminación exterior del Hotel JC Santo Domingo, donde la fachada cobra presencia y carácter durante la noche, convirtiendo el acceso del hotel en un elemento reconocible de la ciudad.',
 }
 
 const laSolucion = {
@@ -92,6 +94,8 @@ const laSolucion = {
     'Diseño de luz orientado a crear ambientes cálidos y funcionales, integrando la iluminación de forma discreta en la arquitectura interior de la vivienda.',
   'torre-consuegra-iluminacion-monumental':
     'Puesta en escena de la arquitectura mediante luz exterior, acentuando la volumetría y la textura del monumento durante la noche.',
+  'hotel-jc-santo-domingo-exteriores':
+    'Bañadores de pared orientados a acentuar la volumetría y los materiales de la fachada con un trazo limpio y uniforme, señalizando con luz el acceso del hotel.',
 }
 
 const iluminacion = {
@@ -113,6 +117,8 @@ const iluminacion = {
     'Solución a medida para cada estancia, combinando luz general y luz de acento.',
   'torre-consuegra-iluminacion-monumental':
     'Iluminación exterior de acento para arquitectura monumental.',
+  'hotel-jc-santo-domingo-exteriores':
+    'Luz de acento en fachada con bañadores de pared, resaltando arquitectura y acceso con una temperatura de color cálida.',
 }
 
 const control = {
@@ -130,6 +136,8 @@ const control = {
     'Ajuste y puesta en marcha de la solución de iluminación.',
   'torre-consuegra-iluminacion-monumental':
     'Programación y puesta en marcha de la iluminación exterior del monumento.',
+  'hotel-jc-santo-domingo-exteriores':
+    'Programación y puesta en marcha de la iluminación exterior del hotel.',
 }
 
 export const PROJECTS = [
@@ -325,6 +333,32 @@ export const PROJECTS = [
     laSolucion: laSolucion['torre-consuegra-iluminacion-monumental'],
     iluminacion: iluminacion['torre-consuegra-iluminacion-monumental'],
     control: control['torre-consuegra-iluminacion-monumental'],
+  },
+  {
+    slug: 'hotel-jc-santo-domingo-exteriores',
+    name: 'Hotel JC Santo Domingo',
+    location: 'Madrid',
+    category: 'exterior-y-fachadas',
+    type: 'Iluminación de fachada',
+    intro: 'La fachada del hotel puesta en escena con luz.',
+    images: [
+      `${BASE}hotel_jc_fachada_1.png`,
+      `${BASE}hotel_jc_fachada_2.png`,
+      `${BASE}hotel_jc_fachada_3.png`,
+      `${BASE}hotel_jc_fachada_4.png`,
+    ],
+    gallery: [
+      `${BASE}hotel_jc_fachada_1.png`,
+      `${BASE}hotel_jc_fachada_2.png`,
+      `${BASE}hotel_jc_fachada_3.png`,
+      `${BASE}hotel_jc_fachada_4.png`,
+    ],
+    year: null,
+    productos: ['Bañadores de pared'],
+    elProyecto: elProyecto['hotel-jc-santo-domingo-exteriores'],
+    laSolucion: laSolucion['hotel-jc-santo-domingo-exteriores'],
+    iluminacion: iluminacion['hotel-jc-santo-domingo-exteriores'],
+    control: control['hotel-jc-santo-domingo-exteriores'],
   },
 ]
 
