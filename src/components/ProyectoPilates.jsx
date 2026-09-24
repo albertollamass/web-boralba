@@ -1,28 +1,24 @@
 import { Link } from 'react-router-dom'
 import Reveal from '../components/Reveal'
 import Seo from '../components/Seo'
+import PilGallery from '../components/PilGallery'
 import { SITE, canonicalFor, breadcrumbJsonLd } from '../lib/seo'
-
-function PilFigure({ src, alt, caption, className = '' }) {
-  return (
-    <figure className={`pil-fig${className ? ' ' + className : ''}`}>
-      {src ? <img src={src} alt={alt} loading="lazy" /> : null}
-      {caption ? <figcaption>{caption}</figcaption> : null}
-    </figure>
-  )
-}
 
 export default function ProyectoPilates({ project }) {
   const images = project.images || []
-  const [hero, salaA, salaB, entrada, pasillo, pasillo2, escaleras, bano, garajeA, garajeB] = images
+  const [salaPrincipal, sala, sala2, entrada, pasillo, pasillo2, escaleras, bano, garajeA, garajeB] = images
+  const gallery = [sala2, pasillo2, escaleras, bano, garajeA, garajeB]
 
   return (
     <div className="pilates-editorial">
       <Seo
         title={`${project.name} — Proyecto de iluminación`}
-        description={project.intro || project.subtitle || `Proyecto de iluminación ${project.name} de Boralba Lighting.`}
+        description={
+          'Proyecto de iluminación para un centro de pilates en Madrid. La luz acompaña el movimiento ' +
+          'y crea una atmósfera equilibrada, acogedora y visualmente continua.'
+        }
         path={`/proyectos/${project.category}/${project.slug}`}
-        image={hero ? `${SITE.url}/${String(hero).replace(/^\//, '')}` : undefined}
+        image={sala ? `${SITE.url}/${String(sala).replace(/^\//, '')}` : undefined}
         jsonLd={[
           breadcrumbJsonLd([
             { name: 'Home', url: canonicalFor('/') },
@@ -34,191 +30,86 @@ export default function ProyectoPilates({ project }) {
             '@type': 'Article',
             headline: project.name,
             description: project.intro || project.subtitle || '',
-            image: hero ? `${SITE.url}/${String(hero).replace(/^\//, '')}` : undefined,
+            image: sala ? `${SITE.url}/${String(sala).replace(/^\//, '')}` : undefined,
             author: { '@type': 'Organization', name: SITE.legalName },
           },
         ]}
       />
 
-      {/* ============ 1 · CABECERA ============ */}
-      <section className="pil-hero">
-        <div className="pil-wrap">
-          <nav className="pil-breadcrumb" aria-label="Ruta de navegación">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <Link to="/proyectos">Proyectos</Link>
-            <span>/</span>
-            <span>{project.name}</span>
-          </nav>
-          <Reveal>
-            <p className="pil-eyebrow">PROYECTO · SALUD Y BIENESTAR</p>
+      {/* ============ 1 · HERO ============ */}
+      <section className="pil-cover">
+        <Reveal variant="none" className="pil-cover-frame">
+          <img className="pil-cover-img" src={sala} alt="Centro de Pilates, Madrid" />
+          <div className="pil-cover-copy">
             <h1>Centro de Pilates</h1>
-            <p className="pil-hero-sub">{project.subtitle}</p>
-            <p className="pil-hero-meta">Madrid — 2026</p>
-          </Reveal>
-          <Reveal variant="none" className="pil-hero-media">
-            <PilFigure
-              src={hero}
-              alt="Sala principal del Centro de Pilates, Madrid"
-              caption="Sala principal · Centro de Pilates, Madrid"
-            />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ============ 2 · INTRODUCCIÓN ============ */}
-      <section className="pil-section pil-intro">
-        <div className="pil-wrap">
-          <div className="pil-intro-grid">
-            <Reveal className="pil-intro-left">
-              <span className="pil-num">01</span>
-              <h2>Una iluminación que acompaña al espacio</h2>
-            </Reveal>
-            <Reveal delay={80} className="pil-intro-right">
-              <p>
-                El proyecto de iluminación de este centro de pilates en Madrid se plantea como parte de
-                la experiencia del espacio. La luz acompaña el recorrido desde la entrada hasta las salas
-                de actividad, creando una atmósfera equilibrada, acogedora y visualmente continua.
-              </p>
-              <p>
-                Cada zona responde a una necesidad diferente: una iluminación confortable en las salas,
-                una orientación clara en pasillos y escaleras y soluciones funcionales en las áreas
-                auxiliares.
-              </p>
-            </Reveal>
+            <p>SALUD Y BIENESTAR</p>
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      {/* ============ 3 · LAS SALAS ============ */}
-      <section className="pil-section pil-salas">
-        <div className="pil-wrap">
-          <Reveal className="pil-sec-head">
-            <span className="pil-num">02</span>
-            <h2>Luz para concentrarse, respirar y moverse</h2>
-            <p className="pil-lead">
-              En las salas, la iluminación se integra de forma discreta para favorecer una sensación de
-              calma y amplitud. La distribución de la luz permite mantener un ambiente cómodo y uniforme,
-              adecuado para la práctica y el movimiento.
-            </p>
-          </Reveal>
-          <Reveal variant="none" className="pil-salas-grid">
-            <PilFigure
-              src={salaA}
-              alt="Sala de actividad con iluminación integrada"
-              caption="Sala de actividad · Iluminación integrada"
-            />
-            <PilFigure
-              src={salaB}
-              alt="Detalle de la iluminación del espacio"
-              caption="Detalle de la iluminación del espacio"
-              className="pil-fig--offset"
-            />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ============ 4 · EL ACCESO ============ */}
-      <section className="pil-section pil-acceso">
-        <div className="pil-wrap">
-          <div className="pil-acceso-grid">
-            <Reveal variant="none" className="pil-acceso-media">
-              <PilFigure
-                src={entrada}
-                alt="Panel LED flexible integrado en la entrada"
-                caption="Panel LED flexible integrado en la entrada"
-              />
-            </Reveal>
-            <Reveal delay={80} className="pil-acceso-copy">
-              <span className="pil-num">03</span>
-              <h2>Una entrada con identidad propia</h2>
-              <p>
-                En el acceso, la superficie de iluminación LED flexible funciona como un elemento visual
-                de bienvenida. La luz se incorpora a la arquitectura y ayuda a definir el carácter del
-                centro desde el primer contacto con el espacio.
+      {/* ============ 2 · BLOQUE 01 · PRESENTACIÓN ============ */}
+      <section className="pil-block pil-b1">
+        <div className="container">
+          <Reveal variant="none" className="pil-b1-grid">
+            <div className="pil-b1-copy">
+              <p className="pil-b1-label">Proyecto · Salud y bienestar</p>
+              <h2>Luz que acompaña el movimiento</h2>
+              <p className="pil-b1-p">
+                Este proyecto de iluminación para un centro de pilates en Madrid se plantea como parte de
+                la experiencia del espacio. La luz acompaña el movimiento y contribuye a crear una
+                atmósfera equilibrada, acogedora y visualmente continua.
               </p>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ 5 · RECORRIDOS Y CONEXIONES ============ */}
-      <section className="pil-section pil-recorridos">
-        <div className="pil-wrap">
-          <Reveal className="pil-sec-head">
-            <span className="pil-num">04</span>
-            <h2>Continuidad entre los distintos espacios</h2>
-            <p className="pil-lead">
-              La iluminación de pasillos y escaleras mantiene la continuidad visual del proyecto y
-              facilita una circulación clara. El tratamiento de estas zonas conecta las distintas
-              estancias sin romper la atmósfera general del centro.
-            </p>
-          </Reveal>
-          <Reveal variant="none" className="pil-gallery">
-            <PilFigure
-              src={pasillo}
-              alt="Iluminación del pasillo"
-              caption="Iluminación del pasillo"
-              className="pil-gallery--top"
-            />
-            <PilFigure
-              src={pasillo2}
-              alt="Continuidad lumínica entre estancias"
-              caption="Continuidad lumínica entre estancias"
-            />
-            <PilFigure
-              src={escaleras}
-              alt="Iluminación de la zona de escaleras"
-              caption="Iluminación de la zona de escaleras"
-            />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ============ 6 · ESPACIOS AUXILIARES ============ */}
-      <section className="pil-section pil-aux">
-        <div className="pil-wrap">
-          <div className="pil-aux-head">
-            <Reveal className="pil-aux-copy">
-              <span className="pil-num">05</span>
-              <h2>Funcionalidad en cada zona</h2>
-              <p>
-                El proyecto se extiende también a los espacios auxiliares. En baños y garaje, la
-                iluminación responde a criterios funcionales y de visibilidad, manteniendo una estética
-                coherente con el resto de la intervención.
+              <p className="pil-b1-p">
+                Cada zona responde a una necesidad diferente, manteniendo un mismo lenguaje desde las
+                salas de actividad hasta las áreas de circulación y los espacios auxiliares.
               </p>
-            </Reveal>
-            <Reveal variant="none" delay={80} className="pil-aux-media">
-              <PilFigure src={bano} alt="Iluminación del baño" caption="Iluminación del baño" />
-            </Reveal>
-          </div>
-          <Reveal variant="none" className="pil-aux-grid">
-            <PilFigure
-              src={garajeA}
-              alt="Iluminación funcional del garaje"
-              caption="Iluminación funcional del garaje"
-            />
-            <PilFigure
-              src={garajeB}
-              alt="Distribución de luz en la zona de aparcamiento"
-              caption="Distribución de luz en la zona de aparcamiento"
-            />
+              <p className="pil-b1-meta">Madrid · 2026</p>
+            </div>
+            <img className="pil-b1-img" src={salaPrincipal} alt="Sala de pilates" loading="lazy" />
           </Reveal>
         </div>
       </section>
 
-      {/* ============ 7 · CIERRE ============ */}
+      {/* ============ 3 · BLOQUE 02 · DETALLES ============ */}
+      <section className="pil-block pil-b2">
+        <div className="container">
+          <Reveal variant="none" className="pil-b2-grid">
+            <div className="pil-b2-media">
+              <img className="pil-b2-img" src={entrada} alt="Pantalla LED flexible de la entrada" loading="lazy" />
+              <img className="pil-b2-img" src={pasillo} alt="Iluminación del pasillo" loading="lazy" />
+            </div>
+            <div className="pil-b2-copy">
+              <h2>Detalles que construyen el recorrido</h2>
+              <p>
+                En el acceso, la iluminación LED flexible crea un elemento visual de bienvenida y aporta
+                identidad al espacio. A partir de este punto, las líneas de luz acompañan los recorridos
+                y conectan las distintas estancias de una forma clara y continua.
+              </p>
+              <p>
+                La iluminación se integra en la arquitectura sin ocupar un protagonismo excesivo,
+                manteniendo una sensación de calma y coherencia en todo el centro.
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ 4 · BLOQUE 03 · CARRUSEL ============ */}
+      <section className="pil-block pil-b3">
+        <div className="container">
+          <PilGallery images={gallery} />
+        </div>
+      </section>
+
+      {/* ============ 5 · CIERRE ============ */}
       <section className="pil-close">
-        <div className="pil-wrap">
-          <Reveal className="pil-close-inner">
-            <p className="pil-close-statement">
-              La luz conecta cada espacio y acompaña toda la experiencia del centro.
-            </p>
-            <p className="pil-close-question">¿Tienes un proyecto de iluminación?</p>
+        <div className="container">
+          <div className="pil-close-inner">
+            <p className="pil-close-text">¿Tienes un proyecto de iluminación?</p>
             <Link to="/contacto" className="home-btn home-btn--red">
               Cuéntanos tu proyecto
             </Link>
-          </Reveal>
+          </div>
         </div>
       </section>
     </div>

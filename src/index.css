@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --color-bg: #ffffff;
   --color-surface: #f4f4f5;
   --color-surface-2: #e4e4e7;
@@ -2036,7 +2036,7 @@ p {
 .catalog-category-image { display: block; aspect-ratio: 1; overflow: hidden; border-radius: 2px; background: #f0eeeb; }
 .catalog-category-image img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; }
 .catalog-category > span:last-of-type { display: block; padding: 12px 10px 0; font-size: .78rem; font-weight: 700; line-height: 1.25; }
-.catalog-category::after { content: '→'; position: absolute; right: 10px; bottom: 14px; color: var(--boralba-red); font-size: .95rem; opacity: 0; transform: translateX(-4px); transition: opacity .2s ease, transform .2s ease; }
+.catalog-category::after { content: 'â†’'; position: absolute; right: 10px; bottom: 14px; color: var(--boralba-red); font-size: .95rem; opacity: 0; transform: translateX(-4px); transition: opacity .2s ease, transform .2s ease; }
 .catalog-category:hover::after, .catalog-category:focus-visible::after { opacity: 1; transform: translateX(0); }
 .catalog-results { padding-top: 60px; scroll-margin-top: 75px; }
 .catalog-results-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; border-top: 1px solid var(--boralba-line); }
@@ -2109,7 +2109,7 @@ p {
   .subcategory-product-copy h3 { font-size: .88rem; }
 }
 
-/* Filtros del catálogo: una línea amplia en escritorio y panel en móvil. */
+/* Filtros del catÃ¡logo: una lÃ­nea amplia en escritorio y panel en mÃ³vil. */
 .catalog-filter-toggle,
 .catalog-filter-backdrop,
 .catalog-filter-head { display: none; }
@@ -2438,7 +2438,7 @@ p {
 }
 
 .checklist li::before {
-  content: 'âœ“';
+  content: 'Ã¢Å“â€œ';
   position: absolute;
   left: 0;
   color: var(--color-accent-dark);
@@ -2468,9 +2468,9 @@ p {
 }
 
 /* ================================================================
-   HOME — Presentación interactiva premium
+   HOME â€” PresentaciÃ³n interactiva premium
    Identidad Boralba: blanco roto, gris oscuro, negro y rojo #DD3531.
-   Tipografía Montserrat. Movimiento continuo y elegante por scroll.
+   TipografÃ­a Montserrat. Movimiento continuo y elegante por scroll.
    ================================================================ */
 
 /* ---------- Sistemas de movimiento ---------- */
@@ -2550,7 +2550,7 @@ p {
   padding: 0 1.4rem;
 }
 .marquee-item::after {
-  content: '◆';
+  content: 'â—†';
   margin-left: 2.8rem;
   font-size: 0.5em;
   vertical-align: middle;
@@ -2571,7 +2571,7 @@ p {
   .marquee-track { animation: none; }
 }
 
-/* ---------- Cabeceras de sección con número ---------- */
+/* ---------- Cabeceras de secciÃ³n con nÃºmero ---------- */
 .ph.section-head,
 .ph.section-head.ph--light {
   text-align: center;
@@ -2629,12 +2629,12 @@ p {
 }
 .ph-eyebrow--light .ph-no { background: var(--boralba-red); }
 
-/* ---------- Estructura de sección ---------- */
+/* ---------- Estructura de secciÃ³n ---------- */
 .home .section { padding-block: clamp(68px, 9vw, 120px); }
 .text-center { text-align: center; }
 
 /* ================================================================
-   1. HERO — cinematográfico
+   1. HERO â€” cinematogrÃ¡fico
    ================================================================ */
 .hero-home {
   position: relative;
@@ -2760,7 +2760,7 @@ p {
 }
 
 /* ================================================================
-   3. CATEGORÍAS — rejilla bento flotante
+   3. CATEGORÃAS â€” rejilla bento flotante
    ================================================================ */
 .home-categories {
   background: var(--boralba-mist);
@@ -2844,7 +2844,7 @@ p {
 .cat-card:hover .cat-card-link span { transform: translateX(5px); }
 
 /* ================================================================
-   4. FAMILIAS — carrusel cover flow sobre escenario oscuro
+   4. FAMILIAS â€” carrusel cover flow sobre escenario oscuro
    ================================================================ */
 .home-families {
   background: #141416;
@@ -3061,7 +3061,7 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   6. VALUE PROP — dividida en dos con profundidad
+   6. VALUE PROP â€” dividida en dos con profundidad
    ================================================================ */
 .home-value {
   background: #fff;
@@ -3145,7 +3145,7 @@ background: var(--color-surface-2);
 @media (prefers-reduced-motion: reduce) { .float { animation: none; } }
 
 /* ================================================================
-   7. APLICACIONES — strip horizontal con scroll-snap
+   7. APLICACIONES â€” strip horizontal con scroll-snap
    ================================================================ */
 .home-applications {
   background: var(--boralba-mist);
@@ -3225,7 +3225,7 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   8. SMART LIGHTING — inmersivo de pantalla completa
+   8. SMART LIGHTING â€” inmersivo de pantalla completa
    ================================================================ */
 .home-smart {
   position: relative;
@@ -3317,7 +3317,7 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   9. EXPERIENCIA — sticky con imagen fija
+   9. EXPERIENCIA â€” sticky con imagen fija
    ================================================================ */
 .home-experience {
   background: #fff;
@@ -3447,7 +3447,7 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   11. MARCAS — HALOPACK + TRIDONIC
+   11. MARCAS â€” HALOPACK + TRIDONIC
    ================================================================ */
 .home-brands {
   background: #fff;
@@ -3655,7 +3655,7 @@ background: var(--color-surface-2);
 .home-cta-contact a:hover { color: #fff; }
 
 /* ================================================================
-   RESPONSIVE — Home
+   RESPONSIVE â€” Home
    ================================================================ */
 @media (max-width: 1024px) {
   .home-value-inner,
@@ -3698,8 +3698,8 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   HOME — Presentación continua de tarjetas
-   Un único fondo; el contenido avanza por planos según el scroll.
+   HOME â€” PresentaciÃ³n continua de tarjetas
+   Un Ãºnico fondo; el contenido avanza por planos segÃºn el scroll.
    ================================================================ */
 .presentation-home {
   --presentation-bg: #e9e9e7;
@@ -4172,8 +4172,8 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   HOME — Flujo editorial continuo
-   Overrides del prototipo de paneles: aquí todo vuelve al flujo normal.
+   HOME â€” Flujo editorial continuo
+   Overrides del prototipo de paneles: aquÃ­ todo vuelve al flujo normal.
    ================================================================ */
 .presentation-home {
   min-height: 100vh;
@@ -4310,9 +4310,9 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   HOME — REDESIGN PREMIUM 2026 · Web inmersiva
-   Fondo continuo, scroll narrativo, composición editorial,
-   transiciones cinematográficas. Sin tarjetas ni paneles flotantes.
+   HOME â€” REDESIGN PREMIUM 2026 Â· Web inmersiva
+   Fondo continuo, scroll narrativo, composiciÃ³n editorial,
+   transiciones cinematogrÃ¡ficas. Sin tarjetas ni paneles flotantes.
    ================================================================ */
 .redesign-home {
   position: relative;
@@ -4498,13 +4498,13 @@ background: var(--color-surface-2);
 .site-main .form input, .site-main .form textarea, .site-main .form select { border: 0; border-bottom: 1px solid #cfcfcd; border-radius: 0; background: transparent; padding: 13px 2px; }
 .site-main .form input:focus, .site-main .form textarea:focus, .site-main .form select:focus { box-shadow: none; border-color: var(--boralba-red); }
 
-/* Contacto: composición editorial en tres secciones — hero, formulario, ubicación.
-   Márgenes, contenedor y ritmo vertical idénticos a la Home. */
+/* Contacto: composiciÃ³n editorial en tres secciones â€” hero, formulario, ubicaciÃ³n.
+   MÃ¡rgenes, contenedor y ritmo vertical idÃ©nticos a la Home. */
 .contacto-page {
   background: #ffffff;
 }
 
-/* ---- 1 · Hero: imagen de fondo a sangre completa, texto superpuesto ---- */
+/* ---- 1 Â· Hero: imagen de fondo a sangre completa, texto superpuesto ---- */
 .contacto-hero {
   position: relative;
   overflow: hidden;
@@ -4563,7 +4563,7 @@ background: var(--color-surface-2);
   }
 }
 
-/* ---- 2 · Cuéntanos tu proyecto: grid 32 / 68 ---- */
+/* ---- 2 Â· CuÃ©ntanos tu proyecto: grid 32 / 68 ---- */
 .contacto-contacto {
   margin-top: clamp(64px, 6.5vw, 96px);
   padding: 0;
@@ -4753,7 +4753,7 @@ background: var(--color-surface-2);
   line-height: 1.7;
 }
 
-/* ---- 3 · Ubicación: sección independiente y panorámica ---- */
+/* ---- 3 Â· UbicaciÃ³n: secciÃ³n independiente y panorÃ¡mica ---- */
 .contacto-ubicacion {
   margin-top: clamp(72px, 7vw, 96px);
   padding: 0;
@@ -4826,7 +4826,7 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   PRODUCTOS — catálogo editorial, scoped to /productos
+   PRODUCTOS â€” catÃ¡logo editorial, scoped to /productos
    ================================================================ */
 .products-redesign {
   --products-bg: #eeedeb;
@@ -4898,7 +4898,7 @@ background: var(--color-surface-2);
 .products-redesign .product-card--editorial .ref { display: none; }
 .products-redesign .product-card--editorial .ref { margin-bottom: 11px; color: var(--boralba-gray); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
 .product-card-meta { display: flex; flex-wrap: wrap; gap: 5px 11px; margin-bottom: 11px; color: var(--boralba-gray); font-size: .69rem; }
-.product-card-meta span::before { content: '•'; margin-right: 5px; color: var(--boralba-red); }
+.product-card-meta span::before { content: 'â€¢'; margin-right: 5px; color: var(--boralba-red); }
 .product-card-availability { margin-bottom: 11px; color: #397447; font-size: .72rem; }
 .product-card-availability i { display: inline-block; width: 6px; height: 6px; margin: 0 6px 1px 0; border-radius: 50%; background: currentColor; }
 .product-card-availability.is-unavailable { color: var(--boralba-gray); }
@@ -4939,7 +4939,7 @@ background: var(--color-surface-2);
   .products-redesign .product-card--editorial .card-body p { font-size: .76rem; }
 }
 
-/* ---------- Productos: composición amplia y editorial ---------- */
+/* ---------- Productos: composiciÃ³n amplia y editorial ---------- */
 .products-redesign .container {
   width: 90%;
   max-width: 1680px;
@@ -5146,7 +5146,7 @@ background: var(--color-surface-2);
 }
 .redesign-panel.reveal.is-visible { filter: blur(0); }
 
-/* ---------- Estructura de sección (ancho completo, sin panel) ---------- */
+/* ---------- Estructura de secciÃ³n (ancho completo, sin panel) ---------- */
 .redesign-section {
   position: relative;
   width: 100%;
@@ -5164,7 +5164,7 @@ background: var(--color-surface-2);
 }
 .redesign-panel-inner { padding: clamp(10px, 2vw, 20px) 0; }
 
-/* ---------- Cabeceras de sección ---------- */
+/* ---------- Cabeceras de secciÃ³n ---------- */
 .redesign-heading {
   max-width: 720px;
   margin: 0 auto clamp(28px, 4vw, 52px);
@@ -5241,7 +5241,7 @@ background: var(--color-surface-2);
 .redesign-btn-outline:hover { background: #fff; color: #171717; transform: translateY(-2px); }
 
 /* ================================================================
-   SECCIÓN 1 — HERO (pantalla completa, sin tarjeta)
+   SECCIÃ“N 1 â€” HERO (pantalla completa, sin tarjeta)
    ================================================================ */
 .redesign-hero-section {
   width: 100%;
@@ -5315,7 +5315,7 @@ background: var(--color-surface-2);
 }
 .redesign-nav a:hover { opacity: 1; }
 
-/* Composición editorial centrada dentro del panel */
+/* ComposiciÃ³n editorial centrada dentro del panel */
 .redesign-hero-content {
   position: relative;
   z-index: 2;
@@ -5362,7 +5362,7 @@ background: var(--color-surface-2);
 .redesign-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
 /* ================================================================
-   SECCIÓN 2 — CARRUSEL FAMILIAS (conserva FamilyCarousel)
+   SECCIÃ“N 2 â€” CARRUSEL FAMILIAS (conserva FamilyCarousel)
    ================================================================ */
 .redesign-carousel { margin: 0 -12px; }
 .redesign-carousel .coverflow { height: clamp(280px, 32vw, 420px); }
@@ -5372,7 +5372,7 @@ background: var(--color-surface-2);
 .redesign-carousel .coverflow-card h3 { font-size: clamp(0.9rem, 1.2vw, 1.15rem); }
 
 /* ================================================================
-   SECCIÓN 3 — POR QUÉ ELEGIR BORALBA
+   SECCIÃ“N 3 â€” POR QUÃ‰ ELEGIR BORALBA
    ================================================================ */
 .redesign-two-col {
   display: grid;
@@ -5440,7 +5440,7 @@ background: var(--color-surface-2);
 .redesign-advantage p { margin: 0; color: rgba(255, 255, 255, 0.65); font-size: 0.9rem; line-height: 1.55; }
 
 /* ================================================================
-   SECCIÓN 4 — SOLUCIONES PROFESIONALES
+   SECCIÃ“N 4 â€” SOLUCIONES PROFESIONALES
    ================================================================ */
 .redesign-pro { position: relative; }
 .redesign-pro-content { padding: 0; }
@@ -5511,7 +5511,7 @@ background: var(--color-surface-2);
 .redesign-pro-cta { width: fit-content; }
 
 /* ================================================================
-   SECCIÓN 5 — PROYECTOS Y APLICACIONES
+   SECCIÃ“N 5 â€” PROYECTOS Y APLICACIONES
    ================================================================ */
 .redesign-applications { display: flex; align-items: center; gap: 14px; }
 .redesign-application-track {
@@ -5574,7 +5574,7 @@ background: var(--color-surface-2);
 .redesign-arrow:hover { background: var(--boralba-red); color: #fff; transform: scale(1.04); }
 
 /* ================================================================
-   SECCIÓN 6 — DATOS DESTACADOS
+   SECCIÃ“N 6 â€” DATOS DESTACADOS
    ================================================================ */
 .redesign-stats {
   display: grid;
@@ -5599,7 +5599,7 @@ background: var(--color-surface-2);
 .redesign-stat span { color: rgba(255, 255, 255, 0.68); font-size: 0.88rem; line-height: 1.4; }
 
 /* ================================================================
-   SECCIÓN 7 — TESTIMONIOS
+   SECCIÃ“N 7 â€” TESTIMONIOS
    ================================================================ */
 .redesign-testimonial {
   position: relative;
@@ -5662,7 +5662,7 @@ background: var(--color-surface-2);
 .redesign-testimonial-nav button:hover { background: var(--boralba-red); border-color: var(--boralba-red); color: #fff; }
 
 /* ================================================================
-   SECCIÓN 8 — PREGUNTAS FRECUENTES
+   SECCIÃ“N 8 â€” PREGUNTAS FRECUENTES
    ================================================================ */
 .redesign-faq {
   max-width: 860px;
@@ -5722,7 +5722,7 @@ background: var(--color-surface-2);
 }
 
 /* ================================================================
-   SECCIÓN 9 — CTA FINAL
+   SECCIÃ“N 9 â€” CTA FINAL
    ================================================================ */
 .redesign-cta {
   position: relative;
@@ -5813,7 +5813,7 @@ body:has(.redesign-home) .header { display: none; }
 /* ---------- CTA superior del hero ---------- */
 .redesign-cta-top { padding: 10px 20px; font-size: 0.76rem; }
 
-/* ---------- Menú hamburguesa (hero, móvil) ---------- */
+/* ---------- MenÃº hamburguesa (hero, mÃ³vil) ---------- */
 .redesign-menu-toggle {
   display: none;
   width: 44px;
@@ -5868,7 +5868,7 @@ body:has(.redesign-home) .header { display: none; }
 }
 
 /* ================================================================
-   RUTAS PUBLICAS — misma escena, atmosfera y tipografia que la HOME
+   RUTAS PUBLICAS â€” misma escena, atmosfera y tipografia que la HOME
    ================================================================ */
 .public-experience {
   position: relative;
@@ -6014,7 +6014,7 @@ body:has(.redesign-home) .header { display: none; }
 .public-experience .site-main .footer,
 .public-experience + .footer { border-top-color: var(--boralba-line); }
 
-/* Glassmorphism editorial: reservado a navegación, etiquetas y controles. */
+/* Glassmorphism editorial: reservado a navegaciÃ³n, etiquetas y controles. */
 :root {
   --glass-light: rgba(255, 255, 255, 0.1);
   --glass-light-strong: rgba(255, 255, 255, 0.16);
@@ -6032,7 +6032,7 @@ body:has(.redesign-home) .header { display: none; }
   -webkit-backdrop-filter: var(--glass-blur);
 }
 
-/* Píldoras de contexto y etiquetas de sección. */
+/* PÃ­ldoras de contexto y etiquetas de secciÃ³n. */
 .redesign-home .redesign-hero-pill,
 .redesign-home .redesign-pro-eyebrow {
   background: var(--glass-light);
@@ -6042,7 +6042,7 @@ body:has(.redesign-home) .header { display: none; }
   -webkit-backdrop-filter: var(--glass-blur);
 }
 
-/* El CTA secundario permanece transparente; el primario sigue siendo sólido. */
+/* El CTA secundario permanece transparente; el primario sigue siendo sÃ³lido. */
 .redesign-home .redesign-btn-outline {
   background: var(--glass-light);
   border-color: rgba(255, 255, 255, 0.46);
@@ -6051,7 +6051,7 @@ body:has(.redesign-home) .header { display: none; }
   -webkit-backdrop-filter: var(--glass-blur);
 }
 
-/* Menú móvil y menús de producto: superficies pequeñas y funcionales. */
+/* MenÃº mÃ³vil y menÃºs de producto: superficies pequeÃ±as y funcionales. */
 .redesign-home .redesign-mobile-menu {
   background: var(--glass-dark);
   border-color: var(--glass-border);
@@ -6101,7 +6101,7 @@ body:not(:has(.redesign-home)) .flyout {
   -webkit-backdrop-filter: blur(18px);
 }
 
-/* Flechas y pequeños controles sobre imágenes, no las imágenes completas. */
+/* Flechas y pequeÃ±os controles sobre imÃ¡genes, no las imÃ¡genes completas. */
 .redesign-home .redesign-arrow,
 .redesign-home .redesign-testimonial-nav button,
 .redesign-home .redesign-faq-arrow,
@@ -6131,7 +6131,7 @@ body:not(:has(.redesign-home)) .flyout {
   .redesign-home .redesign-hero-top { background: rgba(255, 255, 255, 0.1); }
 }
 
-/* ---------- Fondo de cristal translúcido y halos suaves de la Home ---------- */
+/* ---------- Fondo de cristal translÃºcido y halos suaves de la Home ---------- */
 .redesign-home {
   --home-ink: #29282a;
   --home-muted: #6d6a68;
@@ -6220,7 +6220,7 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* ================================================================
-   HOME FINAL PASS — lienzo editorial claro y movimiento contenido
+   HOME FINAL PASS â€” lienzo editorial claro y movimiento contenido
    ================================================================ */
 .redesign-home {
   --home-bg: #f6f5f2;
@@ -6243,7 +6243,7 @@ body:not(:has(.redesign-home)) .flyout {
 .redesign-home .redesign-kicker { color: var(--boralba-red); }
 .redesign-home .redesign-kicker b { width: 24px; height: 24px; background: transparent; border: 1px solid var(--boralba-red); color: var(--boralba-red); }
 
-/* Hero: la fotografía queda integrada en el fondo, no en una tarjeta. */
+/* Hero: la fotografÃ­a queda integrada en el fondo, no en una tarjeta. */
 .redesign-home .redesign-hero {
   height: 100svh;
   min-height: 100svh;
@@ -6266,7 +6266,7 @@ body:not(:has(.redesign-home)) .flyout {
 @keyframes home-hero-media { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: scale(1); } }
 @keyframes home-copy-in { from { opacity: 0; transform: translateY(35px); } to { opacity: 1; transform: translateY(0); } }
 
-/* El contenido se encadena sin convertir cada sección en un bloque. */
+/* El contenido se encadena sin convertir cada secciÃ³n en un bloque. */
 .redesign-home .redesign-section { padding: clamp(90px, 11vw, 160px) clamp(24px, 5vw, 80px); }
 .redesign-home .redesign-panel-inner { max-width: 1460px; margin: 0 auto; padding: 0; }
 .redesign-home .redesign-section + .redesign-section { border-top: 1px solid rgba(21,21,21,.07); }
@@ -6289,7 +6289,7 @@ body:not(:has(.redesign-home)) .flyout {
 .redesign-home .redesign-panel.is-visible .redesign-gallery-small:nth-of-type(3) { opacity: 1; transform: translateY(0); transition-delay: 180ms; }
 .redesign-home .redesign-panel.is-visible .redesign-gallery-extra { opacity: 1; transform: translate(24%, 13%); transition-delay: 260ms; }
 
-/* Carrusel conservado, ahora visualmente más amplio y silencioso. */
+/* Carrusel conservado, ahora visualmente mÃ¡s amplio y silencioso. */
 .redesign-home .redesign-carousel { margin: 0; }
 .redesign-home .redesign-carousel .coverflow { height: clamp(420px, 43vw, 560px); }
 .redesign-home .redesign-carousel .coverflow-card { width: clamp(360px, 43vw, 620px); border-radius: 20px; box-shadow: 0 24px 45px rgba(21,21,21,.12); }
@@ -6347,7 +6347,7 @@ body:not(:has(.redesign-home)) .flyout {
   .redesign-home .redesign-gallery-main, .redesign-home .redesign-gallery-small, .redesign-home .redesign-gallery-extra { opacity: 1; transform: none; transition: none; }
 }
 
-/* HOME EDITORIAL: composición clara, asimétrica y sin paneles. */
+/* HOME EDITORIAL: composiciÃ³n clara, asimÃ©trica y sin paneles. */
 .redesign-home { --editorial-bg: #f5f5f2; --editorial-ink: #151515; --editorial-muted: #707070; background: var(--editorial-bg); color: var(--editorial-ink); }
 .redesign-home .editorial-header { width: calc(100% - 64px); max-width: 1500px; margin: 0 auto; }
 .redesign-home .editorial-hero { position: relative; width: 100vw; max-width: none; min-height: clamp(680px, 52vw, 820px); margin: 0 0 0 calc((100% - 100vw) / 2); padding: 25px max(32px, calc((100vw - 1500px) / 2)); overflow: hidden; border-radius: 0; }
@@ -6405,7 +6405,7 @@ body:not(:has(.redesign-home)) .flyout {
 .editorial-collage .collage-main { left: 0; top: 0; right: auto; bottom: auto; width: 49%; height: 82%; }.editorial-collage .collage-one { right: 0; top: 18%; left: auto; bottom: auto; width: 49%; height: 78%; }.editorial-collage .collage-two { left: 4%; right: auto; bottom: 0; top: auto; width: 34%; height: 17%; border-radius: 10px; }.editorial-collage .collage-three { left: 54%; right: auto; top: 0; bottom: auto; width: 31%; height: 17%; border-radius: 10px; }
 @media (max-width: 700px) { .editorial-collage .collage-main { width: 55%; height: 76%; }.editorial-collage .collage-one { top: 20%; width: 55%; height: 73%; }.editorial-collage .collage-two { left: 2%; width: 36%; height: 23%; }.editorial-collage .collage-three { left: 57%; width: 31%; height: 19%; } }
 
-/* Maqueta técnica: una única escena continua de instalación profesional. */
+/* Maqueta tÃ©cnica: una Ãºnica escena continua de instalaciÃ³n profesional. */
 .professional-scene { width: 100%; min-width: 0; height: 560px; display: grid; place-items: center; background: #f8f8f6; overflow: hidden; }
 .professional-scene svg { width: 100%; height: 100%; overflow: visible; }
 .scene-camera { transform-origin: 310px 260px; animation: scene-camera 16s cubic-bezier(.22,1,.36,1) infinite; }
@@ -6430,7 +6430,7 @@ body:not(:has(.redesign-home)) .flyout {
 @media (max-width: 700px) { .professional-scene { height: 390px; margin-bottom: 34px; }.editorial-why { display: block; }.editorial-advantages { margin-top: 28px; } }
 @media (prefers-reduced-motion: reduce) { .professional-scene * { animation-play-state: paused !important; }.scene-plan, .scene-structure, .scene-profile, .scene-led, .scene-projector, .scene-controller, .scene-connection, .scene-scan { opacity: 1; transform: none; stroke-dashoffset: 0; } }
 
-/* Producto único: perfil lineal, tira integrada y difusor. */
+/* Producto Ãºnico: perfil lineal, tira integrada y difusor. */
 .professional-scene { background: #f8f8f6; }
 .professional-video-scene { display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f8f8f6; }
 .professional-video-scene video { display: block; width: 100%; height: 100%; object-fit: contain; border: 0; border-radius: 0; box-shadow: none; background: #f8f8f6; }
@@ -6966,7 +6966,7 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* Secuencia cruzada "Servicio/Video" (Escena 1) -> "Aplicaciones" (Escena 2).
-   Un único contenedor sticky: las dos escenas conviven superpuestas en el
+   Un Ãºnico contenedor sticky: las dos escenas conviven superpuestas en el
    viewport durante todo el tramo de scroll; nunca hay hueco vacio. */
 .home-scene-wrap {
   position: relative;
@@ -7033,15 +7033,15 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* ================================================================
-   HOME — REDISEÑO LIMPIO · PREMIUM (blanco, sobrío, producto)
+   HOME â€” REDISEÃ‘O LIMPIO Â· PREMIUM (blanco, sobrÃ­o, producto)
    White principal, gris muy claro en algunas secciones, rojo #DD3531
-   solo en acción. Mucho aire, sin tarjetas ni sombras fuertes.
+   solo en acciÃ³n. Mucho aire, sin tarjetas ni sombras fuertes.
    ================================================================ */
 .site-frame {
   padding-top: 76px;
 }
 
-/* ---------- Header fijo (limpio, transición sutil al hacer scroll) ---------- */
+/* ---------- Header fijo (limpio, transiciÃ³n sutil al hacer scroll) ---------- */
 .bh {
   position: fixed;
   top: 0;
@@ -7229,7 +7229,7 @@ body:not(:has(.redesign-home)) .flyout {
   height: 24px;
 }
 
-/* Menú móvil */
+/* MenÃº mÃ³vil */
 .bh-mobile {
   position: fixed;
   top: 76px;
@@ -7270,7 +7270,7 @@ body:not(:has(.redesign-home)) .flyout {
 .bh-mobile-link:hover {
   color: #dd3531;
 }
-/* Acordeón de Productos dentro del menú móvil */
+/* AcordeÃ³n de Productos dentro del menÃº mÃ³vil */
 .bh-mobile-toggle {
   display: flex;
   align-items: center;
@@ -7369,7 +7369,7 @@ body:not(:has(.redesign-home)) .flyout {
   }
 }
 
-/* ---------- Base página home ---------- */
+/* ---------- Base pÃ¡gina home ---------- */
 .home,
 .home-frame {
   font-family: var(--font-manrope);
@@ -7398,7 +7398,7 @@ body:not(:has(.redesign-home)) .flyout {
   transform: none;
 }
 
-/* ---------- Eyebrow común ---------- */
+/* ---------- Eyebrow comÃºn ---------- */
 .home-eyebrow {
   margin: 0 0 16px;
   color: #dd3531;
@@ -7449,7 +7449,7 @@ body:not(:has(.redesign-home)) .flyout {
   color: #171717;
 }
 
-/* ---------- Home: guía lateral de alineación (4vw / máx 78px / mín 28px) ---------- */
+/* ---------- Home: guÃ­a lateral de alineaciÃ³n (4vw / mÃ¡x 78px / mÃ­n 28px) ---------- */
 .home .container {
   max-width: none;
   margin: 0 auto;
@@ -7461,7 +7461,7 @@ body:not(:has(.redesign-home)) .flyout {
   }
 }
 
-/* ---------- 1 · HERO ---------- */
+/* ---------- 1 Â· HERO ---------- */
 .home .home-hero {
   position: relative;
   width: 100%;
@@ -7600,7 +7600,7 @@ body:not(:has(.redesign-home)) .flyout {
   transform: translateX(3px);
 }
 
-/* ---------- 1b · Valores en la zona inferior del hero ---------- */
+/* ---------- 1b Â· Valores en la zona inferior del hero ---------- */
 .home-hero-values {
   position: absolute;
   z-index: 2;
@@ -7690,7 +7690,7 @@ body:not(:has(.redesign-home)) .flyout {
   transform: translateX(3px);
 }
 
-/* ---------- 2 · Carrusel familias (limpio, imagen protagonista) ---------- */
+/* ---------- 2 Â· Carrusel familias (limpio, imagen protagonista) ---------- */
 .home .coverflow {
   height: clamp(290px, 30vw, 420px);
   margin-top: clamp(18px, 2vw, 26px);
@@ -7792,7 +7792,7 @@ body:not(:has(.redesign-home)) .flyout {
   background: #dd3531;
 }
 
-/* ---------- 4 · Servicios (recorrido de proceso) ---------- */
+/* ---------- 4 Â· Servicios (recorrido de proceso) ---------- */
 .home-section--services {
   background: #f6f5f2;
   padding-block: clamp(64px, 8vw, 100px);
@@ -7990,7 +7990,7 @@ body:not(:has(.redesign-home)) .flyout {
   transform: scale(1.03);
 }
 
-/* ---------- 4b · Confianza y marca (sutil) ---------- */
+/* ---------- 4b Â· Confianza y marca (sutil) ---------- */
 .home-trust {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -8110,7 +8110,7 @@ body:not(:has(.redesign-home)) .flyout {
   transform: translateX(4px);
 }
 
-/* ---------- 5 · Proyectos reales (editorial) ---------- */
+/* ---------- 5 Â· Proyectos reales (editorial) ---------- */
 .home-sec-sub {
   margin: 14px 0 0;
   font-size: 1.02rem;
@@ -8300,7 +8300,7 @@ body:not(:has(.redesign-home)) .flyout {
   transform: translateY(0);
 }
 
-/* ---------- 6 · Sobre Boralba ---------- */
+/* ---------- 6 Â· Sobre Boralba ---------- */
 .home-company {
   display: grid;
   grid-template-columns: minmax(0, 48fr) minmax(0, 52fr);
@@ -8400,7 +8400,7 @@ body:not(:has(.redesign-home)) .flyout {
   transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .home-company-media:hover img { transform: scale(1.03); }
-/* ---------- 7 · Catálogo de productos ---------- */
+/* ---------- 7 Â· CatÃ¡logo de productos ---------- */
 .home-resources {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -8479,7 +8479,7 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .home-resources-media:hover img { transform: scale(1.03); }
 
-/* ---------- 8 · CTA final ---------- */
+/* ---------- 8 Â· CTA final ---------- */
 .home .home-cta {
   position: relative;
   margin: clamp(64px, 6.5vw, 96px) 0 0;
@@ -8578,7 +8578,7 @@ body:not(:has(.redesign-home)) .flyout {
   background: #f0f0ee;
 }
 
-/* ---------- 10 · Footer blanco y limpio (home) ---------- */
+/* ---------- 10 Â· Footer blanco y limpio (home) ---------- */
 .home-frame .footer {
   background: #ffffff;
   color: #666666;
@@ -8757,7 +8757,7 @@ body:not(:has(.redesign-home)) .flyout {
   .home-section--company    { margin-top: 48px; }
   .home-section--resources  { margin-top: 48px; }
 
-  /* --- HERO · contenido en columna, imagen debajo --- */
+  /* --- HERO Â· contenido en columna, imagen debajo --- */
   .home .home-hero {
     min-height: 0;
     height: auto;
@@ -8826,7 +8826,7 @@ body:not(:has(.redesign-home)) .flyout {
     width: 66vw;
   }
 
-  /* --- Proyectos: texto → imagen → CTA --- */
+  /* --- Proyectos: texto â†’ imagen â†’ CTA --- */
   .projects-content {
     gap: 28px;
   }
@@ -8952,7 +8952,7 @@ body:not(:has(.redesign-home)) .flyout {
     margin-bottom: 2px;
   }
 
-  /* --- HALOPACK (bloque 2, debajo con separación clara) --- */
+  /* --- HALOPACK (bloque 2, debajo con separaciÃ³n clara) --- */
   .home-trust-col + .home-trust-col {
     padding-top: 36px;
     padding-bottom: 24px;
@@ -9024,7 +9024,7 @@ body:not(:has(.redesign-home)) .flyout {
     border-radius: 2px;
   }
 
-  /* --- Recursos / Catálogo --- */
+  /* --- Recursos / CatÃ¡logo --- */
   .home-resources {
     gap: 28px;
   }
@@ -9034,7 +9034,7 @@ body:not(:has(.redesign-home)) .flyout {
     border-radius: 2px;
   }
 
-  /* --- Sec-head común --- */
+  /* --- Sec-head comÃºn --- */
   .home-sec-head {
     flex-direction: column;
     align-items: flex-start;
@@ -9075,10 +9075,10 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* ============================================================
-   DISEÑA TU LUMINARIA (HALOPACK) — /disena-tu-luminaria
-   Configurador minimalista: introducción, especificaciones,
-   idea, adjuntos, datos y envío vía Web3Forms.
-   Fondo blanco, sin tarjetas, rojo solo en selección, foco y CTA.
+   DISEÃ‘A TU LUMINARIA (HALOPACK) â€” /disena-tu-luminaria
+   Configurador minimalista: introducciÃ³n, especificaciones,
+   idea, adjuntos, datos y envÃ­o vÃ­a Web3Forms.
+   Fondo blanco, sin tarjetas, rojo solo en selecciÃ³n, foco y CTA.
    ============================================================ */
 .disena-conf {
   --ink: #171717;
@@ -9108,7 +9108,7 @@ body:not(:has(.redesign-home)) .flyout {
   }
 }
 
-/* ---------- Introducción ---------- */
+/* ---------- IntroducciÃ³n ---------- */
 .disena-intro {
   position: relative;
   display: flex;
@@ -9303,7 +9303,7 @@ body:not(:has(.redesign-home)) .flyout {
   color: #b6b4b9;
 }
 
-/* ---------- Opciones (botones de selección) ---------- */
+/* ---------- Opciones (botones de selecciÃ³n) ---------- */
 .disena-opts {
   display: flex;
   flex-wrap: wrap;
@@ -9482,7 +9482,7 @@ body:not(:has(.redesign-home)) .flyout {
   color: var(--red);
 }
 
-/* ---------- Alerta y éxito ---------- */
+/* ---------- Alerta y Ã©xito ---------- */
 .disena-alert {
   margin: 0;
   color: var(--red);
@@ -9501,7 +9501,7 @@ body:not(:has(.redesign-home)) .flyout {
   letter-spacing: -0.02em;
 }
 .disena-success h2::before {
-  content: '✓ ';
+  content: 'âœ“ ';
   color: var(--red);
 }
 .disena-success p {
@@ -9895,344 +9895,6 @@ body:not(:has(.redesign-home)) .flyout {
 .proy-back-link:hover span { transform: translateX(-3px); }
 .proy-empty { padding: 60px 0; color: var(--proy-gray); }
 
-/* ============ Detalle editorial de proyecto ============ */
-.proy-ed-hero { padding: clamp(48px, 7vw, 96px) 0 0; }
-.proy-ed-hero .breadcrumb {
-  margin-bottom: clamp(24px, 3vw, 40px);
-  color: var(--proy-gray);
-  font-family: var(--font-montserrat);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.proy-ed-hero .breadcrumb a { color: var(--proy-gray); }
-.proy-ed-hero .breadcrumb a:hover { color: var(--proy-red); }
-.proy-ed-hero-media { margin: 0; height: clamp(340px, 60vw, 780px); }
-.proy-ed-hero-media img,
-.proy-ed-hero-media .proy-ed-ph {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.proy-ed-hero-media img { background: #efeeeb; }
-.proy-ed-head {
-  display: grid;
-  grid-template-columns: 1.25fr 0.75fr;
-  gap: clamp(32px, 5vw, 96px);
-  align-items: end;
-  padding: clamp(44px, 6vw, 96px) 0 0;
-}
-.proy-ed-head h1 {
-  margin: 0;
-  font-size: clamp(2.9rem, 5vw, 4.5rem);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.02;
-}
-.proy-ed-head-side { padding-bottom: 8px; }
-.proy-ed-head-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 10px;
-  margin: 0 0 22px;
-  font-family: var(--font-montserrat);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--proy-red);
-}
-.proy-ed-head-meta span { color: var(--proy-ink); }
-.proy-ed-head-meta i { font-style: normal; }
-.proy-ed-intro {
-  margin: 0;
-  max-width: 38ch;
-  color: var(--proy-gray);
-  font-size: clamp(1rem, 1.15vw, 1.1rem);
-  line-height: 1.75;
-}
-
-/* Composicion editorial: imagen grande + texto + imagenes sueltas (sin rejilla rigida) */
-.proy-ed-composition { padding: clamp(64px, 9vw, 150px) 0 0; }
-.proy-ed-comp {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: clamp(22px, 3vw, 48px);
-}
-.proy-ed-media { margin: 0; }
-.proy-ed-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  background: #efeeeb;
-}
-.proy-ed-media .proy-ed-ph { width: 100%; height: 100%; }
-.proy-ed-media--lead { grid-column: 1 / span 8; aspect-ratio: 16 / 11; }
-.proy-ed-media--small-a { grid-column: 3 / span 5; margin-top: clamp(-56px, -5vw, -24px); aspect-ratio: 3 / 2; }
-.proy-ed-media--small-b { grid-column: 8 / span 5; margin-top: clamp(36px, 5vw, 76px); aspect-ratio: 3 / 4; }
-
-.proy-ed-copy { max-width: 44ch; }
-.proy-ed-copy--project,
-.proy-ed-copy--solucion {
-  grid-column: 9 / span 4;
-  margin-top: clamp(72px, 11vw, 170px);
-  padding-top: clamp(24px, 3vw, 44px);
-}
-.proy-ed-num {
-  display: block;
-  margin-bottom: 14px;
-  color: var(--proy-red);
-  font-family: var(--font-montserrat);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-.proy-ed-copy h2 {
-  margin: 0 0 18px;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.05;
-}
-.proy-ed-copy p {
-  margin: 0;
-  color: var(--proy-gray);
-  font-size: clamp(0.98rem, 1.1vw, 1.06rem);
-  line-height: 1.8;
-}
-
-/* La solucion: bloque editorial */
-.proy-ed-solucion { padding: clamp(72px, 9vw, 150px) 0 0; }
-.proy-ed-copy--solucion {
-  grid-column: auto;
-  margin-top: 0;
-}
-
-/* Detalles de iluminacion: bloque editorial limpio */
-.proy-ed-details { padding: clamp(64px, 8vw, 120px) 0 0; }
-.proy-ed-section-head {
-  padding-bottom: clamp(22px, 3vw, 36px);
-  border-bottom: 1px solid var(--proy-line);
-  margin-bottom: clamp(28px, 4vw, 52px);
-}
-.proy-ed-section-head h2 {
-  margin: 0;
-  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.05;
-}
-.proy-ed-details-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(24px, 3.2vw, 52px);
-}
-.proy-ed-detail { margin: 0; }
-.proy-ed-detail dt {
-  margin-bottom: 12px;
-  font-family: var(--font-montserrat);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--proy-gray);
-}
-.proy-ed-detail dd {
-  margin: 0;
-  padding-top: 18px;
-  border-top: 1px solid var(--proy-line);
-  color: var(--proy-ink);
-  font-size: clamp(0.95rem, 1.05vw, 1.05rem);
-  font-weight: 600;
-  line-height: 1.6;
-}
-
-/* Soluciones / productos utilizados (sin tarjetas) */
-.proy-ed-products { padding: clamp(64px, 8vw, 120px) 0 0; }
-.proy-ed-product-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--proy-line);
-}
-.proy-ed-product-row {
-  display: flex;
-  align-items: center;
-  gap: clamp(16px, 2.5vw, 32px);
-  padding: clamp(20px, 2.6vw, 28px) 0;
-  border-bottom: 1px solid var(--proy-line);
-}
-.proy-ed-product-num {
-  flex: 0 0 40px;
-  font-family: var(--font-montserrat);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--proy-red);
-}
-.proy-ed-product-thumb {
-  flex: 0 0 96px;
-  width: 96px;
-  height: 72px;
-  object-fit: cover;
-  border-radius: 2px;
-  background: #efeeeb;
-}
-.proy-ed-product-name {
-  flex: 1;
-  min-width: 0;
-  color: var(--proy-ink);
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-.proy-ed-product-name small {
-  display: block;
-  margin-top: 5px;
-  font-family: var(--font-montserrat);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--proy-gray);
-}
-.proy-ed-product-link {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-montserrat);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--proy-ink);
-  transition: color 0.2s ease;
-}
-.proy-ed-product-link span { color: var(--proy-red); transition: transform 0.2s ease; }
-.proy-ed-product-link:hover { color: var(--proy-red); }
-.proy-ed-product-link:hover span { transform: translateX(3px); }
-
-/* Galeria editorial: panoramica + vertical + detalle */
-.proy-ed-gallery {
-  padding: clamp(64px, 8vw, 120px) 0 clamp(64px, 9vw, 132px);
-}
-.proy-ed-gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: clamp(20px, 3vw, 44px);
-  align-items: start;
-}
-.proy-ed-gallery-item { margin: 0; }
-.proy-ed-gallery-item img,
-.proy-ed-gallery-item .proy-ed-ph {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.proy-ed-gallery-item img { background: #efeeeb; }
-.proy-ed-gallery-item--pano { grid-column: 1 / -1; aspect-ratio: 21 / 9; }
-.proy-ed-gallery-item--portrait { grid-column: span 5; aspect-ratio: 3 / 4; }
-.proy-ed-gallery-item--detail { grid-column: span 7; aspect-ratio: 4 / 3; }
-
-/* Placeholders: espacio preparado para reemplazar por contenido real */
-.proy-ed-ph {
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: clamp(16px, 3vw, 28px);
-  background: var(--boralba-mist);
-  border: 1px dashed #d8d6d1;
-  text-align: center;
-}
-.proy-ed-ph--title span {
-  font-family: var(--font-montserrat);
-  font-size: clamp(0.8rem, 1.2vw, 1.05rem);
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--proy-ink);
-}
-.proy-ed-ph-kicker {
-  font-family: var(--font-montserrat);
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--proy-gray);
-}
-.proy-ed-ph-label {
-  max-width: 220px;
-  font-family: var(--font-montserrat);
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.45;
-  color: var(--proy-ink);
-}
-.proy-ed-pending-text {
-  font-style: italic;
-  color: var(--proy-gray);
-}
-.proy-ed-ph-product {
-  flex: 0 0 96px;
-  width: 96px;
-  height: 72px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 4px;
-  background: var(--boralba-mist);
-  border: 1px dashed #d8d6d1;
-  border-radius: 2px;
-  text-align: center;
-}
-.proy-ed-ph-product-kicker {
-  font-family: var(--font-montserrat);
-  font-size: 0.46rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--proy-gray);
-}
-.proy-ed-ph-product-label {
-  font-family: var(--font-montserrat);
-  font-size: 0.56rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--proy-ink);
-}
-
-/* CTA final */
-.proy-detail-cta {
-  background: #171717;
-  text-align: center;
-  padding: clamp(68px, 8vw, 116px) clamp(24px, 4vw, 48px);
-}
-.proy-detail-cta-copy { max-width: 720px; margin: 0 auto; }
-.proy-detail-cta-copy h2 {
-  margin: 0 0 clamp(28px, 3vw, 40px);
-  color: #fff;
-  font-size: clamp(2rem, 4.4vw, 3.6rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.02;
-}
-.proy-detail-cta-copy h2 em { font-style: normal; color: var(--proy-red); }
-
 /* ---------- Responsive Proyectos ---------- */
 @media (max-width: 1100px) {
   .proy-categorias-grid { grid-template-columns: repeat(2, 1fr); }
@@ -10241,33 +9903,13 @@ body:not(:has(.redesign-home)) .flyout {
   .proy-categorias-grid,
   .proy-grid { grid-template-columns: 1fr; }
 }
-@media (max-width: 900px) {
-  .proy-ed-head { grid-template-columns: 1fr; gap: 24px; align-items: start; }
-  .proy-ed-comp { display: block; }
-  .proy-ed-copy--project,
-  .proy-ed-copy--solucion { margin-top: clamp(28px, 5vw, 48px); }
-  .proy-ed-media--small-a { margin-top: clamp(24px, 4vw, 40px); }
-  .proy-ed-media--small-b { margin-top: clamp(24px, 4vw, 40px); }
-  .proy-ed-details-grid { grid-template-columns: repeat(2, 1fr); }
-  .proy-ed-gallery-grid { display: block; }
-  .proy-ed-gallery-item { margin-bottom: clamp(20px, 3vw, 32px); aspect-ratio: 4 / 3; }
-}
 @media (max-width: 640px) {
   .proy-hero { min-height: 58vh; padding: clamp(64px, 13vw, 96px) 0; }
   .proy-hero h1 { font-size: clamp(2.1rem, 9vw, 3rem); }
-  .proy-ed-hero-media { height: clamp(300px, 76vw, 430px); }
-  .proy-ed-hero h1 { font-size: clamp(2rem, 8.5vw, 2.8rem); }
-}
-@media (max-width: 560px) {
-  .proy-ed-details-grid { grid-template-columns: 1fr; }
-  .proy-ed-product-row { flex-wrap: wrap; }
-  .proy-ed-product-link { margin-left: 56px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .proy-categoria-media img,
   .proy-item-media img,
-  .proy-ed-media img,
-  .proy-ed-gallery-item img { transition: none; }
   .proy-categoria:hover .proy-categoria-media img,
   .proy-item:hover .proy-item-media img { transform: none; }
 }
@@ -10564,7 +10206,7 @@ body:not(:has(.redesign-home)) .flyout {
 .servicio-actions-label { margin-bottom: 12px; color: var(--serv-gray); font-size: .68rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
 .servicio-actions ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
 .servicio-actions li { color: var(--serv-ink); font-size: .92rem; line-height: 1.4; }
-.servicio-actions li::before { display: inline-block; width: 22px; color: var(--serv-red); content: '—'; }
+.servicio-actions li::before { display: inline-block; width: 22px; color: var(--serv-red); content: 'â€”'; }
 .servicio-note { margin: 24px 0 0; color: var(--serv-gray); font-size: .75rem; line-height: 1.5; }
 .servicios-process { padding: clamp(52px, 7vw, 96px) 0 clamp(72px, 9vw, 132px); }
 .servicios-process h2 { margin-bottom: clamp(38px, 5vw, 62px); font-size: clamp(2.4rem, 3.5vw, 3rem); font-weight: 700; letter-spacing: -.03em; }
@@ -10732,15 +10374,15 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* ================================================================
-   CONTENEDOR COMÚN DE PÁGINAS INTERNAS (todas excepto Home)
-   Guía lateral unificada para títulos, textos, grids, formularios
+   CONTENEDOR COMÃšN DE PÃGINAS INTERNAS (todas excepto Home)
+   GuÃ­a lateral unificada para tÃ­tulos, textos, grids, formularios
    y secciones. La Home conserva su propio sistema (.home .container).
-   - Móvil:             20–24px
-   - Tablet:            40–48px
-   - Escritorio medio:  72–120px
-   - Escritorio grande: 160–190px
+   - MÃ³vil:             20â€“24px
+   - Tablet:            40â€“48px
+   - Escritorio medio:  72â€“120px
+   - Escritorio grande: 160â€“190px
    max-width: 1920px evita contenido demasiado ancho en monitores
-   ultraanchos sin fijar un margen idéntico en todas las resoluciones.
+   ultraanchos sin fijar un margen idÃ©ntico en todas las resoluciones.
    ================================================================ */
 .internal-page-container.site-main .container,
 .internal-page-container.site-main .disena-hero-copy,
@@ -10776,10 +10418,10 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* ================================================================
-   EMPRESA — reportaje editorial premium
-   Estética de revista de arquitectura: blanco, negro #171717,
-   gris #666, rojo #DD3531 solo en detalles. Composición asimétrica,
-   tipografía grande, hairlines y pies de fotografía editoriales.
+   EMPRESA â€” reportaje editorial premium
+   EstÃ©tica de revista de arquitectura: blanco, negro #171717,
+   gris #666, rojo #DD3531 solo en detalles. ComposiciÃ³n asimÃ©trica,
+   tipografÃ­a grande, hairlines y pies de fotografÃ­a editoriales.
    ================================================================ */
 .empresa-editorial {
   --emp-red: #dd3531;
@@ -10819,7 +10461,7 @@ body:not(:has(.redesign-home)) .flyout {
   color: var(--emp-red);
 }
 
-/* ---------- Pie de fotografía editorial ---------- */
+/* ---------- Pie de fotografÃ­a editorial ---------- */
 .emp-media { margin: 0; }
 .emp-media img { width: 100%; display: block; }
 .emp-media figcaption {
@@ -10842,7 +10484,7 @@ body:not(:has(.redesign-home)) .flyout {
   color: var(--emp-red);
 }
 
-/* ---------- 1 · PORTADA EDITORIAL ---------- */
+/* ---------- 1 Â· PORTADA EDITORIAL ---------- */
 .emp-hero { padding: clamp(56px, 7vw, 88px) 0 clamp(32px, 4vw, 48px); }
 .emp-hero-grid {
   display: grid;
@@ -10889,7 +10531,7 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .emp-hero-meta span:nth-child(2) { color: var(--emp-ink); }
 
-/* ---------- 2 · INTRODUCCIÓN TIPO ARTÍCULO ---------- */
+/* ---------- 2 Â· INTRODUCCIÃ“N TIPO ARTÃCULO ---------- */
 .emp-article { padding: clamp(96px, 13vw, 168px) 0; }
 .emp-article-head h2 {
   max-width: 1020px;
@@ -10953,7 +10595,7 @@ body:not(:has(.redesign-home)) .flyout {
 .emp-article-end { margin: 0 !important; }
 .emp-article-end span { color: var(--emp-red); font-size: 1.5rem; }
 
-/* ---------- 3 · HISTORIA DE BORALBA ---------- */
+/* ---------- 3 Â· HISTORIA DE BORALBA ---------- */
 .emp-history {
   padding: clamp(96px, 13vw, 168px) 0;
   border-top: 1px solid var(--emp-line);
@@ -11032,7 +10674,7 @@ body:not(:has(.redesign-home)) .flyout {
   font-weight: 600;
 }
 
-/* ---------- 4 · NUESTRA MANERA DE TRABAJAR ---------- */
+/* ---------- 4 Â· NUESTRA MANERA DE TRABAJAR ---------- */
 .emp-work {
   padding: clamp(96px, 13vw, 168px) 0;
   border-top: 1px solid var(--emp-line);
@@ -11121,7 +10763,7 @@ body:not(:has(.redesign-home)) .flyout {
   color: var(--emp-gray);
 }
 
-/* ---------- 5 · LO QUE NOS DEFINE ---------- */
+/* ---------- 5 Â· LO QUE NOS DEFINE ---------- */
 .emp-virtues {
   padding: clamp(96px, 13vw, 168px) 0;
   border-top: 1px solid var(--emp-line);
@@ -11163,7 +10805,7 @@ body:not(:has(.redesign-home)) .flyout {
 .emp-clause--md { font-size: clamp(1.8rem, 3.6vw, 3.5rem); font-weight: 400; }
 .emp-clause--sm { font-size: clamp(1.4rem, 2.6vw, 2.4rem); font-weight: 400; }
 
-/* ---------- 6 · TECNOLOGÍA Y MARCA PROPIA ---------- */
+/* ---------- 6 Â· TECNOLOGÃA Y MARCA PROPIA ---------- */
 .emp-tech {
   padding: clamp(96px, 13vw, 168px) 0;
   border-top: 1px solid var(--emp-line);
@@ -11240,7 +10882,7 @@ body:not(:has(.redesign-home)) .flyout {
 .emp-arrowlink:hover { color: var(--emp-red); border-color: var(--emp-red); }
 .emp-arrowlink:hover span { transform: translate(3px, -2px); }
 
-/* ---------- 7 · CIERRE EDITORIAL ---------- */
+/* ---------- 7 Â· CIERRE EDITORIAL ---------- */
 .emp-outro {
   padding: clamp(150px, 20vw, 270px) 0;
   border-top: 1px solid var(--emp-line);
@@ -11369,10 +11011,10 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* ==================================================================
-   ESCALA · EMPRESA (reducción de escala, proporciones y aire)
-   Se añade al final para respetar los breakpoints existentes:
-   ≥1151 = rescale de escritorio · 681-1150 = tablet 1 columna
-   ≤680  = rescale móvil (márgenes 20-24, secciones 64-72)
+   ESCALA Â· EMPRESA (reducciÃ³n de escala, proporciones y aire)
+   Se aÃ±ade al final para respetar los breakpoints existentes:
+   â‰¥1151 = rescale de escritorio Â· 681-1150 = tablet 1 columna
+   â‰¤680  = rescale mÃ³vil (mÃ¡rgenes 20-24, secciones 64-72)
    ================================================================== */
 @media (min-width: 1151px) {
   .emp-hero { padding: clamp(48px, 6vw, 72px) 0 clamp(24px, 3vw, 32px); }
@@ -11466,275 +11108,303 @@ body:not(:has(.redesign-home)) .flyout {
   .emp-partner-media,
   .emp-history-media { width: 100%; }
 }
-/* ---------- EMPRESA · sin líneas grises ---------- */
+/* ---------- EMPRESA Â· sin lÃ­neas grises ---------- */
 .emp-wrap {
   --emp-line: transparent;
   --emp-line-soft: transparent;
 }
 
 /* ==================================================================
-   PROYECTO REPORTaje editorial · CENTRO DE PILATES
-   Estética de revista de arquitectura e interiorismo:
-   fondo blanco, tinta #171717, gris #666666 y rojo Boralba #DD3531
-   solo en etiquetas, números y detalles. Composición limpia y
-   asimétrica, proporciones originales de las imágenes.
+   PROYECTO Â· CENTRO DE PILATES Â· ficha simplificada
+   Hero intacto + 3 bloques editoriales + cierre compacto.
+   Contenedor global de Boralba (.container). Sin sombras ni marcos.
+   Las fotografÃ­as conservan su proporciÃ³n; no se repiten.
+   position:absolute Ãºnicamente en el texto de la portada.
    ================================================================== */
 .pilates-editorial {
   --pil-red: #dd3531;
-  --pil-red-dark: #c02824;
   --pil-ink: #171717;
   --pil-gray: #666666;
-  --pil-line: rgba(23, 23, 23, 0.16);
+  --pil-line: rgba(23, 23, 23, 0.12);
   background: #ffffff;
   color: var(--pil-ink);
-}
-.pil-wrap {
-  max-width: 1408px;
-  margin-inline: auto;
-  padding-inline: clamp(20px, 5vw, 64px);
+  overflow-x: clip;
 }
 
-/* ---------- Etiqueta y migas ---------- */
-.pil-breadcrumb {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: clamp(44px, 6vw, 72px);
-  font-family: var(--font-montserrat);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--pil-gray);
+/* ============ 1 Â· HERO (se mantiene intacto) ============ */
+.pil-cover {
+  width: 100%;
 }
-.pil-breadcrumb a { color: var(--pil-gray); transition: color 0.2s ease; }
-.pil-breadcrumb a:hover { color: var(--pil-red); }
-.pil-eyebrow {
-  margin: 0 0 24px;
+.pil-cover-frame { position: relative; }
+.pil-cover-img {
+  display: block;
+  width: 100%;
+  height: clamp(480px, 63vh, 680px);
+  object-fit: cover;
+  object-position: center;
+}
+.pil-cover-copy {
+  position: absolute;
+  left: clamp(20px, 4vw, 56px);
+  bottom: clamp(20px, 4vw, 56px);
+  padding: 28px 32px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
+  text-align: left;
+}
+.pilates-editorial .pil-cover-copy h1 {
+  margin: 0 0 12px;
+  max-width: 16ch;
+  color: #ffffff;
+  font-size: clamp(48px, 6vw, 82px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+.pilates-editorial .pil-cover-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
   font-family: var(--font-montserrat);
-  font-size: 0.76rem;
+  font-size: clamp(13px, 1.1vw, 15px);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--pil-red);
-}
-.pil-num {
-  display: block;
-  margin-bottom: 16px;
-  font-family: var(--font-montserrat);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--pil-red);
 }
 
-/* ---------- 1 · Cabecera ---------- */
-.pil-hero { padding: clamp(52px, 7vw, 88px) 0 0; }
-.pil-hero h1 {
-  max-width: 14ch;
-  margin: 0 0 22px;
-  font-size: clamp(44px, 5vw, 68px);
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 1.02;
+/* ============ 2 Â· BLOQUE 01 Â· PRESENTACIÃ“N ============ */
+.pil-b1 { margin-top: 96px; }
+.pil-b1-grid {
+  display: grid;
+  grid-template-columns: 43% 49%;
+  gap: 8%;
+  align-items: center;
 }
-.pil-hero-sub {
-  max-width: 620px;
-  margin: 0 0 18px;
-  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
-  line-height: 1.65;
-  color: var(--pil-gray);
-}
-.pil-hero-meta {
-  margin: 0;
+.pil-b1-copy { max-width: 520px; }
+.pil-b1-label {
+  margin: 0 0 16px;
+  color: var(--pil-red);
   font-family: var(--font-montserrat);
-  font-size: 0.74rem;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--pil-gray);
 }
-.pil-hero-media {
-  display: flex;
-  justify-content: center;
-  margin-top: clamp(44px, 6vw, 72px);
-}
-.pil-hero-media .pil-fig {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.pil-hero-media .pil-fig img {
-  width: auto;
-  max-width: 100%;
-  max-height: 620px;
-  height: auto;
-}
-
-/* ---------- Figuras y pies de fotografía ---------- */
-.pil-fig { margin: 0; }
-.pil-fig img {
-  width: 100%;
-  height: auto;
-  display: block;
-  background: #efeeeb;
-}
-.pil-fig figcaption {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--pil-line);
-  font-family: var(--font-montserrat);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.6;
-  color: var(--pil-gray);
-}
-
-/* ---------- Secciones ---------- */
-.pil-section { padding-top: clamp(80px, 9vw, 96px); }
-.pil-sec-head h2,
-.pil-intro-left h2,
-.pil-acceso-copy h2,
-.pil-aux-copy h2 {
-  margin: 0 0 20px;
-  font-size: clamp(2rem, 3.4vw, 3rem);
+.pilates-editorial .pil-b1-copy h2 {
+  margin: 0 0 28px;
+  color: var(--pil-ink);
+  font-size: clamp(34px, 3.5vw, 48px);
   font-weight: 600;
   letter-spacing: -0.04em;
   line-height: 1.05;
 }
-.pil-sec-head h2 { max-width: 18ch; }
-.pil-lead,
-.pil-intro-right p,
-.pil-acceso-copy p,
-.pil-aux-copy p {
-  max-width: 560px;
-  margin: 0 0 1.35em;
-  font-size: clamp(1.03rem, 1.3vw, 1.125rem);
-  line-height: 1.8;
+.pilates-editorial .pil-b1-p {
+  margin: 0;
   color: var(--pil-gray);
+  font-size: clamp(17px, 1.15vw, 18px);
+  line-height: 1.65;
 }
-.pil-lead { margin-top: clamp(20px, 3vw, 32px); }
-.pil-lead:last-child,
-.pil-intro-right p:last-child,
-.pil-acceso-copy p:last-child,
-.pil-aux-copy p:last-child { margin-bottom: 0; }
-
-/* ---------- 2 · Introducción ---------- */
-.pil-intro-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: clamp(48px, 7vw, 120px);
-  align-items: start;
-}
-.pil-intro-left h2 { max-width: 14ch; }
-.pil-intro-right { padding-top: clamp(8px, 2vw, 28px); }
-
-/* ---------- 3 · Las salas ---------- */
-.pil-salas-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 58fr) minmax(0, 38fr);
-  gap: 32px;
-  align-items: start;
-  margin-top: clamp(56px, 8vw, 96px);
-}
-.pil-fig--offset { margin-top: clamp(48px, 7vw, 88px); }
-
-/* ---------- 4 · El acceso ---------- */
-.pil-acceso-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 60fr) minmax(0, 32fr);
-  gap: 72px;
-  align-items: start;
-}
-.pil-acceso-media { min-width: 0; }
-.pil-acceso-copy { padding-top: clamp(8px, 2vw, 28px); }
-
-/* ---------- 5 · Recorridos y conexiones ---------- */
-.pil-gallery {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: clamp(24px, 3vw, 32px);
-  align-items: start;
-  margin-top: clamp(56px, 8vw, 96px);
-}
-.pil-gallery .pil-fig { grid-column: span 6; }
-.pil-gallery .pil-gallery--top { grid-column: 1 / -1; }
-
-/* ---------- 6 · Espacios auxiliares ---------- */
-.pil-aux-head {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(48px, 7vw, 110px);
-  align-items: start;
-}
-.pil-aux-copy { max-width: 560px; }
-.pil-aux-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(24px, 3vw, 32px);
-  align-items: start;
-  margin-top: clamp(56px, 8vw, 96px);
-}
-
-/* ---------- 7 · Cierre ---------- */
-.pil-close {
-  padding: clamp(120px, 16vw, 220px) 0 clamp(96px, 10vw, 132px);
-}
-.pil-close-inner { max-width: 760px; }
-.pil-close-statement {
-  margin: 0 0 clamp(20px, 3vw, 32px);
-  max-width: 18ch;
-  font-family: var(--font-montserrat);
-  font-size: clamp(2.2rem, 4.4vw, 3.8rem);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 1.02;
+.pil-b1-p + .pil-b1-p { margin-top: 16px; }
+.pil-b1-meta {
+  margin: 24px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--pil-line);
   color: var(--pil-ink);
+  font-size: 15px;
+  font-weight: 600;
 }
-.pil-close-question {
-  margin: 0 0 clamp(32px, 4vw, 48px);
-  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
-  line-height: 1.6;
-  color: var(--pil-gray);
+.pil-b1-img {
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
 }
 
-/* ---------- Responsive Pilates ---------- */
-@media (max-width: 920px) {
-  .pil-intro-grid,
-  .pil-acceso-grid,
-  .pil-aux-head { grid-template-columns: 1fr; }
-  .pil-intro-grid { gap: clamp(40px, 6vw, 64px); }
-  .pil-acceso-grid { gap: clamp(40px, 6vw, 56px); }
-  .pil-salas-grid,
-  .pil-aux-grid { grid-template-columns: 1fr; gap: 40px; }
-  .pil-fig--offset { margin-top: 0; }
-  .pil-gallery { grid-template-columns: 1fr; gap: 40px; }
-  .pil-gallery .pil-fig,
-  .pil-gallery .pil-gallery--top { grid-column: 1 / -1; }
+/* ---------- AdaptaciÃ³n: pocas fotografÃ­as ---------- */
+.pil-b1-grid.is-text-only { grid-template-columns: 1fr; }
+.pil-b1-grid.is-text-only .pil-b1-copy { max-width: 760px; }
+.pil-b2-media.is-single { grid-template-columns: 1fr; }
+.pil-b2-media.is-single .pil-b2-img { max-width: 560px; }
+
+/* ============ 3 Â· BLOQUE 02 Â· DETALLES ============ */
+.pil-b2 { margin-top: 112px; }
+.pil-b2-grid {
+  display: grid;
+  grid-template-columns: 58% 34%;
+  gap: 8%;
+  align-items: center;
 }
+.pil-b2-media {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.pil-b2-img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 2px;
+}
+.pil-b2-copy { max-width: 440px; }
+.pilates-editorial .pil-b2-copy h2 {
+  margin: 0 0 24px;
+  color: var(--pil-ink);
+  font-size: clamp(32px, 2.7vw, 38px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+.pilates-editorial .pil-b2-copy p {
+  margin: 0;
+  color: var(--pil-gray);
+  font-size: clamp(17px, 1.15vw, 18px);
+  line-height: 1.65;
+}
+.pil-b2-copy p + p { margin-top: 16px; }
+
+/* ============ 4 Â· BLOQUE 03 Â· CARRUSEL ============ */
+.pil-b3 { margin-top: 120px; }
+.pil-b3-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.pil-b3-kicker {
+  display: block;
+  color: var(--pil-red);
+  font-family: var(--font-montserrat);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.pilates-editorial .pil-b3-head h2 {
+  margin: 8px 0 0;
+  color: var(--pil-ink);
+  font-size: clamp(32px, 2.8vw, 40px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+.pil-b3-count {
+  flex: 0 0 auto;
+  color: var(--pil-gray);
+  font-family: var(--font-montserrat);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.pil-caro {
+  position: relative;
+  width: 100%;
+}
+.pil-caro-stage {
+  position: relative;
+  overflow: hidden;
+}
+.pil-caro-track {
+  display: flex;
+  transition: transform 500ms ease;
+}
+.pil-caro-slide {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pil-caro-slide img {
+  display: block;
+  width: 100%;
+  max-width: min(100%, 840px);
+  margin-inline: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center;
+}
+.pil-caro-nav {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  gap: 8px;
+}
+.pil-caro-btn {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #d8d8d8;
+  border-radius: 2px;
+  color: var(--pil-ink);
+  font-family: var(--font-montserrat);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.pil-caro-btn:hover {
+  border-color: var(--pil-red);
+  color: var(--pil-red);
+}
+.pil-caro-btn:active {
+  color: var(--pil-red);
+}
+
+/* ============ 5 Â· CIERRE ============ */
+.pil-close {
+  margin-top: 112px;
+  border-top: 1px solid var(--pil-line);
+}
+.pil-close-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 48px);
+  padding: 64px 0;
+}
+.pilates-editorial .pil-close-text {
+  margin: 0;
+  color: var(--pil-ink);
+  font-size: clamp(24px, 2.4vw, 30px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+/* ---------- Tablet y mÃ³vil: una sola columna ---------- */
+@media (max-width: 900px) {
+  .pil-b1 { margin-top: 72px; }
+  .pil-b2 { margin-top: 72px; }
+  .pil-b3 { margin-top: 72px; }
+  .pil-close { margin-top: 72px; }
+  .pil-b1-grid,
+  .pil-b2-grid { grid-template-columns: 1fr; }
+  .pil-b1-grid { gap: 36px; }
+  .pil-b2-grid { gap: 36px; }
+  .pil-b1-copy,
+  .pil-b2-copy { max-width: none; }
+  .pil-b2-media { grid-template-columns: 1fr 1fr; gap: 16px; }
+}
+
 @media (max-width: 680px) {
-  .pil-wrap { padding-inline: clamp(20px, 5vw, 24px); }
-  .pil-hero { padding-top: 64px; }
-  .pil-hero h1 { font-size: clamp(38px, 10vw, 42px); }
-  .pil-hero-media .pil-fig { align-items: stretch; }
-  .pil-hero-media .pil-fig img {
-    width: 100%;
-    max-width: 100%;
-    max-height: none;
+  .pilates-editorial .container { padding-inline: clamp(20px, 5.5vw, 24px); }
+  .pil-cover-img { height: clamp(460px, 63vh, 540px); }
+  .pil-cover-copy {
+    left: clamp(16px, 4vw, 24px);
+    bottom: clamp(16px, 4vw, 24px);
+    padding: 22px 24px;
   }
-  .pil-section { padding-top: clamp(64px, 9vw, 72px); }
-  .pil-sec-head h2,
-  .pil-intro-left h2,
-  .pil-acceso-copy h2,
-  .pil-aux-copy h2 { font-size: clamp(1.75rem, 8vw, 2rem); }
-  .pil-acceso-grid { gap: 32px; }
-  .pil-salas-grid,
-  .pil-aux-grid,
-  .pil-gallery { gap: 32px; }
-  .pil-lead { margin-top: 20px; }
-  .pil-close { padding: clamp(88px, 14vw, 120px) 0 clamp(72px, 10vw, 96px); }
-  .pil-close-statement { font-size: clamp(2rem, 9vw, 2.4rem); }
+  .pil-cover-copy h1 { font-size: clamp(40px, 9vw, 48px); }
+.pil-caro-btn { width: 42px; height: 42px; }
+  .pil-close-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 56px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .pil-b2-media { grid-template-columns: 1fr; }
 }
