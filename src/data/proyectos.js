@@ -1,6 +1,7 @@
 const BASE = `${import.meta.env.BASE_URL}images/proyectos/`
 const GYM_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/SALUD Y BIENESTAR/Gimansio · MADRID/`
 const HOSPITAL_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/SALUD Y BIENESTAR/Hospital Greogorio Marañón Madrid/`
+const TORRE_CONSUEGRA_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/EXTERIORES Y FACHADAS/TORRE CONSUEGRA TOLEDO/`
 
 export const PROJECT_CATEGORIES = [
   {
@@ -71,8 +72,6 @@ const elProyecto = {
     'Aplicación de paneles LED de formato flexible dentro del proyecto de una obra, integrando la luz en la propia arquitectura.',
   'chalet-en-pozuelo-de-alarcon':
     'Vivienda unifamiliar donde la iluminación se diseña para acompañar el día a día de la casa y realzar cada espacio del hogar.',
-  'torre-consuegra-iluminacion-monumental':
-    'Iluminación exterior de la Torre de Consuegra, poniendo en valor un elemento arquitectónico singular durante la noche.',
   'hotel-jc-santo-domingo-exteriores':
     'Iluminación exterior del Hotel JC Santo Domingo, donde la fachada cobra presencia y carácter durante la noche, convirtiendo el acceso del hotel en un elemento reconocible de la ciudad.',
 }
@@ -94,8 +93,6 @@ const laSolucion = {
     'Paneles LED flexibles adaptados a la geometría del espacio, permitiendo cubrir superficies con una luz continua y homogénea integrada en el diseño.',
   'chalet-en-pozuelo-de-alarcon':
     'Diseño de luz orientado a crear ambientes cálidos y funcionales, integrando la iluminación de forma discreta en la arquitectura interior de la vivienda.',
-  'torre-consuegra-iluminacion-monumental':
-    'Puesta en escena de la arquitectura mediante luz exterior, acentuando la volumetría y la textura del monumento durante la noche.',
   'hotel-jc-santo-domingo-exteriores':
     'Bañadores de pared orientados a acentuar la volumetría y los materiales de la fachada con un trazo limpio y uniforme, señalizando con luz el acceso del hotel.',
 }
@@ -117,8 +114,6 @@ const iluminacion = {
     'Paneles LED flexibles para crear superficies luminosas a medida dentro de la obra.',
   'chalet-en-pozuelo-de-alarcon':
     'Solución a medida para cada estancia, combinando luz general y luz de acento.',
-  'torre-consuegra-iluminacion-monumental':
-    'Iluminación exterior de acento para arquitectura monumental.',
   'hotel-jc-santo-domingo-exteriores':
     'Luz de acento en fachada con bañadores de pared, resaltando arquitectura y acceso con una temperatura de color cálida.',
 }
@@ -136,8 +131,6 @@ const control = {
     'Configuración y puesta en marcha del sistema de iluminación del centro.',
   'hotel-jc-santo-domingo':
     'Ajuste y puesta en marcha de la solución de iluminación.',
-  'torre-consuegra-iluminacion-monumental':
-    'Programación y puesta en marcha de la iluminación exterior del monumento.',
   'hotel-jc-santo-domingo-exteriores':
     'Programación y puesta en marcha de la iluminación exterior del hotel.',
 }
@@ -358,22 +351,31 @@ export const PROJECTS = [
     control: null,
   },
   {
-    slug: 'torre-consuegra-iluminacion-monumental',
-    name: 'Torre Consuegra',
-    location: 'Consuegra, Toledo',
+    slug: 'torreon-consuegra-fachadas',
+    name: 'Torreón de la Tercia',
+    location: 'Toledo',
     category: 'exterior-y-fachadas',
-    type: 'Iluminación monumental · Arquitectura exterior',
-    intro: 'La arquitectura exterior puesta en escena con luz.',
+    type: 'Iluminación exterior · Fachadas dinámicas',
+    intro: 'Una iluminación escénica que devuelve protagonismo al torreón y a su entorno histórico.',
     images: [
-      `${BASE}torre_consuerga_home.png`,
-      `${BASE}entrada_torre_consuegra.jpg`,
+      `${TORRE_CONSUEGRA_BASE}Torreon de toledo (2).png`,
+      `${TORRE_CONSUEGRA_BASE}Escaleras.png`,
+      `${TORRE_CONSUEGRA_BASE}Escalersa.png`,
+      `${TORRE_CONSUEGRA_BASE}Luz morada.png`,
+      `${TORRE_CONSUEGRA_BASE}Luz roja.png`,
+      `${TORRE_CONSUEGRA_BASE}Torreon de Toledo.png`,
+      `${TORRE_CONSUEGRA_BASE}Torreon Toledo.png`,
     ],
     year: null,
-    productos: [],
-    elProyecto: elProyecto['torre-consuegra-iluminacion-monumental'],
-    laSolucion: laSolucion['torre-consuegra-iluminacion-monumental'],
-    iluminacion: iluminacion['torre-consuegra-iluminacion-monumental'],
-    control: control['torre-consuegra-iluminacion-monumental'],
+    productos: ['Bañadores de pared', 'Iluminación RGB', 'Tiras LED'],
+    elProyecto:
+      'La intervención ilumina el Torreón de Consuegra y sus recorridos exteriores, respetando la textura de la piedra y la presencia del conjunto en el paisaje nocturno de Toledo.',
+    laSolucion:
+      'Se combinan proyectores de acento y líneas LED integradas en los recorridos para destacar la volumetría, los huecos y los cambios de nivel sin perder la lectura de la arquitectura.',
+    iluminacion:
+      'La instalación permite crear escenas cálidas, rojas, moradas y multicolor para adaptar el ambiente a celebraciones y momentos especiales.',
+    control:
+      'La programación de escenas y la puesta en marcha permiten cambiar el carácter de la fachada y mantener un encendido coordinado en todo el conjunto.',
   },
   {
     slug: 'hotel-jc-santo-domingo-exteriores',

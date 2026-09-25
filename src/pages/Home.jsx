@@ -26,7 +26,7 @@ const services = [
 const HOME_PROJECT_SLUGS = [
   'obra-panel-led-flexible',
   'chalet-en-pozuelo-de-alarcon',
-  'torre-consuegra-iluminacion-monumental',
+  'torreon-consuegra-fachadas',
 ]
 
 export default function Home() {
