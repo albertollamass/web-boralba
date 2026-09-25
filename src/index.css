@@ -8578,52 +8578,6 @@ body:not(:has(.redesign-home)) .flyout {
   background: #f0f0ee;
 }
 
-/* ---------- 10 Â· Footer blanco y limpio (home) ---------- */
-.home-frame .footer {
-  background: #ffffff;
-  color: #666666;
-  margin-top: 0;
-  padding-top: clamp(56px, 7vw, 88px);
-}
-.site-frame + .footer .container,
-.home-frame .footer {
-  color: #666666;
-}
-.home-frame .footer h4 {
-  color: #171717;
-  font-size: 0.74rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-family: var(--font-montserrat);
-  font-weight: 700;
-  margin-bottom: 16px;
-}
-.home-frame .footer a {
-  color: #666666;
-}
-.home-frame .footer a:hover {
-  color: #dd3531;
-}
-.home-frame .footer .logo img,
-.footer-home .logo img {
-  height: 36px;
-  filter: none;
-  margin-bottom: 18px;
-}
-.home-frame .footer p {
-  color: #666666;
-}
-.home-frame .footer-bottom {
-  border-top: 0;
-  color: #9a9aa2;
-}
-.home-frame .footer-bottom .legal a {
-  color: #666666;
-}
-.home-frame .footer-bottom .legal a:hover {
-  color: #dd3531;
-}
-
 /* ---------- Responsive home ---------- */
 @media (max-width: 1024px) {
   .projects-content {
@@ -10417,6 +10371,149 @@ body:not(:has(.redesign-home)) .flyout {
   }
 }
 
+/* ---------- Footer minimal ---------- */
+.footer.footer-minimal {
+  --footer-muted: rgba(255, 255, 255, .62);
+  background: #000;
+  color: var(--footer-muted);
+  margin-top: 0;
+  padding: clamp(72px, 9vw, 124px) 0 0;
+}
+
+.site-frame .footer.footer-minimal .container {
+  width: 100%;
+  max-width: 1920px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 6vw, 24px);
+}
+
+@media (min-width: 600px) {
+  .site-frame .footer.footer-minimal .container {
+    padding-inline: clamp(40px, 5.5vw, 48px);
+  }
+}
+
+@media (min-width: 1025px) {
+  .site-frame .footer.footer-minimal .container {
+    padding-inline: clamp(72px, 7vw, 120px);
+  }
+}
+
+@media (min-width: 1521px) {
+  .site-frame .footer.footer-minimal .container {
+    padding-inline: clamp(160px, 9.5vw, 190px);
+  }
+}
+
+.footer-minimal .footer-grid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(180px, .85fr) minmax(180px, .9fr);
+  gap: clamp(48px, 9vw, 150px);
+  padding-bottom: clamp(68px, 8vw, 112px);
+}
+
+.footer-minimal h4 {
+  margin: 0 0 22px;
+  color: rgba(255, 255, 255, .9);
+  font: 600 .68rem var(--font-montserrat);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.footer-minimal .logo img {
+  height: 35px;
+  margin: 0 0 24px;
+  filter: brightness(0) invert(1);
+}
+
+.footer-minimal .footer-brand p {
+  max-width: 290px;
+  margin: 0;
+  color: var(--footer-muted);
+  font-size: .88rem;
+  line-height: 1.7;
+}
+
+.footer-minimal ul {
+  display: grid;
+  gap: 10px;
+}
+
+.footer-minimal ul li {
+  margin: 0;
+}
+
+.footer-minimal a {
+  color: var(--footer-muted);
+  font-size: .88rem;
+  transition: color .2s ease;
+}
+
+.footer-minimal a:hover {
+  color: #fff;
+}
+
+.footer-minimal .footer-contact {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.footer-minimal .footer-contact span {
+  color: var(--footer-muted);
+  font-size: .88rem;
+}
+
+.footer-minimal .footer-bottom {
+  min-height: 64px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  padding: 18px 0;
+  color: rgba(255, 255, 255, .42);
+  font-size: .7rem;
+  letter-spacing: .01em;
+}
+
+.footer-minimal .footer-bottom .legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.footer-minimal .footer-bottom .legal a {
+  margin: 0;
+  color: rgba(255, 255, 255, .42);
+  font-size: inherit;
+}
+
+.footer-minimal .footer-bottom .legal > * + * {
+  margin-left: 9px;
+}
+
+@media (max-width: 760px) {
+  .footer.footer-minimal {
+    padding-top: 64px;
+  }
+
+  .footer-minimal .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    padding-bottom: 64px;
+  }
+
+  .footer-minimal .footer-brand p {
+    max-width: 330px;
+  }
+
+  .footer-minimal .footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .footer-minimal .footer-bottom .legal {
+    row-gap: 8px;
+  }
+}
+
 /* ================================================================
    EMPRESA â€” reportaje editorial premium
    EstÃ©tica de revista de arquitectura: blanco, negro #171717,
@@ -11407,4 +11504,150 @@ body:not(:has(.redesign-home)) .flyout {
 
 @media (max-width: 480px) {
   .pil-b2-media { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   AJUSTE RESPONSIVE FINAL
+   Prioriza lectura, tacto y una columna en pantallas pequenas sin
+   cambiar la identidad visual de Boralba.
+   ================================================================ */
+html,
+body,
+#root,
+.site-frame,
+.site-main,
+.home,
+.internal-page-container {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 1024px) {
+  .bh-nav { display: none; }
+  .bh-burger { display: inline-flex; min-width: 44px; min-height: 44px; }
+  .bh-actions { margin-left: auto; }
+  .bh-phone,
+  .bh-actions .bh-cta { display: none; }
+  .bh-inner { min-height: 66px; padding-inline: 20px; }
+  .bh-mobile { top: 66px; padding-inline: 20px; max-height: calc(100vh - 66px); overflow-y: auto; }
+  .bh-mobile-link,
+  .bh-mobile-toggle { min-height: 48px; }
+  .bh-mobile-cta { width: 100%; min-height: 48px; }
+}
+
+@media (max-width: 600px) {
+  .container,
+  .home .container,
+  .internal-page-container.site-main .container,
+  .internal-page-container.site-main .container.disena-shell {
+    width: 100%;
+    padding-inline: 20px;
+  }
+
+  h1 { font-size: clamp(40px, 10vw, 64px); line-height: .98; }
+  h2 { font-size: clamp(30px, 8vw, 44px); line-height: 1.02; }
+  body { font-size: 16px; line-height: 1.5; }
+  .btn,
+  .home-btn,
+  .disena-submit,
+  .contacto-page .form .btn-primary { min-height: 48px; }
+
+  .topbar { display: none; }
+  .bh-logo img { height: 34px; }
+
+  .home .home-hero-copy h1 { font-size: clamp(40px, 10vw, 58px); line-height: .98; }
+  .home .home-hero-copy { padding-inline: 20px; }
+  .home-hero-actions { gap: 12px; }
+  .home-hero-actions .home-btn { width: 100%; }
+  .home-section--products,
+  .home-section--projects,
+  .home-section--services,
+  .home-section--trust,
+  .home-section--company,
+  .home-section--resources { margin-top: 0; padding-block: 64px; }
+  .home .home-project--main .home-project-media,
+  .home .home-projects-side .home-project-media { aspect-ratio: 4 / 3; }
+  .home-cta { min-height: 440px; }
+  .home-cta > div { padding: 20px; }
+  .home-cta h2 { font-size: clamp(30px, 8vw, 44px); }
+
+  .proy-hero,
+  .servicios-hero,
+  .disena-intro,
+  .contacto-hero { min-height: 0; padding-block: 56px; }
+  .proy-hero h1,
+  .servicios-hero h1,
+  .disena-intro h1,
+  .contacto-hero-copy h1 { font-size: clamp(40px, 10vw, 58px); line-height: .98; }
+
+  .proy-cat-projects,
+  .servicios-explorer,
+  .contacto-contacto,
+  .disena-form-section { padding-block: 56px; }
+  .proy-filters,
+  .servicios-nav {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    padding-bottom: 14px;
+  }
+  .proy-filters::-webkit-scrollbar,
+  .servicios-nav::-webkit-scrollbar { display: none; }
+  .proy-filter,
+  .servicios-nav-item { min-height: 44px; padding: 12px 0; font-size: .72rem; }
+  .proy-grid--filtered { gap: 40px; }
+  .proy-item-media { aspect-ratio: 4 / 3; }
+
+  .contacto-contacto { margin-top: 0; }
+  .contacto-section-head { margin-bottom: 32px; }
+  .contacto-info-grid { gap: 36px; }
+  .contacto-info { gap: 28px; }
+  .contacto-form-grid { grid-template-columns: 1fr; gap: 22px; }
+  .contacto-page .form input,
+  .contacto-page .form select { min-height: 48px; }
+  .contacto-page .form textarea { min-height: 180px; }
+  .contacto-page .form .check { align-items: flex-start; font-size: .82rem; }
+  .contacto-page .form .check input { width: 20px; min-width: 20px; height: 20px; margin-top: 1px; }
+  .contacto-page .form .btn-primary { width: 100%; justify-content: center; }
+  .contacto-ubicacion { margin-top: 0; padding-block: 56px; }
+  .contacto-ubicacion-head { align-items: flex-start; }
+  .contacto-ubicacion-head .btn { width: 100%; justify-content: center; }
+  .contacto-ubicacion-media img { aspect-ratio: 4 / 3; border-radius: 2px; }
+
+  .servicios-nav { gap: 24px; }
+  .servicios-nav-item { flex: 0 0 auto; text-align: left; }
+  .servicio-panel { gap: 28px; }
+  .servicio-panel-media { height: 68vw; max-height: 360px; }
+  .servicio-panel h2 { max-width: none; font-size: clamp(30px, 8vw, 44px); }
+  .servicios-process { padding-block: 56px 72px; }
+  .servicios-process h2 { font-size: clamp(30px, 8vw, 44px); }
+  .servicios-process-line span { min-height: 44px; margin-bottom: 8px; }
+  .technology-grid { row-gap: 48px; }
+  .technology-card .servicios-brand-image { height: min(62vw, 300px); }
+  .servicios-brand-cta { min-height: 44px; align-items: center; }
+
+  .disena-intro { min-height: 0; }
+  .disena-guide { gap: 14px; }
+  .disena-grid { row-gap: 28px; }
+  .disena-input { min-height: 48px; }
+  .disena-opts { gap: 10px; }
+  .disena-opt { min-height: 44px; padding-inline: 16px; }
+  .disena-textarea { min-height: 190px; }
+  .disena-drop { min-height: 120px; padding: 20px 16px; }
+  .disena-file-btn { min-height: 44px; }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+  .container,
+  .internal-page-container.site-main .container { padding-inline: 40px; }
+  .home .container { padding-inline: 40px; }
 }

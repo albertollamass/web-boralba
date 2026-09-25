@@ -32,7 +32,7 @@ export default function Layout() {
         <main className={`site-main${isHome ? ' home-main' : ' internal-page-container'}`}>
           <Outlet />
         </main>
-        <Footer home={isHome} />
+        <Footer />
       </div>
       <CookieBanner />
     </>

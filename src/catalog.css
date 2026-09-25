@@ -406,3 +406,51 @@
   .pc-custom-copy { padding: 56px 24px; }
   .pc-custom-media { min-height: 300px; height: 300px; }
 }
+
+/* Mobile catalogue: readable cards, touch-friendly filters and no clipped titles. */
+@media (max-width: 1024px) {
+  .pc-hero h1 { white-space: normal; }
+  .pc-family-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pc-subcat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pc-product-grid,
+  .pc-featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 600px) {
+  .pc-hero {
+    min-height: 0;
+    padding: 56px 0 64px;
+    background-position: 62% center;
+  }
+  .pc-hero h1 { font-size: clamp(40px, 10vw, 58px); line-height: .98; }
+  .pc-hero-sub { line-height: 1.55; }
+  .pc-body { padding-top: 56px; }
+  .pc-sec-head,
+  .pc-products-head { margin-bottom: 28px; }
+  .pc-family-grid,
+  .pc-subcat-grid,
+  .pc-product-grid,
+  .pc-featured-grid { grid-template-columns: 1fr; gap: 36px; }
+  .pc-family-copy strong,
+  .pc-subcat-copy strong,
+  .pc-product-name { overflow-wrap: anywhere; }
+  .pc-filterrow {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow-x: auto;
+    gap: 12px;
+    padding-block: 14px;
+    scrollbar-width: none;
+  }
+  .pc-filterrow::-webkit-scrollbar { display: none; }
+  .pc-filterrow-label,
+  .catalog-filter,
+  .catalog-filter-clear { flex: 0 0 auto; }
+  .catalog-filter select { min-height: 44px; }
+  .pc-chip { min-height: 44px; padding-top: 12px; }
+  .pc-chips { flex-wrap: nowrap; overflow-x: auto; gap: 24px; scrollbar-width: none; }
+  .pc-chips::-webkit-scrollbar { display: none; }
+  .pc-custom { width: 100%; margin-inline: 0; }
+  .pc-custom-copy { padding-inline: 20px; }
+}
