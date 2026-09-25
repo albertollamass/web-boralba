@@ -1,4 +1,5 @@
 const BASE = `${import.meta.env.BASE_URL}images/proyectos/`
+const GYM_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/SALUD Y BIENESTAR/Gimansio · MADRID/`
 
 export const PROJECT_CATEGORIES = [
   {
@@ -226,6 +227,33 @@ export const PROJECTS = [
     laSolucion: null,
     iluminacion: null,
     control: null,
+  },
+  {
+    slug: 'gimnasio-madrid',
+    name: 'Gimnasio Madrid',
+    location: 'Madrid',
+    category: 'salud-y-bienestar',
+    type: 'Iluminación LED integral',
+    intro: 'Una iluminación dinámica para entrenar, concentrarse y recuperar.',
+    images: [
+      `${GYM_BASE}Iluminacion en pasillo.png`,
+      `${GYM_BASE}Ilumiación de banco.png`,
+      `${GYM_BASE}Espacio de ciclo 2.png`,
+      `${GYM_BASE}Espacio de boxeo.png`,
+      `${GYM_BASE}Espacio de ciclo.png`,
+      `${GYM_BASE}Espacio ciclo altillo.png`,
+      `${GYM_BASE}Espcacio de ciclo luces blancas.png`,
+    ],
+    year: 2026,
+    productos: ['Tiras LED', 'Perfiles', 'Iluminación RGB'],
+    elProyecto:
+      'El proyecto transforma un gimnasio de Madrid en una experiencia de entrenamiento completa, con una identidad luminosa capaz de adaptarse a cada zona y a cada ritmo de actividad.',
+    laSolucion:
+      'Se combinan líneas de luz integradas, iluminación ambiental cálida y escenas de color para definir recorridos, reforzar la energía de las salas y mantener el confort visual durante el entrenamiento.',
+    iluminacion:
+      'La luz blanca y uniforme acompaña las áreas de máquinas y circulación, mientras que los tonos azul, violeta y verde construyen una atmósfera inmersiva en las salas de ciclo y actividades dirigidas.',
+    control:
+      'La puesta en marcha permite ajustar las escenas según el uso de cada espacio, desde una iluminación funcional para el día a día hasta ambientes más intensos para las sesiones de grupo.',
   },
   {
     slug: 'centro-cultural-antonio-lopez',
