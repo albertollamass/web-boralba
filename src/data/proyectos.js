@@ -249,7 +249,7 @@ export const PROJECTS = [
     type: 'Iluminación LED integral',
     intro: 'Una iluminación dinámica para entrenar, concentrarse y recuperar.',
     images: [
-      `${GYM_BASE}Iluminacion en pasillo.png`,
+      `${GYM_BASE}Espacio de ciclo.png`,
       `${GYM_BASE}Ilumiación de banco.png`,
       `${GYM_BASE}Espacio de ciclo 2.png`,
       `${GYM_BASE}Espacio de boxeo.png`,
