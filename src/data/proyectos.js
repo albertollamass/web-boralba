@@ -1,5 +1,6 @@
 const BASE = `${import.meta.env.BASE_URL}images/proyectos/`
 const GYM_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/SALUD Y BIENESTAR/Gimansio · MADRID/`
+const HOSPITAL_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/SALUD Y BIENESTAR/Hospital Greogorio Marañón Madrid/`
 
 export const PROJECT_CATEGORIES = [
   {
@@ -181,23 +182,35 @@ export const PROJECTS = [
     control: control['tunel-calle-damas'],
   },
   {
-    slug: 'centro-medico',
-    name: 'Centro Médico',
-    location: '',
+    slug: 'hospital-gregorio-maranon',
+    name: 'Hospital Gregorio Marañón',
+    location: 'Madrid',
     category: 'salud-y-bienestar',
-    type: 'Tiras LED y perfiles',
-    intro: 'Líneas de luz integradas para un ambiente asistencial uniforme y confortable.',
+    type: 'Iluminación LED asistencial',
+    intro: 'Una luz precisa y confortable para acompañar cada espacio del hospital.',
     images: [
-      `${BASE}centro_medico_3.jpg`,
-      `${BASE}centro_medico_2.jpg`,
-      `${BASE}centro_medico_1.jpg`,
+      `${HOSPITAL_BASE}Iluminacion en pasillo.png`,
+      `${HOSPITAL_BASE}Iluminacion sala.png`,
+      `${HOSPITAL_BASE}Iluminación consulta.png`,
+      `${HOSPITAL_BASE}Ilumiinacion en cama.png`,
+      `${HOSPITAL_BASE}Iluminacion en escritorio.png`,
+      `${HOSPITAL_BASE}Iluminación consulta (2).png`,
+      `${HOSPITAL_BASE}Iluminacion sala concreta.png`,
+      `${HOSPITAL_BASE}Iluminación en cama 2.png`,
+      `${HOSPITAL_BASE}Iluminación sala de ordenadores.png`,
+      `${HOSPITAL_BASE}Iluminación sala de ordenadores 2.png`,
+      `${HOSPITAL_BASE}Iluminación sala de ordenadores 3.png`,
     ],
-    year: null,
-    productos: ['Tiras LED', 'Perfiles'],
-    elProyecto: elProyecto['centro-medico'],
-    laSolucion: laSolucion['centro-medico'],
-    iluminacion: iluminacion['centro-medico'],
-    control: control['centro-medico'],
+    year: 2026,
+    productos: ['Tiras LED', 'Perfiles', 'Iluminación técnica'],
+    elProyecto:
+      'La renovación del Hospital Gregorio Marañón en Madrid reúne espacios asistenciales, consultas y áreas de trabajo que necesitan una iluminación clara, fiable y respetuosa con las personas.',
+    laSolucion:
+      'La propuesta combina líneas LED integradas, iluminación general uniforme y puntos de apoyo específicos para resolver cada uso sin perder continuidad visual entre pasillos, habitaciones y zonas de trabajo.',
+    iluminacion:
+      'La luz neutra facilita la actividad sanitaria y administrativa, mientras que los niveles controlados y los encendidos lineales reducen deslumbramientos y ayudan a crear una sensación más serena.',
+    control:
+      'La puesta en marcha permite ajustar cada zona a sus necesidades de uso, manteniendo una instalación eficiente y preparada para el funcionamiento continuo del hospital.',
   },
   {
     slug: 'centro-de-pilates',
