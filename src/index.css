@@ -9780,52 +9780,40 @@ body:not(:has(.redesign-home)) .flyout {
 .proy-item:hover .proy-item-media img { transform: scale(1.04); }
 .proy-item-body {
   display: grid;
-  gap: 12px;
-  padding-top: 20px;
+  gap: 10px;
+  padding-top: 18px;
 }
-.proy-item-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; }
-.proy-item-type,
-.proy-item-loc {
+.proy-item-meta {
+  margin: 0;
   font-family: var(--font-montserrat);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  color: var(--proy-gray);
+  font-size: clamp(0.75rem, 1vw, 0.875rem);
+  font-weight: 400;
+  line-height: 1.4;
 }
-.proy-item-type { color: var(--proy-red); }
-.proy-item-loc { color: var(--proy-gray); }
 .proy-item-body h2 {
   margin: 0;
-  font-size: clamp(1.25rem, 2vw, 1.7rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.5rem, 2.5vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
   line-height: 1.1;
-}
-.proy-item-phrase {
-  max-width: 42ch;
-  margin: 0;
-  color: var(--proy-gray);
-  font-size: 0.95rem;
-  line-height: 1.6;
 }
 .proy-item-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
-  padding-bottom: 4px;
+  margin-top: 8px;
   width: fit-content;
-  border-bottom: 1px solid transparent;
   font-family: var(--font-montserrat);
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--proy-ink);
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition: color 0.2s ease;
 }
 .proy-item-cta span { color: var(--proy-red); transition: transform 0.2s ease; }
-.proy-item:hover .proy-item-cta { color: var(--proy-red); border-bottom-color: var(--proy-red); }
+.proy-item:hover .proy-item-cta { color: var(--proy-red); }
 .proy-item:hover .proy-item-cta span { transform: translateX(3px); }
 
 .proy-cat-footer {
@@ -9926,7 +9914,7 @@ body:not(:has(.redesign-home)) .flyout {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.proy-grid--filtered .proy-item-body { padding-top: 16px; }
+.proy-grid--filtered .proy-item-body { padding-top: 18px; }
 .proy-empty {
    min-height: 140px;
   display: flex;

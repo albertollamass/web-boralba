@@ -21,8 +21,6 @@ export default function Proyectos() {
   const [selectedCategory, setSelectedCategory] = useState(DEFAULT_PROJECT_CATEGORY)
   const visibleProjects = PROJECTS.filter((project) => project.category === selectedCategory)
 
-  const getCategoryName = (slug) => PROJECT_CATEGORIES.find((category) => category.slug === slug)?.name || slug
-
   return (
     <div className="proyectos-redesign">
       <Seo
@@ -81,17 +79,13 @@ export default function Proyectos() {
                       <img src={project.images[0]} alt={project.name} loading="lazy" />
                     </div>
                     <div className="proy-item-body">
-                      <div className="proy-item-meta">
-                        <span className="proy-item-type">{getCategoryName(project.category)}</span>
-                        {project.location && (
-                          <span className="proy-item-loc">
-                            {project.location}
-                            {project.year ? ` · ${project.year}` : ''}
-                          </span>
-                        )}
-                      </div>
                       <h2>{project.name}</h2>
-                      {project.intro && <p className="proy-item-phrase">{project.intro}</p>}
+                      {project.location && (
+                        <p className="proy-item-meta">
+                          {project.location}
+                          {project.year ? ` · ${project.year}` : ''}
+                        </p>
+                      )}
                       <span className="proy-item-cta">
                         Ver proyecto <span aria-hidden="true">→</span>
                       </span>
