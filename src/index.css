@@ -9770,7 +9770,7 @@ body:not(:has(.redesign-home)) .flyout {
   aspect-ratio: 4 / 3;
   background: #efeeeb;
 }
-.proy-item--portrait .proy-item-media { aspect-ratio: 3 / 4; }
+.proy-item--portrait .proy-item-media { aspect-ratio: 4 / 3; }
 .proy-item-media img {
   width: 100%;
   height: 100%;
