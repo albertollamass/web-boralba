@@ -22,6 +22,7 @@ serviceAccount.json
 firestore.seed.json
 storage-manifest.json
 storage-export/
+db.sql
 
 # Editor directories and files
 .vscode/*
