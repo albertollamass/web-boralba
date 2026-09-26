@@ -28,6 +28,8 @@ minúsculas y sin punto final:
 ## Despliegue
 
 Push a `main` despliega automáticamente a GitHub Pages (`.github/workflows/deploy.yml`).
-Las `VITE_*` se inyectan en el build desde Variables del repo
-(Settings → Secrets and variables → Actions → Variables): el `.env` nunca sube.
+Las `VITE_*` se inyectan en el build desde Secrets del repo
+(Settings → Secrets and variables → Actions → Secrets): el `.env` nunca sube.
+(Ojo: al ir incrustadas en el JS público no son secretos reales; van en Secrets
+y no en Variables solo por comodidad.)
 Probar en local (`npm run dev`) antes de pushear a `main`.
