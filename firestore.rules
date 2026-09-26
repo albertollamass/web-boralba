@@ -1,0 +1,85 @@
+rules_version = '2';
+
+// BORALBA LIGHTING — Firestore Rules (equivalente a las políticas RLS de supabase/schema.sql)
+//
+// Modelo:
+// - products/{id}       -> lectura pública, escritura solo admin
+// - categories/{id}     -> lectura pública, escritura solo admin
+// - site_settings/{id}  -> lectura pública, escritura solo admin
+// - admins/{uid}        -> cada usuario lee su propio doc; solo admins escriben
+//                         (sustituye a public.profiles; id = uid de Firebase Auth)
+// - logs/{id}           -> cualquiera puede crear (para reportar errores sin sesión),
+//                         solo admins pueden leer/listar. Sin update/delete desde cliente.
+//
+// Quién es admin (por orden de preferencia):
+// 1. Custom claim `admin == true` (recomendado: se asigna con Admin SDK o Cloud Function).
+// 2. Documento existente en /admins/{uid} con role == 'admin' (para el arranque inicial).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasAdminClaim() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function isAdminDoc() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isAdmin() {
+      return hasAdminClaim() || isAdminDoc();
+    }
+
+    match /products/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /site_settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /admins/{uid} {
+      // El usuario ve su propio doc; un admin puede ver cualquiera (para gestionar el panel).
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // El primer admin se crea a mano desde la consola; después solo admins escriben.
+      allow write: if isAdmin();
+    }
+
+    match /logs/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Telemetría de lecturas (colección `usage`, un doc por día: `usage/2026-09-26`).
+    // La app suma aquí cada lectura real para avisar al llegar al 80% de la cuota.
+    // Lectura pública: son solo totales agregados, sin datos de negocio. La escritura
+    // está limitada a contadores monótonos (no se puede borrar ni bajar el contador).
+    function usageFieldsOk() {
+      return request.resource.data.keys().hasOnly(['reads', 'writes', 'alerted', 'updatedAt'])
+        && request.resource.data.reads is int && request.resource.data.reads >= 0
+        && request.resource.data.writes is int && request.resource.data.writes >= 0
+        && (!('alerted' in request.resource.data) || request.resource.data.alerted is bool);
+    }
+
+    match /usage/{day} {
+      allow read: if true;
+      allow create: if usageFieldsOk();
+      allow update: if usageFieldsOk()
+        && request.resource.data.reads >= resource.data.reads
+        && request.resource.data.writes >= resource.data.writes;
+      allow delete: if false;
+    }
+  }
+}

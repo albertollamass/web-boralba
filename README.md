@@ -79,14 +79,12 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 ```
 src/
-├── admin/            # Login + panel + formulario de producto
-├── components/       # Header, Footer, Layout, ProductCard, ScrollToTop, CookieBanner
-├── context/          # ProductsContext (catálogo solo desde Supabase) y AuthContext (login)
-├── data/             # categories.js (árbol); products.js solo de referencia, ya no se carga
-├── lib/              # supabase.js (cliente Supabase) y search.js (buscador)
-└── pages/            # Home, Productos, Categoría, Producto, Buscar, Outlet, Proyectos, Servicios, Contacto, Legal
-supabase/schema.sql   # SQL para crear las tablas y políticas de seguridad en Supabase
-docs/GUIA-COMPLETA.md # Guía paso a paso para principiantes
+├── App.jsx + main.jsx  # Rutas + composition root (cablea puertos con adaptadores)
+├── domain/             # Puro, sin dependencias: catálogo, buscador, SEO, proyectos
+├── application/        # Casos de uso (contextos) + puertos + telemetría de cuota
+├── infrastructure/     # Adaptadores: Firebase, Firestore, Cloudinary, Web3Forms…
+└── presentation/       # React: pages, components, admin, utils, styles
+docs/ARCHITECTURE.md    # Capas, puertos/adaptadores y decisiones
 ```
 
 Imágenes descargadas de la web original en `public/images/` para su uso local.

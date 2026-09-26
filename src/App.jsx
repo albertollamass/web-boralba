@@ -1,30 +1,29 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
-import Layout from './components/Layout'
-import Home from './pages/Home'
-import Productos from './pages/Productos'
-import { useCategories } from './context/CategoriesContext'
-import ProductoDetalle from './pages/ProductoDetalle'
-import Outlet from './pages/Outlet'
-import Buscar from './pages/Buscar'
-import Proyectos from './pages/Proyectos'
-import ProyectoDetalle from './pages/ProyectoDetalle'
-import Servicios from './pages/Servicios'
-import Empresa from './pages/Empresa'
-import Contacto from './pages/Contacto'
-import DisenaTuLuminaria from './pages/DisenaTuLuminaria'
-import Legal from './pages/Legal'
-import NotFound from './pages/NotFound'
-import AdminLogin from './admin/AdminLogin'
-import AdminPanel from './admin/AdminPanel'
-import { useAuth } from './context/AuthContext'
-import { isSupabaseConfigured } from './lib/supabase'
-import ScrollToTop from './components/ScrollToTop'
+import Layout from './presentation/components/Layout'
+import Home from './presentation/pages/Home'
+import Productos from './presentation/pages/Productos'
+import { useCategories } from './application/catalog/CategoriesContext'
+import ProductoDetalle from './presentation/pages/ProductoDetalle'
+import Outlet from './presentation/pages/Outlet'
+import Buscar from './presentation/pages/Buscar'
+import Proyectos from './presentation/pages/Proyectos'
+import ProyectoDetalle from './presentation/pages/ProyectoDetalle'
+import Servicios from './presentation/pages/Servicios'
+import Empresa from './presentation/pages/Empresa'
+import Contacto from './presentation/pages/Contacto'
+import DisenaTuLuminaria from './presentation/pages/DisenaTuLuminaria'
+import Legal from './presentation/pages/Legal'
+import NotFound from './presentation/pages/NotFound'
+import AdminLogin from './presentation/admin/AdminLogin'
+import AdminPanel from './presentation/admin/AdminPanel'
+import { useAuth } from './application/identity/AuthContext'
+import ScrollToTop from './presentation/components/ScrollToTop'
 
 const BASENAME = import.meta.env.PROD ? '/web-boralba' : '/'
 
-function AdminRoute({ children }) {
+function AdminRoute({ children, backendEnabled }) {
   const { user, isAdmin, loading } = useAuth()
-  if (!isSupabaseConfigured || loading) {
+  if (!backendEnabled || loading) {
     return (
       <div style={{ padding: '80px 20px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
         Cargando...
@@ -59,7 +58,7 @@ function CategoriaRedirect() {
   )
 }
 
-export default function App() {
+export default function App({ backendEnabled, telemetry, documentStorage, quoteSender }) {
   return (
     <BrowserRouter basename={BASENAME}>
       <ScrollToTop />
@@ -76,15 +75,15 @@ export default function App() {
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/empresa" element={<Empresa />} />
           <Route path="/contacto" element={<Contacto />} />
-          <Route path="/disena-tu-luminaria" element={<DisenaTuLuminaria />} />
+          <Route path="/disena-tu-luminaria" element={<DisenaTuLuminaria quoteSender={quoteSender} />} />
           <Route path="/legal/:slug" element={<Legal />} />
         </Route>
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<AdminLogin backendEnabled={backendEnabled} />} />
         <Route
           path="/admin"
           element={
-            <AdminRoute>
-              <AdminPanel />
+            <AdminRoute backendEnabled={backendEnabled}>
+              <AdminPanel telemetry={telemetry} documentStorage={documentStorage} />
             </AdminRoute>
           }
         />

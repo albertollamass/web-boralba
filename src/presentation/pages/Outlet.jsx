@@ -1,0 +1,66 @@
+import { Link } from 'react-router-dom'
+import { useProducts } from '../../application/catalog/ProductsContext'
+import ProductCard from '../components/ProductCard'
+import Seo from '../components/Seo'
+
+export default function Outlet() {
+  const { products, hydrated } = useProducts()
+  const outletProducts = products.filter((p) => p.outlet)
+  const regular = products.filter((p) => !p.outlet).slice(0, 4)
+
+  return (
+    <>
+      <Seo
+        title="Outlet de iluminación LED"
+        description="Ofertas y oportunidades en iluminación LED profesional Boralba. Stock limitado con asesoramiento técnico incluido."
+        path="/outlet"
+        noindex
+      />
+      <div className="container section">
+        <div className="outlet-banner">
+          <h1>Outlet</h1>
+          <p>Donde las mejores luces encuentran su mejor precio</p>
+          <Link to="/contacto" className="btn btn-accent" target="_blank" rel="noreferrer">
+            Contactar
+          </Link>
+        </div>
+
+        <div className="section-head">
+          <span className="tag">Ofertas</span>
+          <h2>Productos en oferta</h2>
+        </div>
+
+        {!hydrated ? (
+          <div className="empty-state">
+            <h3>Cargando productos...</h3>
+          </div>
+        ) : outletProducts.length > 0 ? (
+          <div className="grid grid-4">
+            {outletProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <h3>No hay productos en oferta actualmente</h3>
+            <p>Estamos renovando el outlet. Vuelve pronto para ver nuevas ofertas.</p>
+          </div>
+        )}
+      </div>
+
+      {regular.length > 0 && (
+        <div className="container section" style={{ paddingTop: 0 }}>
+          <div className="section-head">
+            <span className="tag">Catálogo</span>
+            <h2>También te puede interesar</h2>
+          </div>
+          <div className="grid grid-4">
+            {regular.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}

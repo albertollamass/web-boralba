@@ -17,6 +17,12 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Migración Firebase (datos locales y credenciales: NO commitear)
+serviceAccount.json
+firestore.seed.json
+storage-manifest.json
+storage-export/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
