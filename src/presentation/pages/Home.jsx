@@ -1,11 +1,9 @@
 import { useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import ProductCarousel from '../components/ProductCarousel'
 import FamilyCarousel from '../components/FamilyCarousel'
 import Reveal from '../components/Reveal'
 import Seo from '../components/Seo'
 import { useCategories } from '../../application/catalog/CategoriesContext'
-import { useProducts } from '../../application/catalog/ProductsContext'
 import { ROOT } from '../../domain/catalog/categoryTree'
 import { PROJECTS } from '../../domain/showcase/proyectos'
 import { canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
@@ -31,12 +29,10 @@ const HOME_PROJECT_SLUGS = [
 
 export default function Home() {
   const { categories, getCategory, getChildren } = useCategories()
-  const { products } = useProducts()
   const flagged = categories.filter((category) => category.showInHome).sort((a, b) => (a.homeOrder ?? 999) - (b.homeOrder ?? 999))
   const source = flagged.length ? flagged : getChildren(ROOT.slug)
   const families = source.map((category) => ({ slug: category.slug, name: category.name }))
   const getCatImage = (slug) => getCategory(slug)?.image || 'images/placeholder.svg'
-  const featuredProducts = products.filter((product) => !product.outlet).slice(0, 12)
   const projects = HOME_PROJECT_SLUGS.map((slug) => PROJECTS.find((p) => p.slug === slug)).filter(Boolean)
   const videoRef = useRef(null)
   const ctaRef = useRef(null)
@@ -178,15 +174,9 @@ export default function Home() {
               <Link to="/productos" className="home-sec-link">Ver todos los productos <span>→</span></Link>
             </Reveal>
           </div>
-          {featuredProducts.length > 0 ? (
-            <Reveal delay={150}>
-              <ProductCarousel products={featuredProducts} />
-            </Reveal>
-          ) : (
-            <Reveal delay={150}>
-              <FamilyCarousel families={families} getCatImage={getCatImage} />
-            </Reveal>
-          )}
+          <Reveal delay={150}>
+            <FamilyCarousel families={families} getCatImage={getCatImage} />
+          </Reveal>
         </div>
       </section>
 

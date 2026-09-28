@@ -77,7 +77,7 @@ export default function ProyectoEditorial({ project }) {
               <div className={`pil-b2-media${b2Photos.length === 1 ? ' is-single' : ''}`}>
                 {b2Photos.map((src, i) => (
                   <img
-                    className="pil-b2-img"
+                   className={`pil-b2-img${project.detailImageFit === 'contain' ? ' is-contain' : ''}`}
                     key={src}
                     src={src}
                     alt={`${project.name} — detalle ${i + 1}`}

@@ -11328,6 +11328,7 @@ body:not(:has(.redesign-home)) .flyout {
   object-position: center;
   border-radius: 2px;
 }
+.pil-b2-img.is-contain { object-fit: contain; }
 .pil-b2-copy { max-width: 440px; }
 .pilates-editorial .pil-b2-copy h2 {
   margin: 0 0 24px;

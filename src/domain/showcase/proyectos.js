@@ -2,6 +2,7 @@ const BASE = `${import.meta.env.BASE_URL}images/proyectos/`
 const GYM_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/SALUD Y BIENESTAR/Gimansio · MADRID/`
 const HOSPITAL_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/SALUD Y BIENESTAR/Hospital Greogorio Marañón Madrid/`
 const TORRE_CONSUEGRA_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/EXTERIORES Y FACHADAS/TORRE CONSUEGRA TOLEDO/`
+const CENTRO_CULTURAL_EXTERIOR_BASE = `${import.meta.env.BASE_URL}images/IMAGENES PROYECTOS/EXTERIORES Y FACHADAS/Centro cultural ANTONIO lOPEZ/`
 
 export const PROJECT_CATEGORIES = [
   {
@@ -74,6 +75,8 @@ const elProyecto = {
     'Vivienda unifamiliar donde la iluminación se diseña para acompañar el día a día de la casa y realzar cada espacio del hogar.',
   'hotel-jc-santo-domingo-exteriores':
     'Iluminación exterior del Hotel JC Santo Domingo, donde la fachada cobra presencia y carácter durante la noche, convirtiendo el acceso del hotel en un elemento reconocible de la ciudad.',
+  'centro-cultural-antonio-lopez-exteriores':
+    'Intervención exterior del Centro Cultural Antonio López, donde la iluminación convierte la fachada en un punto de referencia cultural durante la noche.',
 }
 
 const laSolucion = {
@@ -95,6 +98,8 @@ const laSolucion = {
     'Diseño de luz orientado a crear ambientes cálidos y funcionales, integrando la iluminación de forma discreta en la arquitectura interior de la vivienda.',
   'hotel-jc-santo-domingo-exteriores':
     'Bañadores de pared orientados a acentuar la volumetría y los materiales de la fachada con un trazo limpio y uniforme, señalizando con luz el acceso del hotel.',
+  'centro-cultural-antonio-lopez-exteriores':
+    'Iluminación integrada en la fachada para destacar la rotulación, los huecos arquitectónicos y la presencia urbana del centro cultural.',
 }
 
 const iluminacion = {
@@ -116,6 +121,8 @@ const iluminacion = {
     'Solución a medida para cada estancia, combinando luz general y luz de acento.',
   'hotel-jc-santo-domingo-exteriores':
     'Luz de acento en fachada con bañadores de pared, resaltando arquitectura y acceso con una temperatura de color cálida.',
+  'centro-cultural-antonio-lopez-exteriores':
+    'Neón flex LED para la rotulación exterior y la creación de una identidad luminosa visible desde el entorno urbano.',
 }
 
 const control = {
@@ -133,6 +140,8 @@ const control = {
     'Ajuste y puesta en marcha de la solución de iluminación.',
   'hotel-jc-santo-domingo-exteriores':
     'Programación y puesta en marcha de la iluminación exterior del hotel.',
+  'centro-cultural-antonio-lopez-exteriores':
+    'Gestión del encendido y puesta en marcha de la instalación luminosa exterior del centro cultural.',
 }
 
 export const PROJECTS = [
@@ -402,6 +411,31 @@ export const PROJECTS = [
     laSolucion: laSolucion['hotel-jc-santo-domingo-exteriores'],
     iluminacion: iluminacion['hotel-jc-santo-domingo-exteriores'],
     control: control['hotel-jc-santo-domingo-exteriores'],
+  },
+  {
+    slug: 'centro-cultural-antonio-lopez-exteriores',
+    name: 'Centro Cultural Antonio López',
+    location: '',
+    category: 'exterior-y-fachadas',
+    type: 'Iluminación exterior · Fachada y rotulación',
+    intro: 'Una fachada cultural que se reconoce también de noche.',
+    images: [
+      `${CENTRO_CULTURAL_EXTERIOR_BASE}Fachada.png`,
+      `${CENTRO_CULTURAL_EXTERIOR_BASE}iLUMINACIÓN FACHADA.png`,
+      `${CENTRO_CULTURAL_EXTERIOR_BASE}Letras iluinadas.png`,
+    ],
+    gallery: [
+      `${CENTRO_CULTURAL_EXTERIOR_BASE}Fachada.png`,
+      `${CENTRO_CULTURAL_EXTERIOR_BASE}iLUMINACIÓN FACHADA.png`,
+      `${CENTRO_CULTURAL_EXTERIOR_BASE}Letras iluinadas.png`,
+    ],
+    detailImageFit: 'contain',
+    year: null,
+    productos: ['Neón flex LED', 'Iluminación de fachada'],
+    elProyecto: elProyecto['centro-cultural-antonio-lopez-exteriores'],
+    laSolucion: laSolucion['centro-cultural-antonio-lopez-exteriores'],
+    iluminacion: iluminacion['centro-cultural-antonio-lopez-exteriores'],
+    control: control['centro-cultural-antonio-lopez-exteriores'],
   },
 ]
 
