@@ -4,6 +4,9 @@ import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import Seo from '../components/Seo'
 import { canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
 
+const ENDPOINT = 'https://api.web3forms.com/submit'
+const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ''
+
 const icons = {
   phone: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -46,11 +49,13 @@ export default function Contacto() {
   })
   const [captcha, setCaptcha] = useState({ num1: 12, num2: 8, answer: '' })
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
   const updateCheck = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.checked }))
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     if (parseInt(captcha.answer, 10) !== captcha.num1 + captcha.num2) {
       alert('La solución de la operación no es correcta.')
@@ -60,7 +65,55 @@ export default function Contacto() {
       alert('Debes aceptar la política de privacidad, cookies y aviso legal.')
       return
     }
-    setSent(true)
+    if (!ACCESS_KEY) {
+      setErrorMsg('El formulario aún no está configurado para el envío. Inténtalo más tarde.')
+      return
+    }
+
+    setSending(true)
+    setErrorMsg('')
+
+    try {
+      const data = new FormData()
+      data.append('access_key', ACCESS_KEY)
+      data.append('subject', `Nueva consulta de contacto — ${form.nombre.trim()}`)
+      data.append('from_name', form.nombre.trim())
+      data.append('replyto', form.email.trim())
+      data.append('Nombre', form.nombre.trim())
+      data.append('email', form.email.trim())
+      data.append('Teléfono', form.telefono.trim() || 'No indicado')
+      data.append('Tipo de consulta', form.tipo || 'No indicado')
+      data.append('Mensaje', form.mensaje.trim() || 'Sin mensaje')
+      data.append('Acepta privacidad, cookies y aviso legal', 'Sí')
+
+      const response = await fetch(ENDPOINT, {
+        method: 'POST',
+        body: data,
+        headers: { Accept: 'application/json' },
+      })
+      const result = await response.json().catch(() => ({
+        success: false,
+        message: 'El servicio no respondió correctamente.',
+      }))
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          typeof result.message === 'string'
+            ? result.message
+            : 'No se pudo enviar la consulta. Vuelve a intentarlo.'
+        )
+      }
+
+      setSent(true)
+    } catch (error) {
+      setErrorMsg(
+        error instanceof Error
+          ? error.message
+          : 'No se pudo enviar la consulta. Comprueba tu conexión e inténtalo de nuevo.'
+      )
+    } finally {
+      setSending(false)
+    }
   }
 
   const scrollToForm = (e) => {
@@ -227,8 +280,9 @@ export default function Contacto() {
                       onChange={(e) => setCaptcha((c) => ({ ...c, answer: e.target.value }))}
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary">
-                    Enviar consulta
+                  {errorMsg && <p className="disena-alert" role="alert">{errorMsg}</p>}
+                  <button type="submit" className="btn btn-primary" disabled={sending}>
+                    {sending ? 'Enviando…' : 'Enviar consulta'}
                     <span className="btn-arrow" aria-hidden="true">→</span>
                   </button>
                 </form>

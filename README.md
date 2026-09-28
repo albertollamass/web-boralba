@@ -69,9 +69,12 @@ Copia `.env.example` a `.env` y rellena con los datos de tu proyecto Supabase
 ```env
 VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+VITE_WEB3FORMS_ACCESS_KEY=tu_access_key_de_web3forms
 ```
 
 - La **publishable key** solo permite **leer** el catálogo (público).
+- La access key de Web3Forms debe estar configurada para recibir las consultas en
+  `boralba@boralba.es`.
 - Para **escribir** hay que iniciar sesión como admin (Supabase Auth).
 - `.env` está en `.gitignore`: nunca subas las claves a GitHub.
 
