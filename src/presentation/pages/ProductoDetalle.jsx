@@ -20,9 +20,10 @@ const imageSrc = (image) => publicUrl(typeof image === 'string' ? image : image?
 const fileUrl = (value) => (isDataUrl(value) ? value : publicUrl(value))
 const technicalFamily = (product, trail = []) => {
   const categoryText = [product.category, ...(product.categories || []), ...trail.flatMap((category) => [category.slug, category.name])].filter(Boolean).join(' ').toLowerCase()
-  if (categoryText.includes('perfil')) return 'profile'
-  if (categoryText.includes('tira') && !categoryText.includes('neon') && !categoryText.includes('neón')) return 'led-strip'
-  return product.technicalInfo?.type || ''
+  const technicalInfo = product.technicalInfo || {}
+  if (categoryText.includes('perfil') || (technicalInfo.profileFinishes || []).length > 0) return 'profile'
+  if ((categoryText.includes('tira') && !categoryText.includes('neon') && !categoryText.includes('neón')) || (technicalInfo.ledBasic || []).length > 0 || (technicalInfo.ledDimensions || []).length > 0 || (technicalInfo.codes || []).some((code) => code.temperature || code.ip || code.power)) return 'led-strip'
+  return technicalInfo.type || ''
 }
 const technicalRows = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && (row.label || row.value))
 const technicalCodes = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && Object.values(row).some(Boolean))

@@ -63,9 +63,9 @@ const normalizeTechnicalInfo = (value = {}) => ({
   profileDimensions: (value.profileDimensions || []).map(technicalRow),
   codes: (value.codes || []).map(technicalCode),
 })
-const categoryFamily = (categories) => {
+const categoryFamily = (categories, product = {}) => {
   const values = Array.isArray(categories) ? categories : [categories]
-  const categoryText = values.filter(Boolean).join(' ').toLowerCase()
+  const categoryText = [...values, product.name, product.description].filter(Boolean).join(' ').toLowerCase()
   if (categoryText.includes('perfil')) return 'profile'
   if (categoryText.includes('tira') && !categoryText.includes('neon') && !categoryText.includes('neón')) return 'led-strip'
   return ''
@@ -164,7 +164,7 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
        similarProductIds: product.similarProductIds.filter(Boolean),
        documents: product.documents.filter((item) => item.name || item.file).map((item, order) => ({ ...item, order })),
          technicalInfo: {
-         type: categoryFamily(product.categories) || product.technicalInfo.type || 'generic',
+         type: categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic',
          general: product.technicalInfo.general.filter((row) => row.label || row.value),
          ledBasic: product.technicalInfo.ledBasic.filter((row) => row.label || row.value),
          ledDimensions: product.technicalInfo.ledDimensions.filter((row) => row.label || row.value),
@@ -291,7 +291,7 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
 }
 
 function TechnicalSection({ product, setProduct }) {
-  const type = categoryFamily(product.categories) || product.technicalInfo.type || 'generic'
+  const type = categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic'
   return <section className="admin-form-section admin-product-technical-section">
     <h3>Ficha técnica específica</h3>
     <p className="admin-help">Selecciona el tipo para añadir información técnica editable que aparecerá debajo de la descripción corta.</p>
