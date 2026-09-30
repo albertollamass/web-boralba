@@ -18,7 +18,7 @@ const contentItems = (value, withIcon = false) => (Array.isArray(value) ? value 
 const normalizeUnit = (spec) => ({ ...spec, label: String(spec.label || '').trim(), value: String(spec.value || '').trim(), unit: String(spec.unit || '').trim() })
 const imageSrc = (image) => publicUrl(typeof image === 'string' ? image : image?.src || image?.image || '')
 const fileUrl = (value) => (isDataUrl(value) ? value : publicUrl(value))
-const technicalFamily = (product) => product.technicalInfo?.type || (product.category === 'perfiles' ? 'profile' : ['tiras-led', 'tiras-220v'].includes(product.category) ? 'led-strip' : '')
+const technicalFamily = (product) => (product.category === 'perfiles' ? 'profile' : ['tiras-led', 'tiras-220v'].includes(product.category) ? 'led-strip' : '') || product.technicalInfo?.type || ''
 const technicalRows = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && (row.label || row.value))
 const technicalCodes = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && Object.values(row).some(Boolean))
 
