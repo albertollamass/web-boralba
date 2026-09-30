@@ -56,6 +56,7 @@ const technicalCode = (row = {}) => ({
 })
 const normalizeTechnicalInfo = (value = {}) => ({
   type: value.type || '',
+  general: (value.general || []).map(technicalRow),
   ledBasic: (value.ledBasic || []).map(technicalRow),
   ledDimensions: (value.ledDimensions || []).map(technicalRow),
   profileFinishes: (value.profileFinishes || []).map((finish) => ({ name: finish.name || '', color: finish.color || '' })),
@@ -161,8 +162,9 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
        compatibleProducts: product.compatibleProducts.map((item, order) => ({ productId: item.productId, reason: item.reason || '', recommended: Boolean(item.recommended), order })),
        similarProductIds: product.similarProductIds.filter(Boolean),
        documents: product.documents.filter((item) => item.name || item.file).map((item, order) => ({ ...item, order })),
-       technicalInfo: {
-         type: product.technicalInfo.type || categoryFamily(product.categories),
+         technicalInfo: {
+         type: product.technicalInfo.type || categoryFamily(product.categories) || 'generic',
+         general: product.technicalInfo.general.filter((row) => row.label || row.value),
          ledBasic: product.technicalInfo.ledBasic.filter((row) => row.label || row.value),
          ledDimensions: product.technicalInfo.ledDimensions.filter((row) => row.label || row.value),
          profileFinishes: product.technicalInfo.profileFinishes.filter((finish) => finish.name || finish.color),
@@ -288,11 +290,11 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
 }
 
 function TechnicalSection({ product, setProduct }) {
-  const type = product.technicalInfo.type || categoryFamily(product.categories)
+  const type = product.technicalInfo.type || categoryFamily(product.categories) || 'generic'
   return <section className="admin-form-section admin-product-technical-section">
     <h3>Ficha técnica específica</h3>
     <p className="admin-help">Selecciona el tipo para añadir información técnica editable que aparecerá debajo de la descripción corta.</p>
-    <label>Tipo de ficha técnica<select value={type} onChange={(event) => setProduct((p) => ({ ...p, technicalInfo: { ...p.technicalInfo, type: event.target.value } }))}><option value="">Sin ficha específica</option><option value="led-strip">Tira LED</option><option value="profile">Perfil</option></select></label>
+    <label>Tipo de ficha técnica<select value={type} onChange={(event) => setProduct((p) => ({ ...p, technicalInfo: { ...p.technicalInfo, type: event.target.value } }))}><option value="generic">Producto general</option><option value="led-strip">Tira LED</option><option value="profile">Perfil</option></select></label>
     {type && <TechnicalEditor type={type} value={product.technicalInfo} onChange={(technicalInfo) => setProduct((p) => ({ ...p, technicalInfo }))} />}
   </section>
 }
@@ -302,6 +304,12 @@ function TechnicalEditor({ type, value, onChange }) {
   const addRow = (key, row) => onChange({ ...value, [key]: [...value[key], row] })
   const removeRow = (key, index) => onChange({ ...value, [key]: value[key].filter((_, i) => i !== index) })
   const renderRows = (key, fields, placeholder) => <div className="technical-editor-list">{value[key].map((row, index) => <div className="technical-editor-row" key={index}>{fields.map(([field, label]) => <input key={field} value={row[field]} onChange={(event) => updateRow(key, index, field, event.target.value)} placeholder={label} />)}<button type="button" className="btn btn-danger btn-sm" onClick={() => removeRow(key, index)}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => addRow(key, { label: '', value: '' })}>+ Añadir {placeholder}</button></div>
+
+  if (type === 'generic') return <>
+    <h3>Información técnica del producto</h3>
+    <p className="admin-help">Añade cualquier dato técnico disponible para este producto.</p>
+    {renderRows('general', [['label', 'Característica'], ['value', 'Valor']], 'dato técnico')}
+  </>
 
   if (type === 'profile') return <>
     <h3>Información técnica del perfil</h3>

@@ -60,7 +60,7 @@ export default function ProductoDetalle() {
     ? technicalRows(technicalInfo.ledBasic).length > 0 || technicalRows(technicalInfo.ledDimensions).length > 0 || technicalCodes(technicalInfo.codes).length > 0
     : technicalType === 'profile'
       ? (technicalInfo.profileFinishes || []).some((finish) => finish?.name || finish?.color) || technicalRows(technicalInfo.profileDimensions).length > 0 || technicalCodes(technicalInfo.codes).length > 0
-      : false
+      : technicalRows(technicalInfo.general).length > 0
   const hasDescription = Boolean(longDescription.length || features.length || product.description)
   const hasTechnical = specs.length > 0 || (product.showTechnicalDrawing && product.technicalDrawing) || product.technicalNotice
   const tabList = [{ id: 'descripcion', label: 'Descripción', show: hasDescription }, { id: 'aplicaciones', label: 'Aplicaciones recomendadas', show: apps.length > 0 }, { id: 'ventajas', label: 'Ventajas técnicas', show: benefits.length > 0 }, { id: 'datos', label: 'Datos técnicos', show: hasTechnical }].filter((tab) => tab.show)
@@ -134,6 +134,7 @@ function ProductTechnicalInfo({ type, value }) {
   const codes = technicalCodes(value.codes)
   const [selectedFinish, setSelectedFinish] = useState('')
   const [selectedDimension, setSelectedDimension] = useState('')
+  if (type === 'generic') return <div className="product-technical-block"><TechnicalRows title="Información técnica" rows={value.general} /></div>
   if (type === 'profile') {
     const finishes = (value.profileFinishes || []).filter((finish) => finish?.name || finish?.color)
     const dimensions = (value.profileDimensions || []).filter((dimension) => dimension?.label || dimension?.value).map((dimension) => ({ ...dimension, option: [dimension.label, dimension.value].filter(Boolean).join(' · ') }))
