@@ -1334,6 +1334,7 @@ p {
 .product-technical-led { margin: 48px 0 38px; padding: 0; }
 .product-technical-led .product-technical-section + .product-technical-section { margin-top: 36px; }
 .product-technical-led .product-technical-section h3 { margin-bottom: 14px; color: #000; font-weight: 700; }
+.product-technical-led .product-code-table thead { display: none; }
 .product-technical-list { display: grid; gap: 8px; margin: 0; }
 .product-technical-profile .product-technical-list { gap: 12px; }
 .product-technical-list > div { display: grid; grid-template-columns: minmax(120px, .75fr) minmax(0, 1.25fr); gap: 10px; padding: 2px 0; font-size: .82rem; }
@@ -1571,8 +1572,8 @@ p {
   .product-technical-led .product-code-table thead { display: none; }
   .product-technical-led .product-code-table { font-size: .82rem; border-spacing: 0; }
   .product-technical-led .product-code-table tr { padding: 8px 0; }
-  .product-technical-led .product-code-table td { display: grid; grid-template-columns: 42% minmax(0, 58%); gap: 10px; padding: 4px 0; }
-  .product-technical-led .product-code-table td::before { display: block; content: attr(data-label); color: #666; font-weight: 600; }
+  .product-technical-led .product-code-table td { display: block; padding: 4px 0; }
+  .product-technical-led .product-code-table td::before { display: none; }
   .tab-content {
     padding: 20px;
   }
