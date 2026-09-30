@@ -65,8 +65,9 @@ const normalizeTechnicalInfo = (value = {}) => ({
 })
 const categoryFamily = (categories) => {
   const values = Array.isArray(categories) ? categories : [categories]
-  if (values.some((value) => ['tiras-led', 'tiras-220v'].includes(value))) return 'led-strip'
-  if (values.includes('perfiles')) return 'profile'
+  const categoryText = values.filter(Boolean).join(' ').toLowerCase()
+  if (categoryText.includes('perfil')) return 'profile'
+  if (categoryText.includes('tira') && !categoryText.includes('neon') && !categoryText.includes('neón')) return 'led-strip'
   return ''
 }
 

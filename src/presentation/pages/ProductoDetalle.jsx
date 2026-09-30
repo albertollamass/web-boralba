@@ -18,7 +18,12 @@ const contentItems = (value, withIcon = false) => (Array.isArray(value) ? value 
 const normalizeUnit = (spec) => ({ ...spec, label: String(spec.label || '').trim(), value: String(spec.value || '').trim(), unit: String(spec.unit || '').trim() })
 const imageSrc = (image) => publicUrl(typeof image === 'string' ? image : image?.src || image?.image || '')
 const fileUrl = (value) => (isDataUrl(value) ? value : publicUrl(value))
-const technicalFamily = (product) => (product.category === 'perfiles' ? 'profile' : ['tiras-led', 'tiras-220v'].includes(product.category) ? 'led-strip' : '') || product.technicalInfo?.type || ''
+const technicalFamily = (product, trail = []) => {
+  const categoryText = [product.category, ...(product.categories || []), ...trail.flatMap((category) => [category.slug, category.name])].filter(Boolean).join(' ').toLowerCase()
+  if (categoryText.includes('perfil')) return 'profile'
+  if (categoryText.includes('tira') && !categoryText.includes('neon') && !categoryText.includes('neón')) return 'led-strip'
+  return product.technicalInfo?.type || ''
+}
 const technicalRows = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && (row.label || row.value))
 const technicalCodes = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && Object.values(row).some(Boolean))
 
@@ -55,7 +60,7 @@ export default function ProductoDetalle() {
   const similar = [...new Set(Array.isArray(product.similarProductIds) ? product.similarProductIds : [])].filter((similarId) => !compatibleIds.has(similarId)).map((similarId) => products.find((item) => item.id === similarId)).filter(Boolean)
   const documents = (Array.isArray(product.documents) ? product.documents : []).filter((document) => document.public !== false && document.file && document.name)
   const technicalInfo = product.technicalInfo || {}
-  const technicalType = technicalFamily(product)
+  const technicalType = technicalFamily(product, categoryTrail)
   const hasTechnicalInfo = technicalType === 'led-strip'
     ? technicalRows(technicalInfo.ledBasic).length > 0 || technicalRows(technicalInfo.ledDimensions).length > 0 || technicalCodes(technicalInfo.codes).length > 0
     : technicalType === 'profile'
