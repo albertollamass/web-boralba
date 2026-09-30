@@ -57,6 +57,8 @@ const technicalCode = (row = {}) => ({
 const normalizeTechnicalInfo = (value = {}) => ({
   type: value.type || '',
   general: (value.general || []).map(technicalRow),
+  temperatures: Array.isArray(value.temperatures) ? value.temperatures.map((item) => String(item || '').trim()).filter(Boolean) : [],
+  protections: Array.isArray(value.protections) ? value.protections.map((item) => String(item || '').trim()).filter(Boolean) : [],
   ledBasic: (value.ledBasic || []).map(technicalRow),
   ledDimensions: (value.ledDimensions || []).map(technicalRow),
   profileFinishes: (value.profileFinishes || []).map((finish) => ({ name: finish.name || '', color: finish.color || '' })),
@@ -164,8 +166,10 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
        similarProductIds: product.similarProductIds.filter(Boolean),
        documents: product.documents.filter((item) => item.name || item.file).map((item, order) => ({ ...item, order })),
          technicalInfo: {
-         type: categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic',
-         general: product.technicalInfo.general.filter((row) => row.label || row.value),
+          type: categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic',
+          general: product.technicalInfo.general.filter((row) => row.label || row.value),
+          temperatures: product.technicalInfo.temperatures.filter(Boolean),
+          protections: product.technicalInfo.protections.filter(Boolean),
          ledBasic: product.technicalInfo.ledBasic.filter((row) => row.label || row.value),
          ledDimensions: product.technicalInfo.ledDimensions.filter((row) => row.label || row.value),
          profileFinishes: product.technicalInfo.profileFinishes.filter((finish) => finish.name || finish.color),
@@ -325,23 +329,29 @@ function TechnicalEditor({ type, value, onChange }) {
 
   return <>
     <h3>Información técnica de la tira LED</h3>
-    <p className="admin-help">Añade únicamente los datos disponibles. Cada código puede tener una temperatura y un IP diferentes.</p>
-    <h4>Información básica</h4>
-    {renderRows('ledBasic', [['label', 'Característica'], ['value', 'Valor']], 'dato básico')}
-    <h4>Dimensiones</h4>
-    {renderRows('ledDimensions', [['label', 'Medida'], ['value', 'Valor']], 'dimensión')}
+    <p className="admin-help">Define las opciones disponibles y después vincula cada código con su temperatura y protección IP.</p>
+    <h4>Temperaturas</h4>
+    <OptionEditor items={value.temperatures} placeholder="Ej. 3000 K" onChange={(temperatures) => onChange({ ...value, temperatures })} />
+    <h4>Protección</h4>
+    <OptionEditor items={value.protections} placeholder="Ej. IP20" onChange={(protections) => onChange({ ...value, protections })} />
     <h4>Códigos de producto</h4>
-    <CodeEditor value={value.codes} onChange={(codes) => onChange({ ...value, codes })} type="led-strip" />
+    <CodeEditor value={value.codes} onChange={(codes) => onChange({ ...value, codes })} type="led-strip" temperatures={value.temperatures} protections={value.protections} />
   </>
 }
 
-function CodeEditor({ value, onChange, type, finishes = [], dimensions = [] }) {
+function CodeEditor({ value, onChange, type, finishes = [], dimensions = [], temperatures = [], protections = [] }) {
   const fields = type === 'profile'
     ? [['code', 'Código de producto'], ['finish', 'Acabado'], ['dimensions', 'Dimensiones']]
     : [['code', 'Código de producto'], ['power', 'Potencia (W/m)'], ['temperature', 'Temperatura de color (K)'], ['cri', 'CRI'], ['luminousFlux', 'Flujo luminoso (lm)'], ['dimming', 'Regulación'], ['ip', 'Grado de protección IP']]
   const update = (index, field, nextValue) => onChange(value.map((row, i) => i === index ? { ...row, [field]: nextValue } : row))
-  const inputFor = (row, index, [field, label]) => type === 'profile' && field !== 'code' ? <select key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)}><option value="">{label}</option>{(field === 'finish' ? finishes.map((finish) => finish.name).filter(Boolean) : dimensions.map((dimension) => [dimension.label, dimension.value].filter(Boolean).join(' · '))).map((option) => <option key={option} value={option}>{option}</option>)}</select> : <input key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)} placeholder={label} />
+  const temperatureOptions = [...new Set([...temperatures, ...value.map((row) => row.temperature)].filter(Boolean))]
+  const protectionOptions = [...new Set([...protections, ...value.map((row) => row.ip)].filter(Boolean))]
+  const inputFor = (row, index, [field, label]) => (type === 'profile' && field !== 'code') || (type === 'led-strip' && ['temperature', 'ip'].includes(field)) ? <select key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)}><option value="">{label}</option>{(type === 'profile' ? (field === 'finish' ? finishes.map((finish) => finish.name).filter(Boolean) : dimensions.map((dimension) => [dimension.label, dimension.value].filter(Boolean).join(' · '))) : field === 'temperature' ? temperatureOptions : protectionOptions).map((option) => <option key={option} value={option}>{option}</option>)}</select> : <input key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)} placeholder={label} />
   return <div className="technical-code-editor"><div className="technical-editor-list">{value.map((row, index) => <div className="technical-code-row" key={index}>{fields.map((field) => inputFor(row, index, field))}<button type="button" className="btn btn-danger btn-sm" onClick={() => onChange(value.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => onChange([...value, technicalCode()])}>+ Añadir código</button></div></div>
+}
+
+function OptionEditor({ items, placeholder, onChange }) {
+  return <div className="technical-editor-list">{items.map((item, index) => <div className="technical-editor-row technical-option-row" key={index}><input value={item} onChange={(event) => onChange(items.map((current, i) => i === index ? event.target.value : current))} placeholder={placeholder} /><button type="button" className="btn btn-danger btn-sm" onClick={() => onChange(items.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => onChange([...items, ''])}>+ Añadir opción</button></div>
 }
 
 function Repeater({ items, children, onMove, onReorder, onRemove, itemClass = '' }) {

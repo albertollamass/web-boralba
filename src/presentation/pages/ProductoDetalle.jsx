@@ -153,8 +153,8 @@ function ProductTechnicalInfo({ type, value }) {
     </div>
   }
   if (type === 'led-strip') {
-    const temperatures = [...new Set(codes.map((row) => row.temperature).filter(Boolean))]
-    const protections = [...new Set(codes.map((row) => row.ip).filter(Boolean))]
+    const temperatures = [...new Set((value.temperatures?.length ? value.temperatures : codes.map((row) => row.temperature)).filter(Boolean))]
+    const protections = [...new Set((value.protections?.length ? value.protections : codes.map((row) => row.ip)).filter(Boolean))]
     const filteredCodes = codes.filter((row) => (!selectedFinish || row.temperature === selectedFinish) && (!selectedDimension || row.ip === selectedDimension))
     const clearFilters = () => { setSelectedFinish(''); setSelectedDimension('') }
     return <div className="product-technical-block product-technical-led">

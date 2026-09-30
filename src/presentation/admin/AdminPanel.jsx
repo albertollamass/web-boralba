@@ -31,7 +31,7 @@ const emptyProduct = () => ({
   technicalDrawing: '',
   showTechnicalDrawing: false,
   technicalNotice: '',
-  technicalInfo: { type: 'generic', general: [], ledBasic: [], ledDimensions: [], profileFinishes: [], profileDimensions: [], codes: [] },
+  technicalInfo: { type: 'generic', general: [], temperatures: [], protections: [], ledBasic: [], ledDimensions: [], profileFinishes: [], profileDimensions: [], codes: [] },
   variants: [],
   specs: [],
   includedItems: [],
