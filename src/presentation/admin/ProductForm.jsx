@@ -42,6 +42,33 @@ function normalizeGallery(value) {
   return (Array.isArray(value) ? value : csv(value)).map((item) => typeof item === 'string' ? { src: item, category: 'Detalle del producto' } : { src: item?.src || item?.image || '', category: item?.category || 'Detalle del producto' }).filter((item) => item.src)
 }
 
+const technicalRow = (row = {}) => ({ label: row.label || '', value: row.value || '' })
+const technicalCode = (row = {}) => ({
+  code: row.code || '',
+  power: row.power || '',
+  temperature: row.temperature || '',
+  cri: row.cri || '',
+  luminousFlux: row.luminousFlux || '',
+  dimensions: row.dimensions || '',
+  dimming: row.dimming || '',
+  ip: row.ip || '',
+  finish: row.finish || '',
+})
+const normalizeTechnicalInfo = (value = {}) => ({
+  type: value.type || '',
+  ledBasic: (value.ledBasic || []).map(technicalRow),
+  ledDimensions: (value.ledDimensions || []).map(technicalRow),
+  profileFinishes: (value.profileFinishes || []).map((finish) => ({ name: finish.name || '', color: finish.color || '' })),
+  profileDimensions: (value.profileDimensions || []).map(technicalRow),
+  codes: (value.codes || []).map(technicalCode),
+})
+const categoryFamily = (categories) => {
+  const values = Array.isArray(categories) ? categories : [categories]
+  if (values.some((value) => ['tiras-led', 'tiras-220v'].includes(value))) return 'led-strip'
+  if (values.includes('perfiles')) return 'profile'
+  return ''
+}
+
 export default function ProductForm({ initial, onSubmit, onCancel, allProducts = [], documentStorage }) {
   if (!documentStorage) throw new Error('ProductForm necesita documentStorage (puerto DocumentStorage)')
   const { getChildren, getCategoryPathLabel, getDescendantSlugs, ROOT } = useCategories()
@@ -57,6 +84,7 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
     compatibleProducts: Array.isArray(initial.compatibleProducts) ? initial.compatibleProducts : [],
     similarProductIds: Array.isArray(initial.similarProductIds) ? initial.similarProductIds : [],
     documents: Array.isArray(initial.documents) ? initial.documents : [],
+    technicalInfo: normalizeTechnicalInfo(initial.technicalInfo),
   }))
   const [uploading, setUploading] = useState(false)
   const [fileKeys, setFileKeys] = useState({})
@@ -133,7 +161,15 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
        compatibleProducts: product.compatibleProducts.map((item, order) => ({ productId: item.productId, reason: item.reason || '', recommended: Boolean(item.recommended), order })),
        similarProductIds: product.similarProductIds.filter(Boolean),
        documents: product.documents.filter((item) => item.name || item.file).map((item, order) => ({ ...item, order })),
-    })
+       technicalInfo: {
+         type: product.technicalInfo.type || categoryFamily(product.categories),
+         ledBasic: product.technicalInfo.ledBasic.filter((row) => row.label || row.value),
+         ledDimensions: product.technicalInfo.ledDimensions.filter((row) => row.label || row.value),
+         profileFinishes: product.technicalInfo.profileFinishes.filter((finish) => finish.name || finish.color),
+         profileDimensions: product.technicalInfo.profileDimensions.filter((row) => row.label || row.value),
+         codes: product.technicalInfo.codes.filter((row) => Object.values(row).some(Boolean)),
+       },
+     })
   }
 
   const ImageInput = ({ value, onChange, name, index }) => (
@@ -158,19 +194,20 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
           {topCats.map((top) => <optgroup key={top.slug} label={top.name}>{getDescendantSlugs(top.slug).map((s) => <option key={s} value={s}>{getCategoryPathLabel(s)}</option>)}</optgroup>)}
         </select>
         <p className="admin-help">Puedes seleccionar varias subcategorías manteniendo Ctrl/Cmd. La primera será la categoría principal.</p>
-        <div className="admin-form-grid two">
-          <div><label>Descripción corta</label><textarea value={product.description || ''} onChange={set('description')} /></div>
-          <div><label>Descripción larga <small>(un párrafo por línea)</small></label><textarea value={text(product.longDescription)} onChange={set('longDescription')} /></div>
-        </div>
-        <label>Imagen principal</label>
+         <div className="admin-form-grid two">
+           <div><label>Descripción corta</label><textarea value={product.description || ''} onChange={set('description')} /></div>
+           <div><label>Descripción larga <small>(un párrafo por línea)</small></label><textarea value={text(product.longDescription)} onChange={set('longDescription')} /></div>
+         </div>
+         <TechnicalSection product={product} setProduct={setProduct} />
+         <label>Imagen principal</label>
         <ImageInput value={product.image} name="image" onChange={(value) => setProduct((p) => ({ ...p, image: value }))} />
         <label>Galería de imágenes</label>
          {(product.gallery || []).map((image, i) => <div className="admin-repeater-row" key={i}><ImageInput value={image.src} name="gallery" index={i} onChange={(value) => updateGallery(i, 'src', value)} /><select value={image.category} onChange={(e) => updateGallery(i, 'category', e.target.value)}><option>Detalle del producto</option><option>Sección o dimensiones</option><option>Dibujo técnico</option><option>Accesorios</option><option>Ejemplo de aplicación</option><option>Imagen principal</option></select><div className="repeater-actions"><button type="button" onClick={() => moveGallery(i, -1)} aria-label="Subir imagen">↑</button><button type="button" onClick={() => moveGallery(i, 1)} aria-label="Bajar imagen">↓</button><button type="button" className="btn btn-danger btn-sm" onClick={() => removeGallery(i)}>Eliminar</button></div></div>)}
          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setProduct((p) => ({ ...p, gallery: [...(p.gallery || []), { src: '', category: 'Detalle del producto' }] }))}>+ Añadir imagen</button>
       </section>
 
-      <section className="admin-form-section">
-        <h3>Qué incluye</h3>
+       <section className="admin-form-section">
+         <h3>Qué incluye</h3>
         <p className="admin-help">Solo se mostrará en la ficha si hay elementos con contenido.</p>
         <Repeater items={product.includedItems} onMove={(i, d) => moveList('includedItems', i, d)} onReorder={(a, b) => reorderList('includedItems', a, b)} onRemove={(i) => removeList('includedItems', i)}>
           {(item, i) => <><input value={item.quantity} onChange={(e) => updateList('includedItems', i, 'quantity', e.target.value)} placeholder="Cantidad (ej. 1)" /><input value={item.name} onChange={(e) => updateList('includedItems', i, 'name', e.target.value)} placeholder="Nombre del elemento" /><input value={item.description} onChange={(e) => updateList('includedItems', i, 'description', e.target.value)} placeholder="Descripción opcional" /><ImageInput value={item.icon} name="included-icon" index={i} onChange={(value) => updateList('includedItems', i, 'icon', value)} /></>}
@@ -248,6 +285,54 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
       <div style={{ display: 'flex', gap: 10 }}><button type="submit" className="btn btn-primary">{initial.id ? 'Guardar cambios' : 'Crear producto'}</button><button type="button" className="btn btn-outline" onClick={onCancel}>Cancelar</button></div>
     </form>
   )
+}
+
+function TechnicalSection({ product, setProduct }) {
+  const type = product.technicalInfo.type || categoryFamily(product.categories)
+  return <section className="admin-form-section admin-product-technical-section">
+    <h3>Ficha técnica específica</h3>
+    <p className="admin-help">Selecciona el tipo para añadir información técnica editable que aparecerá debajo de la descripción corta.</p>
+    <label>Tipo de ficha técnica<select value={type} onChange={(event) => setProduct((p) => ({ ...p, technicalInfo: { ...p.technicalInfo, type: event.target.value } }))}><option value="">Sin ficha específica</option><option value="led-strip">Tira LED</option><option value="profile">Perfil</option></select></label>
+    {type && <TechnicalEditor type={type} value={product.technicalInfo} onChange={(technicalInfo) => setProduct((p) => ({ ...p, technicalInfo }))} />}
+  </section>
+}
+
+function TechnicalEditor({ type, value, onChange }) {
+  const updateRow = (key, index, field, nextValue) => onChange({ ...value, [key]: value[key].map((row, i) => i === index ? { ...row, [field]: nextValue } : row) })
+  const addRow = (key, row) => onChange({ ...value, [key]: [...value[key], row] })
+  const removeRow = (key, index) => onChange({ ...value, [key]: value[key].filter((_, i) => i !== index) })
+  const renderRows = (key, fields, placeholder) => <div className="technical-editor-list">{value[key].map((row, index) => <div className="technical-editor-row" key={index}>{fields.map(([field, label]) => <input key={field} value={row[field]} onChange={(event) => updateRow(key, index, field, event.target.value)} placeholder={label} />)}<button type="button" className="btn btn-danger btn-sm" onClick={() => removeRow(key, index)}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => addRow(key, { label: '', value: '' })}>+ Añadir {placeholder}</button></div>
+
+  if (type === 'profile') return <>
+    <h3>Información técnica del perfil</h3>
+    <p className="admin-help">Solo se mostrarán los acabados, dimensiones y códigos que hayas informado.</p>
+    <h4>Acabado</h4>
+    <div className="technical-editor-list">{value.profileFinishes.map((finish, index) => <div className="technical-editor-row technical-finish-row" key={index}><input value={finish.name} onChange={(event) => updateRow('profileFinishes', index, 'name', event.target.value)} placeholder="Acabado (ej. negro)" /><input value={finish.color} onChange={(event) => updateRow('profileFinishes', index, 'color', event.target.value)} placeholder="Color CSS o hexadecimal" /><button type="button" className="btn btn-danger btn-sm" onClick={() => removeRow('profileFinishes', index)}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => addRow('profileFinishes', { name: '', color: '' })}>+ Añadir acabado</button></div>
+    <h4>Dimensiones</h4>
+    {renderRows('profileDimensions', [['label', 'Medida'], ['value', 'Valor']], 'dimensión')}
+    <h4>Códigos de producto</h4>
+    <CodeEditor value={value.codes} onChange={(codes) => onChange({ ...value, codes })} type="profile" finishes={value.profileFinishes} dimensions={value.profileDimensions} />
+  </>
+
+  return <>
+    <h3>Información técnica de la tira LED</h3>
+    <p className="admin-help">Añade únicamente los datos disponibles. Cada código puede tener una temperatura y un IP diferentes.</p>
+    <h4>Información básica</h4>
+    {renderRows('ledBasic', [['label', 'Característica'], ['value', 'Valor']], 'dato básico')}
+    <h4>Dimensiones</h4>
+    {renderRows('ledDimensions', [['label', 'Medida'], ['value', 'Valor']], 'dimensión')}
+    <h4>Códigos de producto</h4>
+    <CodeEditor value={value.codes} onChange={(codes) => onChange({ ...value, codes })} type="led-strip" />
+  </>
+}
+
+function CodeEditor({ value, onChange, type, finishes = [], dimensions = [] }) {
+  const fields = type === 'profile'
+    ? [['code', 'Código de producto'], ['finish', 'Acabado'], ['dimensions', 'Dimensiones']]
+    : [['code', 'Código de producto'], ['power', 'Potencia (W/m)'], ['temperature', 'Temperatura de color (K)'], ['cri', 'CRI'], ['luminousFlux', 'Flujo luminoso (lm)'], ['dimensions', 'Dimensiones'], ['dimming', 'Regulación'], ['ip', 'Grado de protección IP']]
+  const update = (index, field, nextValue) => onChange(value.map((row, i) => i === index ? { ...row, [field]: nextValue } : row))
+  const inputFor = (row, index, [field, label]) => type === 'profile' && field !== 'code' ? <select key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)}><option value="">{label}</option>{(field === 'finish' ? finishes.map((finish) => finish.name).filter(Boolean) : dimensions.map((dimension) => [dimension.label, dimension.value].filter(Boolean).join(' · '))).map((option) => <option key={option} value={option}>{option}</option>)}</select> : <input key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)} placeholder={label} />
+  return <div className="technical-code-editor"><div className="technical-editor-list">{value.map((row, index) => <div className="technical-code-row" key={index}>{fields.map((field) => inputFor(row, index, field))}<button type="button" className="btn btn-danger btn-sm" onClick={() => onChange(value.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => onChange([...value, technicalCode()])}>+ Añadir código</button></div></div>
 }
 
 function Repeater({ items, children, onMove, onReorder, onRemove, itemClass = '' }) {

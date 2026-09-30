@@ -1296,6 +1296,60 @@ p {
   margin-top: 8px;
 }
 
+.product-technical-block {
+  margin: 24px 0 26px;
+  padding: 24px 26px;
+  border: 0;
+  background: #fff;
+}
+
+.product-technical-section + .product-technical-section { margin-top: 24px; }
+.product-technical-section h3 { margin: 0 0 12px; color: var(--color-primary); font-size: .92rem; letter-spacing: .01em; }
+.product-technical-profile { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; row-gap: 36px; margin: 48px 0 38px; padding: 0; }
+.product-technical-profile .product-technical-finishes,
+.product-technical-profile .product-technical-dimensions { display: grid; grid-template-rows: 21px auto; align-self: start; min-width: 0; row-gap: 14px; }
+.product-technical-profile .product-technical-finishes > h3,
+.product-technical-profile .product-technical-dimensions .product-section-title-row { min-height: 0; margin: 0; }
+.product-technical-profile .product-technical-finishes > h3 { min-height: 0; margin: 0; }
+.product-technical-profile .product-technical-section + .product-technical-section { margin-top: 0; }
+.product-technical-profile .product-technical-codes { grid-column: 1 / -1; }
+.product-technical-profile .product-technical-section h3 { margin-bottom: 14px; color: #000; font-weight: 700; }
+.product-technical-profile .product-code-table-wrap { width: 100%; overflow: visible; }
+.product-technical-profile .product-code-table { min-width: 0; width: 100%; table-layout: fixed; border-spacing: 0 4px; font-size: .78rem; }
+.product-technical-profile .product-code-table thead { display: table-header-group; }
+.product-technical-profile .product-code-table th,
+.product-technical-profile .product-code-table td { width: auto; padding: 5px 6px; overflow-wrap: anywhere; }
+.product-technical-profile .product-code-table th { color: #666; font-weight: 600; white-space: normal; }
+.product-technical-profile .product-code-table th:first-child,
+.product-technical-profile .product-code-table td:first-child { width: 40%; }
+.product-technical-profile .product-code-table th:nth-child(2),
+.product-technical-profile .product-code-table td:nth-child(2),
+.product-technical-profile .product-code-table th:nth-child(3),
+.product-technical-profile .product-code-table td:nth-child(3) { width: 30%; }
+.product-technical-list { display: grid; gap: 8px; margin: 0; }
+.product-technical-profile .product-technical-list { gap: 12px; }
+.product-technical-list > div { display: grid; grid-template-columns: minmax(120px, .75fr) minmax(0, 1.25fr); gap: 10px; padding: 2px 0; font-size: .82rem; }
+.product-technical-list dt { color: var(--color-text-muted); }
+.product-technical-list dd { margin: 0; font-weight: 600; }
+.product-finish-list { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.product-finish-item { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; background: #fff; font-size: .82rem; }
+.product-code-finish { display: inline-flex; align-items: center; gap: 7px; }
+.product-finish-swatch { width: 14px; height: 14px; border: 1px solid rgba(23, 23, 23, .2); border-radius: 50%; }
+.product-section-title-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.product-section-title-row h3 { margin-bottom: 0; }
+.product-filter-buttons { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 8px 18px; }
+.product-filter-button { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 3px 0 6px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; color: var(--color-text); font: .8rem var(--font-sans); cursor: pointer; }
+.product-filter-button:hover,
+.product-filter-button.is-active { border-color: var(--color-primary); color: var(--color-primary); }
+.product-filter-clear { align-self: center; padding: 0 0 3px; border: 0; border-bottom: 1px solid transparent; background: transparent; color: var(--color-primary); font: 600 .76rem var(--font-sans); cursor: pointer; white-space: nowrap; }
+.product-filter-clear:hover { border-bottom-color: var(--color-primary); }
+.product-filter-empty { margin: 0; color: var(--color-text-muted); font-size: .82rem; }
+.product-code-table-wrap { overflow-x: auto; }
+.product-code-table { min-width: 700px; width: 100%; border-collapse: separate; border-spacing: 0 6px; background: #fff; font-size: .72rem; }
+.product-code-table th, .product-code-table td { padding: 4px 5px; border: 0; text-align: left; vertical-align: top; }
+.product-code-table th { color: var(--color-text-muted); font-weight: 600; white-space: nowrap; }
+.product-code-table td:first-child { color: var(--color-primary); font-weight: 700; }
+
 .tabs {
   display: flex;
   flex-wrap: wrap;
@@ -1488,6 +1542,18 @@ p {
 }
 
 @media (max-width: 600px) {
+  .product-technical-block { padding: 18px 12px; }
+  .product-technical-profile { grid-template-columns: 1fr; row-gap: 30px; margin: 40px 0 32px; padding: 0; }
+  .product-technical-profile .product-technical-codes { grid-column: auto; }
+  .product-technical-profile .product-code-table,
+  .product-technical-profile .product-code-table tbody,
+  .product-technical-profile .product-code-table tr,
+  .product-technical-profile .product-code-table td { display: block; width: 100%; }
+  .product-technical-profile .product-code-table thead { display: none; }
+  .product-technical-profile .product-code-table { font-size: .82rem; border-spacing: 0; }
+  .product-technical-profile .product-code-table tr { padding: 8px 0; }
+  .product-technical-profile .product-code-table td { display: grid; grid-template-columns: 42% minmax(0, 58%); gap: 10px; padding: 4px 0; }
+  .product-technical-profile .product-code-table td::before { display: block; content: attr(data-label); color: #666; font-weight: 600; }
   .tab-content {
     padding: 20px;
   }
@@ -2324,6 +2390,28 @@ p {
   flex: 1;
 }
 
+.admin-product-technical-section {
+  border-bottom: 0;
+  background: #fff;
+}
+
+.technical-editor-row,
+.technical-code-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 8px;
+  align-items: start;
+  padding: 10px;
+  border: 1px solid var(--color-surface-2);
+  background: #fff;
+}
+
+.technical-code-row { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; }
+.technical-editor-list { display: grid; gap: 8px; margin-bottom: 12px; }
+.admin-form-section h4 { margin-top: 22px; }
+.technical-editor-row .btn,
+.technical-code-row .btn { white-space: nowrap; }
+
 .admin-repeater-fields .admin-media-field {
   grid-column: 1 / -1;
   margin: 0;
@@ -2401,6 +2489,9 @@ p {
   .admin-technical-media > .check {
     margin-bottom: 0;
   }
+
+  .technical-editor-row,
+  .technical-code-row { grid-template-columns: 1fr; }
 }
 
 /* ---------- Misc ---------- */
