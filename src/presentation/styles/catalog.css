@@ -265,7 +265,7 @@
 .pc-product:hover .pc-product-media img { transform: scale(1.04); }
 .pc-product-body { display: block; padding-top: 16px; }
 .pc-product-cat { display: block; margin-bottom: 7px; color: var(--boralba-red); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-.pc-product-name { margin-bottom: 5px; color: #000; font-size: 1.08rem; }
+.pc-product-name { margin-bottom: 5px; color: #000; font-size: .98rem; font-weight: 500; line-height: 1.25; }
 .pc-product-ref { margin: 0 0 14px; color: var(--pc-muted); font-size: .75rem; letter-spacing: .05em; }
 .pc-product-specs { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0 0 18px; font-size: .76rem; }
 .pc-product-specs dt { color: var(--pc-muted); }
@@ -369,6 +369,15 @@
 .pc-featured-grid .pc-product-media { width: 92%; aspect-ratio: 1.2; }
 .pc-data-empty { margin: 0; padding: 26px 0; border-top: 1px solid var(--pc-line); color: var(--pc-muted); }
 
+/* Los nombres completos caben en una línea en escritorio sin recortarse. */
+.pc-product-name {
+  font-size: clamp(.94rem, 1.15vw, 1rem);
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: visible;
+}
+
 @media (max-width: 820px) {
   .pc-hero-copy { min-height: auto; }
   .pc-hero-media { min-height: 380px; }
@@ -453,4 +462,11 @@
   .pc-chips::-webkit-scrollbar { display: none; }
   .pc-custom { width: 100%; margin-inline: 0; }
   .pc-custom-copy { padding-inline: 20px; }
+}
+
+@media (max-width: 1024px) {
+  .pc-product-name {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }

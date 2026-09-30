@@ -4,7 +4,7 @@ export default function ProductCard({ product, variant = '' }) {
   const specs = (product.specs || []).filter((spec) => spec.value).slice(0, 3)
   const available = product.available !== false && product.availability !== 'Agotado' && product.stock !== 0
   return (
-    <div className={`card${variant ? ` product-card--${variant}` : ''}`}>
+    <div className={`card product-card${variant ? ` product-card--${variant}` : ''}`}>
       <div className="card-img">
         <Link to={`/producto/${product.id}`}>
           <img src={product.image || 'images/placeholder.svg'} alt={product.name} loading="lazy" />
