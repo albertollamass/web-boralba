@@ -1326,6 +1326,11 @@ p {
 .product-technical-profile .product-code-table td:nth-child(2),
 .product-technical-profile .product-code-table th:nth-child(3),
 .product-technical-profile .product-code-table td:nth-child(3) { width: 30%; }
+.product-technical-led .product-code-table-wrap { width: 100%; overflow: visible; }
+.product-technical-led .product-code-table { min-width: 0; width: 100%; table-layout: fixed; font-size: .68rem; }
+.product-technical-led .product-code-table th,
+.product-technical-led .product-code-table td { padding: 4px 3px; overflow-wrap: anywhere; }
+.product-technical-led .product-code-table th { white-space: normal; }
 .product-technical-list { display: grid; gap: 8px; margin: 0; }
 .product-technical-profile .product-technical-list { gap: 12px; }
 .product-technical-list > div { display: grid; grid-template-columns: minmax(120px, .75fr) minmax(0, 1.25fr); gap: 10px; padding: 2px 0; font-size: .82rem; }
@@ -1554,6 +1559,15 @@ p {
   .product-technical-profile .product-code-table tr { padding: 8px 0; }
   .product-technical-profile .product-code-table td { display: grid; grid-template-columns: 42% minmax(0, 58%); gap: 10px; padding: 4px 0; }
   .product-technical-profile .product-code-table td::before { display: block; content: attr(data-label); color: #666; font-weight: 600; }
+  .product-technical-led .product-code-table,
+  .product-technical-led .product-code-table tbody,
+  .product-technical-led .product-code-table tr,
+  .product-technical-led .product-code-table td { display: block; width: 100%; }
+  .product-technical-led .product-code-table thead { display: none; }
+  .product-technical-led .product-code-table { font-size: .82rem; border-spacing: 0; }
+  .product-technical-led .product-code-table tr { padding: 8px 0; }
+  .product-technical-led .product-code-table td { display: grid; grid-template-columns: 42% minmax(0, 58%); gap: 10px; padding: 4px 0; }
+  .product-technical-led .product-code-table td::before { display: block; content: attr(data-label); color: #666; font-weight: 600; }
   .tab-content {
     padding: 20px;
   }
