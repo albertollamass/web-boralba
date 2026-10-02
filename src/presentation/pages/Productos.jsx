@@ -94,7 +94,7 @@ function ProductTile({ product, label }) {
 
 export default function Productos() {
   const { products, hydrated } = useProducts()
-  const { categories, ROOT, getCategory, getChildren, getBreadcrumb, getCategoryPathLabel, getDescendantSlugs } = useCategories()
+  const { categories, ROOT, getCategory, getChildren, getBreadcrumb, getCategoryPathLabel, getDescendantSlugs, hydrated: categoriesHydrated } = useCategories()
   const { settings } = useSiteSettings()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -240,7 +240,6 @@ export default function Productos() {
   /* ---------- navegación ---------- */
 
   const selectCategory = (slug) => {
-    scrollPendingRef.current = true
     if (familySlugs.has(slug)) { setParams({ g: slug }); return }
     if (family) { setParams({ g: family.slug, c: slug }); return }
     const famSlug = getBreadcrumb(slug).find((item) => familySlugs.has(item.slug))?.slug
@@ -256,7 +255,24 @@ export default function Productos() {
     setParams({ q: clean })
   }
 
-  /* Al navegar (familia, subcategoría o búsqueda), baja hasta los productos. */
+  /* Al navegar a una categoría, espera a que el bloque exista y compensa la cabecera fija. */
+  useEffect(() => {
+    if (!categoriesHydrated || !hydrated || isSearching || !active) return undefined
+
+    const targetId = showProducts.visible ? `categoria-${active.slug}` : `categoria-bloque-${family.slug}`
+    const frame = window.requestAnimationFrame(() => {
+      const node = document.getElementById(targetId)
+      if (!node) return
+      const header = document.querySelector('.bh')
+      const headerHeight = header?.getBoundingClientRect().height || 0
+      const top = Math.max(0, node.getBoundingClientRect().top + window.scrollY - headerHeight - 16)
+      window.scrollTo({ top, behavior: 'smooth' })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [active, categoriesHydrated, family, hydrated, isSearching, showProducts.list.length, showProducts.visible])
+
+  /* Las búsquedas siguen usando el anclaje del resultado, también al cambiar la URL. */
   useEffect(() => {
     if (!scrollPendingRef.current) return
     scrollPendingRef.current = false
@@ -313,7 +329,6 @@ export default function Productos() {
             key={category.slug}
             className={`pc-family ${family?.slug === category.slug ? 'is-active' : ''}`}
             to={{ pathname: '/productos', search: `?g=${category.slug}` }}
-            onClick={() => { scrollPendingRef.current = true }}
           >
             <span className="pc-family-media"><img src={imageForFamily(category)} alt={displayName(category)} loading="lazy" /></span>
             <span className="pc-family-copy">
@@ -327,7 +342,7 @@ export default function Productos() {
   )
 
   const drill = family && (
-    <section className="pc-drill" ref={drillRef} aria-labelledby="pc-drill-title">
+    <section className="pc-drill" id={`categoria-bloque-${active?.slug || family.slug}`} ref={drillRef} aria-labelledby="pc-drill-title">
       <nav className="pc-drill-crumb" aria-label="Ruta de navegación">
         <Link to="/">Inicio</Link><span>/</span>
         <Link to="/productos">Productos</Link>
@@ -370,7 +385,7 @@ export default function Productos() {
       ))}
 
       {showProducts.visible && (
-        <section className="pc-products" ref={productsRef} aria-labelledby="pc-products-title">
+        <section className="pc-products" id={`categoria-${active.slug}`} ref={productsRef} aria-labelledby="pc-products-title">
           <div className="pc-products-head">
             <div>
               <p className="home-eyebrow">Productos</p>
