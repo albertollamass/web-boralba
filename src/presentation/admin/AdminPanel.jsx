@@ -35,6 +35,7 @@ const emptyProduct = () => ({
   variants: [],
   specs: [],
   includedItems: [],
+  accessoriesCompatible: [],
   applicationExample: { image: '', title: '', description: '', spaceType: '', inspiration: false },
   compatibleProducts: [],
   similarProductIds: [],
