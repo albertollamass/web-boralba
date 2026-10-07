@@ -115,7 +115,8 @@ const normalizeTechnicalInfo = (value = {}) => {
   const temperatures = Array.isArray(value.temperatures) ? uniqueValues(value.temperatures) : []
   const protections = Array.isArray(value.protections) ? uniqueValues(value.protections) : []
   return {
-  type: value.type || '',
+   ...value,
+   type: value.type || '',
   general: (value.general || []).map(technicalRow),
   temperatures: [...new Set([...temperatures, ...codes.map((code) => code.temperature).filter(Boolean)])],
   protections: [...new Set([...protections, ...codes.map((code) => code.ip).filter(Boolean)])],
@@ -131,7 +132,23 @@ const categoryFamily = (categories, product = {}) => {
   const categoryText = [...values, product.name, product.description].filter(Boolean).join(' ').toLowerCase()
   if (categoryText.includes('perfil')) return 'profile'
   if (categoryText.includes('tira') && !categoryText.includes('neon') && !categoryText.includes('neón')) return 'led-strip'
+  if (categoryText.includes('proyector')) return 'projector'
+  if (categoryText.includes('panel')) return 'panel'
+  if (categoryText.includes('downlight') || categoryText.includes('aplique')) return 'downlight'
+  if (categoryText.includes('driver') || categoryText.includes('controlador') || categoryText.includes('fuente')) return 'driver'
+  if (categoryText.includes('estanca')) return 'watertight'
+  if (categoryText.includes('neon') || categoryText.includes('neón')) return 'neon-flex'
   return ''
+}
+
+const productTypeLabels = { 'led-strip': 'Tira LED', profile: 'Perfil', projector: 'Proyector', panel: 'Panel LED', downlight: 'Downlight / Aplique', driver: 'Driver / Fuente', watertight: 'Luminaria estanca', 'neon-flex': 'Neón flexible', generic: 'Otro producto' }
+const featureHints = {
+  'led-strip': 'Temperatura de color, Dimensiones y Ángulo de apertura',
+  profile: 'Longitud, Material, Tipo de montaje y Tipo de difusor',
+  projector: 'Potencia, Flujo luminoso, Óptica y Temperatura de color',
+  panel: 'Potencia, Dimensiones, CRI y Ángulo de apertura',
+  driver: 'Potencia, Tensión, Regulación y Protección IP',
+  generic: 'Añade únicamente las características que tenga este producto',
 }
 
 export default function ProductForm({ initial, onSubmit, onCancel, allProducts = [], documentStorage }) {
@@ -246,8 +263,9 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
         compatibleProducts: product.compatibleProducts.filter((item) => item.productId).map((item, order) => ({ productId: item.productId, function: item.function || '', reason: item.reason || '', recommended: Boolean(item.recommended), order })),
        similarProductIds: product.similarProductIds.filter(Boolean),
        documents: product.documents.filter((item) => item.name || item.file).map((item, order) => ({ ...item, order })),
-         technicalInfo: {
-          type: categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic',
+          technicalInfo: {
+           ...product.technicalInfo,
+           type: categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic',
           general: product.technicalInfo.general.filter((row) => row.label || row.value),
           temperatures: uniqueValues(product.technicalInfo.temperatures),
           protections: uniqueValues(product.technicalInfo.protections),
@@ -268,190 +286,54 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
     </div>
   )
 
+  const type = categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic'
+  const otherTechnical = type !== 'generic' && product.technicalInfo.type === 'generic' ? product.technicalInfo.general : []
   return (
     <form className="form product-admin-form" onSubmit={submit}>
-      <details className="admin-form-section admin-collapsible" open>
-        <summary>Información principal <small>Nombre, referencia, categoría y descripciones</small></summary>
-        <div className="admin-collapsible-content">
-        <div className="admin-form-grid two">
-          <div><label>Nombre *</label><input value={product.name || ''} onChange={set('name')} required /></div>
-          <div><label>Referencia</label><input value={product.ref || ''} onChange={set('ref')} /></div>
-        </div>
-        <label>Categoría *</label>
-        <div className={`admin-category-picker${categoryOpen ? ' is-open' : ''}`}>
-          <button type="button" className="admin-category-current" onClick={() => { setCategoryTop(selectedTop); setCategoryOpen((open) => !open) }} aria-expanded={categoryOpen}>
-            <span>{selectedCategory ? getCategoryPathLabel(selectedCategory) : 'Selecciona una categoría...'}</span><b>{categoryOpen ? 'Cerrar' : 'Cambiar'}</b>
-          </button>
-          {categoryOpen && <div className="admin-category-options">
-            <select value={activeCategoryTop} onChange={(event) => { const slug = event.target.value; const children = getDescendantSlugs(slug).filter((item) => item !== slug); setCategoryTop(slug); if (!children.length) { chooseCategory(slug); setCategoryOpen(false) } }} required>
-              <option value="">Selecciona una familia...</option>
-              {topCats.map((top) => <option key={top.slug} value={top.slug}>{top.name}</option>)}
-            </select>
-            {categoryChildren.length > 0 && <select value={categoryChildren.includes(selectedCategory) ? selectedCategory : ''} onChange={(event) => { if (event.target.value) { chooseCategory(event.target.value); setCategoryOpen(false) } }} required>
-              <option value="">Selecciona una subcategoría...</option>
-              {categoryChildren.map((slug) => <option key={slug} value={slug}>{getCategoryPathLabel(slug)}</option>)}
-            </select>}
-          </div>}
-        </div>
-        <p className="admin-help">Opcional si el producto aún no tiene categoría. Las asignaciones adicionales guardadas se conservan.</p>
-         <div className="admin-form-grid two">
-           <div><label>Descripción corta</label><textarea value={product.description || ''} onChange={set('description')} /></div>
-           <div><label>Descripción larga <small>(un párrafo por línea)</small></label><textarea value={text(product.longDescription)} onChange={set('longDescription')} /></div>
-          </div>
-        </div>
-      </details>
-
-      <details className="admin-form-section admin-collapsible" open>
-        <summary>Imágenes <small>Imagen principal y galería</small></summary>
-        <div className="admin-collapsible-content">
-           <label>Imagen principal</label>
-        <ImageInput value={product.image} name="image" onChange={(value) => setProduct((p) => ({ ...p, image: value }))} />
-        <label>Galería de imágenes</label>
-         {(product.gallery || []).map((image, i) => <div className="admin-repeater-row" key={i}><ImageInput value={image.src} name="gallery" index={i} onChange={(value) => updateGallery(i, 'src', value)} /><select value={image.category} onChange={(e) => updateGallery(i, 'category', e.target.value)}><option>Detalle del producto</option><option>Sección o dimensiones</option><option>Dibujo técnico</option><option>Accesorios</option><option>Ejemplo de aplicación</option><option>Imagen principal</option></select><div className="repeater-actions"><button type="button" onClick={() => moveGallery(i, -1)} aria-label="Subir imagen">↑</button><button type="button" onClick={() => moveGallery(i, 1)} aria-label="Bajar imagen">↓</button><button type="button" className="btn btn-danger btn-sm" onClick={() => removeGallery(i)}>Eliminar</button></div></div>)}
-         <button type="button" className="btn btn-ghost btn-sm" onClick={() => setProduct((p) => ({ ...p, gallery: [...(p.gallery || []), { src: '', category: 'Detalle del producto' }] }))}>+ Añadir imagen</button>
-        </div>
-      </details>
-
-      <details className="admin-form-section admin-collapsible" open>
-        <summary>Opciones y códigos <small>Según el tipo de producto</small></summary>
-        <div className="admin-collapsible-content">
-           <TechnicalSection product={product} setProduct={setProduct} />
-            <section className="admin-form-subsection">
-              <h3>Datos técnicos comunes <small>(opcional)</small></h3>
-              <p className="admin-help">Añade solo los datos generales que correspondan a este producto. Los datos variables deben estar en Variantes.</p>
-              <h3>Características principales <small>(hero del producto)</small></h3>
-              <p className="admin-help">Marca las especificaciones que quieres destacar en el bloque superior. Si no marcas ninguna, se seleccionan automáticamente según el tipo de producto.</p>
-              <Repeater items={product.specs} onMove={moveSpec} onReorder={(from, to) => reorderList('specs', from, to)} onRemove={(i) => setProduct((p) => ({ ...p, specs: p.specs.filter((_, index) => index !== i) }))}>
-                 {(spec, i) => <><input value={spec.label} onChange={(e) => updateSpec(i, 'label', e.target.value)} placeholder="Característica" /><input value={spec.value} onChange={(e) => updateSpec(i, 'value', e.target.value)} placeholder="Valor" /><input value={spec.unit} onChange={(e) => updateSpec(i, 'unit', e.target.value)} placeholder="Unidad (mm, m, V...)" /><select value={spec.technicalKey || ''} onChange={(e) => updateSpec(i, 'technicalKey', e.target.value)} aria-label="Tipo de característica técnica"><option value="">Tipo técnico (automático)</option>{technicalFeatureGroups.map((group) => <optgroup key={group.label} label={group.label}>{group.options.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</optgroup>)}</select><label className="check spec-featured-check"><input type="checkbox" checked={Boolean(spec.featured)} onChange={(e) => updateSpec(i, 'featured', e.target.checked)} /> Mostrar en características principales</label></>}
-             </Repeater>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setProduct((p) => ({ ...p, specs: [...p.specs, { label: '', value: '', unit: '', featured: false, technicalKey: '' }] }))}>+ Añadir especificación</button>
-             <div className="admin-form-grid two admin-technical-media">
-               <div><label>Dibujo técnico</label><ImageInput value={product.technicalDrawing} name="technicalDrawing" onChange={(value) => setProduct((p) => ({ ...p, technicalDrawing: value }))} /></div>
-               <label className="check"><input type="checkbox" checked={Boolean(product.showTechnicalDrawing)} onChange={setCheck('showTechnicalDrawing')} /> Mostrar dibujo técnico dentro de Datos técnicos</label>
-             </div>
-             <label>Aviso técnico <small>(opcional)</small></label><textarea value={product.technicalNotice || ''} onChange={set('technicalNotice')} placeholder="Se mostrará al final de Datos técnicos si tiene contenido." />
-           </section>
-         </div>
-       </details>
-
-       <details className="admin-form-section admin-collapsible" open>
-         <summary>Variantes <small>Cada variante es una combinación real</small></summary>
-         <div className="admin-collapsible-content">
-           <p className="admin-help">Las variantes se han migrado desde los códigos existentes cuando ha sido posible. No se generan combinaciones automáticamente.</p>
-           <VariantEditor items={product.variants} onChange={(variants) => setProduct((p) => ({ ...p, variants }))} />
-         </div>
-       </details>
-
-         <details className="admin-form-section admin-collapsible" open>
-           <summary>Qué incluye <small>Elementos suministrados físicamente</small></summary>
-           <div className="admin-collapsible-content">
-           <section className="admin-form-subsection">
-           <h3>Elementos incluidos <small>(opcional)</small></h3>
-        <p className="admin-help">Solo se mostrará en la ficha si hay elementos con contenido.</p>
-        <Repeater items={product.includedItems} onMove={(i, d) => moveList('includedItems', i, d)} onReorder={(a, b) => reorderList('includedItems', a, b)} onRemove={(i) => removeList('includedItems', i)}>
-           {(item, i) => <><input value={item.quantity} onChange={(e) => updateList('includedItems', i, 'quantity', e.target.value)} placeholder="Cantidad (ej. 1)" /><input value={item.name} onChange={(e) => updateList('includedItems', i, 'name', e.target.value)} placeholder="Nombre del elemento" /><select value={item.status || ''} onChange={(e) => updateList('includedItems', i, 'status', e.target.value)}><option value="">Estado no especificado</option><option value="included">Incluido</option><option value="excluded">No incluido</option></select><input value={item.description} onChange={(e) => updateList('includedItems', i, 'description', e.target.value)} placeholder="Descripción opcional" /><ImageInput value={item.icon} name="included-icon" index={i} onChange={(value) => updateList('includedItems', i, 'icon', value)} /></>}
-        </Repeater>
-         <button type="button" className="btn btn-ghost btn-sm" onClick={() => addList('includedItems', { quantity: '', name: '', description: '', icon: '', status: 'included' })}>+ Añadir elemento incluido</button>
-           </section>
-         </div>
-         </details>
-
-         <details className="admin-form-section admin-collapsible">
-           <summary>Accesorios compatibles <small>Se venden por separado</small></summary>
-           <div className="admin-collapsible-content">
-             <p className="admin-help">Añade accesorios específicos de este producto. No se convierten en Completa la solución automáticamente.</p>
-             <AccessoryEditor items={product.accessoriesCompatible} products={allProducts.filter((p) => p.id !== initial.id)} onChange={(items) => setProduct((p) => ({ ...p, accessoriesCompatible: items }))} />
-           </div>
-         </details>
-
-         <details className="admin-form-section admin-collapsible">
-           <summary>Completa la solución <small>Productos complementarios existentes</small></summary>
-           <div className="admin-collapsible-content">
-       <section className="admin-form-subsection">
-          <h3>Productos compatibles <small>(opcional)</small></h3>
-         <p className="admin-help">Busca y selecciona productos existentes; las relaciones son manuales y no se crean automáticamente.</p>
-        <CompatibleEditor items={product.compatibleProducts} products={allProducts.filter((p) => p.id !== initial.id)} onChange={(items) => setProduct((p) => ({ ...p, compatibleProducts: items }))} />
-        </section>
-           </div>
-         </details>
-
-         <details className="admin-form-section admin-collapsible">
-           <summary>Productos similares <small>Alternativas al producto actual</small></summary>
-           <div className="admin-collapsible-content">
-           <section className="admin-form-subsection">
-           <p className="admin-help">Selecciona manualmente productos alternativos. No se mezclan con Completa la solución.</p>
-           <select multiple value={product.similarProductIds} onChange={(e) => setProduct((p) => ({ ...p, similarProductIds: [...e.target.selectedOptions].map((option) => option.value) }))}>{allProducts.filter((p) => p.id !== initial.id).map((item) => <option key={item.id} value={item.id}>{item.name}{item.ref ? ` · ${item.ref}` : ''}</option>)}</select>
-           </section>
-           </div>
-         </details>
-
-        <details className="admin-form-section admin-collapsible">
-          <summary>Aplicaciones recomendadas <small>(opcional)</small></summary>
-          <div className="admin-collapsible-content">
-        <section className="admin-form-subsection">
-          <h3>Aplicaciones <small>(opcional)</small></h3>
-          <p className="admin-help">Añade cada aplicación con un título y una explicación breve. Los datos del antiguo ejemplo de aplicación se han integrado aquí.</p>
-         <Repeater items={product.applications} itemClass="application" onMove={(i, d) => moveList('applications', i, d)} onReorder={(from, to) => reorderList('applications', from, to)} onRemove={(i) => removeList('applications', i)}>
-           {(item, i) => <><input value={item.title} onChange={(e) => updateList('applications', i, 'title', e.target.value)} placeholder="Título de la aplicación" /><textarea value={item.description} onChange={(e) => updateList('applications', i, 'description', e.target.value)} placeholder="Descripción opcional" /></>}
-         </Repeater>
-         <button type="button" className="btn btn-ghost btn-sm" onClick={() => addList('applications', { title: '', description: '' })}>+ Añadir aplicación</button>
-        </section>
-          </div>
-        </details>
-
-        <details className="admin-form-section admin-collapsible">
-          <summary>Ventajas técnicas <small>(opcional)</small></summary>
-          <div className="admin-collapsible-content">
-        <section className="admin-form-subsection">
-         <h3>Ventajas técnicas <small>(opcional)</small></h3>
-         <Repeater items={product.advantages} itemClass="advantage" onMove={(i, d) => moveList('advantages', i, d)} onReorder={(from, to) => reorderList('advantages', from, to)} onRemove={(i) => removeList('advantages', i)}>
-           {(item, i) => <><input value={item.title} onChange={(e) => updateList('advantages', i, 'title', e.target.value)} placeholder="Título" /><textarea value={item.description} onChange={(e) => updateList('advantages', i, 'description', e.target.value)} placeholder="Descripción" /><ImageInput value={item.icon} name="advantage-icon" index={i} onChange={(value) => updateList('advantages', i, 'icon', value)} /></>}
-         </Repeater>
-         <button type="button" className="btn btn-ghost btn-sm" onClick={() => addList('advantages', { title: '', description: '', icon: '' })}>+ Añadir ventaja</button>
-        </section>
-          </div>
-        </details>
-
-        <details className="admin-form-section admin-collapsible">
-          <summary>Descargas / ficha técnica <small>Documentos y PDF públicos</small></summary>
-         <div className="admin-collapsible-content">
-       <section className="admin-form-subsection">
-          <h3>Documentación <small>(opcional)</small></h3>
-        <Repeater items={product.documents} onMove={(i, d) => moveList('documents', i, d)} onReorder={(a, b) => reorderList('documents', a, b)} onRemove={(i) => removeList('documents', i)}>
-          {(item, i) => <><input value={item.name || ''} onChange={(e) => updateList('documents', i, 'name', e.target.value)} placeholder="Nombre del documento" /><select value={item.type || 'Otros documentos'} onChange={(e) => updateList('documents', i, 'type', e.target.value)}>{['Ficha técnica', 'Dibujo técnico', 'Instrucciones de montaje', 'Certificado', 'Archivo fotométrico', 'Imagen en alta resolución', 'Otros documentos'].map((type) => <option key={type}>{type}</option>)}</select><input type="file" onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setUploading(true); try { updateList('documents', i, 'file', await documentStorage.uploadDocument(file)) } catch (error) { alert(error?.message || 'No se pudo procesar el documento.') } finally { setUploading(false) } }} /><input value={item.file?.startsWith('data:') ? '' : item.file || ''} onChange={(e) => updateList('documents', i, 'file', e.target.value)} placeholder="o pega una URL" /><label className="check"><input type="checkbox" checked={item.public !== false} onChange={(e) => updateList('documents', i, 'public', e.target.checked)} /> Visibilidad pública</label></>}
-        </Repeater>
-         <button type="button" className="btn btn-ghost btn-sm" onClick={() => addList('documents', { name: '', type: 'Otros documentos', file: '', public: true })}>+ Añadir documento</button>
-         <label>Ficha técnica PDF</label>
-         <div className="admin-pdf-row"><input type="file" accept="application/pdf,.pdf" onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setUploading(true); try { const value = await documentStorage.uploadDocument(file); setProduct((p) => ({ ...p, datasheet: value })) } catch (error) { alert(error?.message || 'No se pudo procesar el PDF.') } finally { setUploading(false) } }} />{product.datasheet && <><button type="button" className="btn btn-outline btn-sm" onClick={() => openPdf(product.datasheet)}>Ver PDF</button><button type="button" className="btn btn-danger btn-sm" onClick={() => setProduct((p) => ({ ...p, datasheet: '' }))}>Quitar</button></>}</div>
-       </section>
-           </div>
-        </details>
-
-        <details className="admin-form-section admin-collapsible">
-          <summary>Clasificación y buscador <small>Etiquetas y visibilidad</small></summary>
-          <div className="admin-collapsible-content">
-         <section className="admin-form-subsection">
-         <h3>Buscador y opciones <small>(opcional)</small></h3>
-        <label>Etiquetas <small>(separadas por comas; se usan para buscador, filtros y SEO)</small></label>
-        <input value={commaText(product.tags)} onChange={set('tags')} />
-        <label className="check"><input type="checkbox" checked={Boolean(product.showTags)} onChange={setCheck('showTags')} /> Mostrar etiquetas públicamente</label>
-        <div className="admin-form-grid two"><div><label>Precio (€)</label><input type="number" step="0.01" min="0" value={product.price ?? ''} onChange={set('price')} /></div><div><label>Unidad de venta</label><input value={product.unit || ''} onChange={set('unit')} /></div></div>
-        <div className="admin-check-row"><label className="check"><input type="checkbox" checked={Boolean(product.featured)} onChange={setCheck('featured')} /> Destacado</label><label className="check"><input type="checkbox" checked={Boolean(product.outlet)} onChange={setCheck('outlet')} /> Outlet</label></div>
-        </section>
-           </div>
-        </details>
-       {uploading && <p className="admin-help">Procesando archivo...</p>}
-      <div style={{ display: 'flex', gap: 10 }}><button type="submit" className="btn btn-primary">{initial.id ? 'Guardar cambios' : 'Crear producto'}</button><button type="button" className="btn btn-outline" onClick={onCancel}>Cancelar</button></div>
+      <div className="admin-form-intro"><span className="admin-form-eyebrow">Editor de producto</span><h2>{initial.id ? 'Editar producto' : 'Nuevo producto'}</h2><p>Selecciona primero la categoría. Los campos recomendados se adaptan automáticamente y los datos existentes se conservan.</p></div>
+      <details className="admin-form-section admin-collapsible" open><summary>1. Información principal <small>Identidad, categoría e imagen</small></summary><div className="admin-collapsible-content">
+        <div className="admin-form-grid two"><div><label>Nombre *</label><input value={product.name || ''} onChange={set('name')} required /></div><div><label>Referencia</label><input value={product.ref || ''} onChange={set('ref')} /></div></div>
+        <label>Categoría / tipo de producto *</label><div className={`admin-category-picker${categoryOpen ? ' is-open' : ''}`}><button type="button" className="admin-category-current" onClick={() => { setCategoryTop(selectedTop); setCategoryOpen((open) => !open) }} aria-expanded={categoryOpen}><span>{selectedCategory ? getCategoryPathLabel(selectedCategory) : 'Selecciona una categoría...'}</span><b>{categoryOpen ? 'Cerrar' : 'Cambiar'}</b></button>{categoryOpen && <div className="admin-category-options"><select value={activeCategoryTop} onChange={(event) => { const slug = event.target.value; const children = getDescendantSlugs(slug).filter((item) => item !== slug); setCategoryTop(slug); if (!children.length) { chooseCategory(slug); setCategoryOpen(false) } }} required><option value="">Selecciona una familia...</option>{topCats.map((top) => <option key={top.slug} value={top.slug}>{top.name}</option>)}</select>{categoryChildren.length > 0 && <select value={categoryChildren.includes(selectedCategory) ? selectedCategory : ''} onChange={(event) => { if (event.target.value) { chooseCategory(event.target.value); setCategoryOpen(false) } }} required><option value="">Selecciona una subcategoría...</option>{categoryChildren.map((slug) => <option key={slug} value={slug}>{getCategoryPathLabel(slug)}</option>)}</select>}</div>}</div>
+        <div className="admin-type-badge">Tipo de ficha: <strong>{productTypeLabels[type]}</strong></div><div className="admin-form-grid two"><div><label>Imagen</label><ImageInput value={product.image} name="image" onChange={(value) => setProduct((p) => ({ ...p, image: value }))} /></div><div><label>Descripción corta</label><textarea value={product.description || ''} onChange={set('description')} /></div></div>
+        <details className="admin-inline-details"><summary>Galería de imágenes <small>{product.gallery.length} imágenes</small></summary><div className="admin-inline-content">{product.gallery.map((image, i) => <div className="admin-repeater-row" key={i}><ImageInput value={image.src} name="gallery" index={i} onChange={(value) => updateGallery(i, 'src', value)} /><select value={image.category} onChange={(e) => updateGallery(i, 'category', e.target.value)}><option>Detalle del producto</option><option>Sección o dimensiones</option><option>Dibujo técnico</option><option>Accesorios</option><option>Ejemplo de aplicación</option><option>Imagen principal</option></select><div className="repeater-actions"><button type="button" onClick={() => moveGallery(i, -1)} aria-label="Subir imagen">↑</button><button type="button" onClick={() => moveGallery(i, 1)} aria-label="Bajar imagen">↓</button><button type="button" className="btn btn-danger btn-sm" onClick={() => removeGallery(i)}>Eliminar</button></div></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => setProduct((p) => ({ ...p, gallery: [...p.gallery, { src: '', category: 'Detalle del producto' }] }))}>+ Añadir imagen</button></div></details>
+      </div></details>
+      <details className="admin-form-section admin-collapsible" open><summary>2. Características principales <small>{featureHints[type] || featureHints.generic}</small></summary><div className="admin-collapsible-content"><p className="admin-help">Aquí se muestran las especificaciones que aparecerán destacadas en la ficha pública. La selección se realiza dentro de “Datos técnicos”, sin duplicar campos.</p><div className="admin-highlight-preview">{product.specs.filter((spec) => spec.featured && (spec.label || spec.value)).length > 0 ? product.specs.filter((spec) => spec.featured && (spec.label || spec.value)).map((spec, index) => <span key={`${spec.label}-${index}`}><strong>{spec.label}</strong>{spec.value && `: ${spec.value}${spec.unit ? ` ${spec.unit}` : ''}`}</span>) : <span className="admin-help">Todavía no hay características seleccionadas. Si no marcas ninguna, la ficha pública utiliza las primeras características disponibles según el tipo de producto.</span>}</div></div></details>
+      <details className="admin-form-section admin-collapsible"><summary>3. Descripción <small>Contenido largo del producto</small></summary><div className="admin-collapsible-content"><label>Descripción larga <small>Un párrafo por línea</small></label><textarea value={text(product.longDescription)} onChange={set('longDescription')} /><label>Características adicionales antiguas <small>Se conservan para productos ya creados</small></label><textarea value={text(product.features)} onChange={set('features')} /><p className="admin-help">Las características principales se gestionan en el bloque anterior. Este campo mantiene el contenido antiguo que ya aparece en la descripción pública.</p></div></details>
+      <ContentSection title="4. Aplicaciones" help="Información que aparecerá en la pestaña “Aplicaciones”." items={product.applications} setItems={(items) => setProduct((p) => ({ ...p, applications: items }))} fields={(item, i, updateItem) => <><input value={item.title} onChange={(e) => updateItem(i, 'title', e.target.value)} placeholder="Aplicación" /><textarea value={item.description} onChange={(e) => updateItem(i, 'description', e.target.value)} placeholder="Descripción opcional" /></>} add={() => addList('applications', { title: '', description: '' })} remove={(i) => removeList('applications', i)} move={(i, d) => moveList('applications', i, d)} reorder={(a, b) => reorderList('applications', a, b)} />
+      <ContentSection title="5. Ventajas" help="Información que aparecerá en la pestaña “Ventajas”." items={product.advantages} setItems={(items) => setProduct((p) => ({ ...p, advantages: items }))} fields={(item, i, updateItem) => <><input value={item.title} onChange={(e) => updateItem(i, 'title', e.target.value)} placeholder="Ventaja" /><textarea value={item.description} onChange={(e) => updateItem(i, 'description', e.target.value)} placeholder="Descripción" /></>} add={() => addList('advantages', { title: '', description: '', icon: '' })} remove={(i) => removeList('advantages', i)} move={(i, d) => moveList('advantages', i, d)} reorder={(a, b) => reorderList('advantages', a, b)} />
+      <details className="admin-form-section admin-collapsible" open><summary>6. Datos técnicos <small>{productTypeLabels[type]} y referencias</small></summary><div className="admin-collapsible-content"><TechnicalSection product={product} setProduct={setProduct} /><div className="admin-form-subsection"><h3>Especificaciones del producto</h3><p className="admin-help">Estos datos aparecen en “Datos técnicos”. Marca “Mostrar en CARACTERÍSTICAS PRINCIPALES” en los que quieras destacar arriba. Si marcas alguno, solo esos marcados aparecerán arriba.</p><Repeater items={product.specs} onMove={moveSpec} onReorder={(from, to) => reorderList('specs', from, to)} onRemove={(i) => setProduct((p) => ({ ...p, specs: p.specs.filter((_, index) => index !== i) }))}>{(spec, i) => <><input value={spec.label} onChange={(e) => updateSpec(i, 'label', e.target.value)} placeholder="Característica" /><input value={spec.value} onChange={(e) => updateSpec(i, 'value', e.target.value)} placeholder="Valor" /><input value={spec.unit} onChange={(e) => updateSpec(i, 'unit', e.target.value)} placeholder="Unidad (mm, m, V...)" /><select value={spec.technicalKey || ''} onChange={(e) => updateSpec(i, 'technicalKey', e.target.value)} aria-label="Tipo de característica técnica"><option value="">Tipo técnico (automático)</option>{technicalFeatureGroups.map((group) => <optgroup key={group.label} label={group.label}>{group.options.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</optgroup>)}</select><label className="check spec-featured-check"><input type="checkbox" checked={Boolean(spec.featured)} onChange={(e) => updateSpec(i, 'featured', e.target.checked)} /> Mostrar en CARACTERÍSTICAS PRINCIPALES</label></>}</Repeater><button type="button" className="btn btn-ghost btn-sm" onClick={() => setProduct((p) => ({ ...p, specs: [...p.specs, { label: '', value: '', unit: '', featured: false, technicalKey: '' }] }))}>+ Añadir especificación</button></div><div className="admin-form-subsection"><h3>REFERENCIAS Y VARIANTES</h3><p className="admin-help">Se conservan las referencias antiguas y cada combinación real. No se generan combinaciones automáticamente.</p><VariantEditor items={product.variants} onChange={(variants) => setProduct((p) => ({ ...p, variants }))} /></div>{otherTechnical.length > 0 && <div className="admin-legacy-data"><strong>Datos técnicos anteriores sin clasificar</strong><p>Se muestran aquí para que sigan accesibles. No se eliminan al guardar.</p>{otherTechnical.map((row, i) => <span key={i}>{row.label}: {row.value}</span>)}</div>}<div className="admin-form-grid two admin-technical-media"><div><label>Dibujo técnico</label><ImageInput value={product.technicalDrawing} name="technicalDrawing" onChange={(value) => setProduct((p) => ({ ...p, technicalDrawing: value }))} /></div><label className="check"><input type="checkbox" checked={Boolean(product.showTechnicalDrawing)} onChange={setCheck('showTechnicalDrawing')} /> Mostrar dibujo técnico</label></div><label>Aviso técnico <small>(opcional)</small></label><textarea value={product.technicalNotice || ''} onChange={set('technicalNotice')} /></div></details>
+      <details className="admin-form-section admin-collapsible"><summary>7. Accesorios <small>Incluido con el producto y compatibles</small></summary><div className="admin-collapsible-content"><h3>Qué incluye</h3><Repeater items={product.includedItems} onMove={(i, d) => moveList('includedItems', i, d)} onReorder={(a, b) => reorderList('includedItems', a, b)} onRemove={(i) => removeList('includedItems', i)}>{(item, i) => <><input value={item.quantity} onChange={(e) => updateList('includedItems', i, 'quantity', e.target.value)} placeholder="Cantidad" /><input value={item.name} onChange={(e) => updateList('includedItems', i, 'name', e.target.value)} placeholder="Nombre" /><select value={item.status || ''} onChange={(e) => updateList('includedItems', i, 'status', e.target.value)}><option value="">Estado no especificado</option><option value="included">Incluido</option><option value="excluded">No incluido</option></select><input value={item.description} onChange={(e) => updateList('includedItems', i, 'description', e.target.value)} placeholder="Descripción opcional" /></>}</Repeater><button type="button" className="btn btn-ghost btn-sm" onClick={() => addList('includedItems', { quantity: '', name: '', description: '', icon: '', status: 'included' })}>+ Añadir elemento</button><h3>Accesorios compatibles</h3><AccessoryEditor items={product.accessoriesCompatible} products={allProducts.filter((p) => p.id !== initial.id)} onChange={(items) => setProduct((p) => ({ ...p, accessoriesCompatible: items }))} /></div></details>
+      <details className="admin-form-section admin-collapsible"><summary>8. Completa la solución <small>Productos relacionados existentes</small></summary><div className="admin-collapsible-content"><p className="admin-help">Selecciona productos existentes para mostrarlos en “Completa la solución”.</p><CompatibleEditor items={product.compatibleProducts} products={allProducts.filter((p) => p.id !== initial.id)} onChange={(items) => setProduct((p) => ({ ...p, compatibleProducts: items }))} /><details className="admin-inline-details"><summary>Productos similares <small>Se conservan por separado</small></summary><div className="admin-inline-content"><select multiple value={product.similarProductIds} onChange={(e) => setProduct((p) => ({ ...p, similarProductIds: [...e.target.selectedOptions].map((option) => option.value) }))}>{allProducts.filter((p) => p.id !== initial.id).map((item) => <option key={item.id} value={item.id}>{item.name}{item.ref ? ` · ${item.ref}` : ''}</option>)}</select></div></details></div></details>
+      <details className="admin-form-section admin-collapsible"><summary>Otros datos conservados <small>Documentos, buscador y opciones comerciales</small></summary><div className="admin-collapsible-content"><p className="admin-help">Estos datos no forman parte de los bloques editoriales principales, pero siguen disponibles y no se modifican automáticamente.</p><label>Etiquetas</label><input value={commaText(product.tags)} onChange={set('tags')} /><label className="check"><input type="checkbox" checked={Boolean(product.showTags)} onChange={setCheck('showTags')} /> Mostrar etiquetas públicamente</label><div className="admin-form-grid two"><div><label>Precio (€)</label><input type="number" step="0.01" min="0" value={product.price ?? ''} onChange={set('price')} /></div><div><label>Unidad de venta</label><input value={product.unit || ''} onChange={set('unit')} /></div></div><div className="admin-check-row"><label className="check"><input type="checkbox" checked={Boolean(product.featured)} onChange={setCheck('featured')} /> Destacado</label><label className="check"><input type="checkbox" checked={Boolean(product.outlet)} onChange={setCheck('outlet')} /> Outlet</label></div><DocumentEditor product={product} setProduct={setProduct} documentStorage={documentStorage} setUploading={setUploading} /></div></details>
+      {uploading && <p className="admin-help">Procesando archivo...</p>}<div style={{ display: 'flex', gap: 10 }}><button type="submit" className="btn btn-primary">{initial.id ? 'Guardar cambios' : 'Crear producto'}</button><button type="button" className="btn btn-outline" onClick={onCancel}>Cancelar</button></div>
     </form>
   )
+}
+
+function ContentSection({ title, help, items, setItems, fields, add, remove, move, reorder }) {
+  const updateItem = (index, field, value) => setItems(items.map((item, i) => i === index ? { ...item, [field]: value } : item))
+  return <details className="admin-form-section admin-collapsible"><summary>{title} <small>Opcional</small></summary><div className="admin-collapsible-content"><p className="admin-help">{help}</p><Repeater items={items} onMove={move} onReorder={reorder} onRemove={remove}>{(item, i) => fields(item, i, updateItem)}</Repeater><button type="button" className="btn btn-ghost btn-sm" onClick={add}>+ Añadir elemento</button></div></details>
+}
+
+function DocumentEditor({ product, setProduct, documentStorage, setUploading }) {
+  const update = (index, field, value) => setProduct((p) => ({ ...p, documents: p.documents.map((item, i) => i === index ? { ...item, [field]: value } : item) }))
+  const uploadDatasheet = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try { const value = await documentStorage.uploadDocument(file); setProduct((p) => ({ ...p, datasheet: value })) }
+    catch (error) { alert(error?.message || 'No se pudo procesar el PDF.') }
+    finally { setUploading(false) }
+  }
+  return <div className="admin-inline-details"><h3>Documentos y ficha técnica PDF</h3><Repeater items={product.documents} onMove={() => {}} onReorder={() => {}} onRemove={(i) => setProduct((p) => ({ ...p, documents: p.documents.filter((_, index) => index !== i) }))}>{(item, i) => <><input value={item.name || ''} onChange={(e) => update(i, 'name', e.target.value)} placeholder="Nombre del documento" /><input value={item.file?.startsWith('data:') ? '' : item.file || ''} onChange={(e) => update(i, 'file', e.target.value)} placeholder="URL o archivo" /><label className="check"><input type="checkbox" checked={item.public !== false} onChange={(e) => update(i, 'public', e.target.checked)} /> Público</label></>}</Repeater><button type="button" className="btn btn-ghost btn-sm" onClick={() => setProduct((p) => ({ ...p, documents: [...p.documents, { name: '', type: 'Otros documentos', file: '', public: true }] }))}>+ Añadir documento</button><div className="admin-pdf-row"><input type="file" accept="application/pdf,.pdf" onChange={uploadDatasheet} />{product.datasheet && <><button type="button" className="btn btn-outline btn-sm" onClick={() => openPdf(product.datasheet)}>Ver PDF</button><button type="button" className="btn btn-danger btn-sm" onClick={() => setProduct((p) => ({ ...p, datasheet: '' }))}>Quitar</button></>}</div></div>
 }
 
 function TechnicalSection({ product, setProduct }) {
   const type = categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic'
   return <section className="admin-form-section admin-product-technical-section">
-    <h3>Ficha técnica específica</h3>
-    <p className="admin-help">Selecciona el tipo para añadir información técnica editable que aparecerá debajo de la descripción corta.</p>
-    <label>Tipo de ficha técnica<select value={type} onChange={(event) => setProduct((p) => ({ ...p, technicalInfo: { ...p.technicalInfo, type: event.target.value } }))}><option value="generic">Producto general</option><option value="led-strip">Tira LED</option><option value="profile">Perfil</option></select></label>
+    <h3>Campos técnicos de {productTypeLabels[type] || 'este producto'}</h3>
+    <p className="admin-help">Solo se muestran los datos específicos que tienen sentido para este tipo. Los campos vacíos no aparecen en la ficha pública.</p>
+    <label>Tipo de ficha técnica<select value={type} onChange={(event) => setProduct((p) => ({ ...p, technicalInfo: { ...p.technicalInfo, type: event.target.value } }))}>{Object.entries(productTypeLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
     {type && <TechnicalEditor type={type} value={product.technicalInfo} onChange={(technicalInfo) => setProduct((p) => ({ ...p, technicalInfo }))} />}
   </section>
 }
@@ -477,6 +359,12 @@ function TechnicalEditor({ type, value, onChange }) {
     {renderRows('profileDimensions', [['label', 'Medida'], ['value', 'Valor']], 'dimensión')}
     <h4>Códigos de producto</h4>
     <CodeEditor value={value.codes} onChange={(codes) => onChange({ ...value, codes })} type="profile" finishes={value.profileFinishes} dimensions={value.profileDimensions} />
+  </>
+
+  if (type !== 'led-strip') return <>
+    <h3>Datos específicos</h3>
+    <p className="admin-help">Añade los valores propios de {productTypeLabels[type] || 'este producto'}.</p>
+    {renderRows('general', [['label', 'Característica'], ['value', 'Valor']], 'dato técnico')}
   </>
 
   return <>
