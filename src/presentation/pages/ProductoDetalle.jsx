@@ -50,17 +50,19 @@ const familyFromText = (text) => {
   if (value.includes('proyector')) return 'projector'
   if (value.includes('panel')) return 'panel'
   if (value.includes('downlight') || value.includes('aplique')) return 'downlight'
+  if (value.includes('driver') || value.includes('controlador') || value.includes('fuente')) return 'driver'
   if (value.includes('estanca')) return 'watertight'
   return 'generic'
 }
 const highlightPriority = {
-  'led-strip-24': [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['tensión', 'volt', 'v '], ['cri'], ['ip'], ['corte']],
-  'led-strip-220': [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['tensión', 'volt', 'v '], ['cri'], ['ip'], ['corte']],
-  'neon-flex': [['potencia', 'power'], ['tensión', 'volt', 'v '], ['dimensión', 'sección'], ['cri'], ['ip'], ['corte']],
+  'led-strip-24': [['temperatura', 'cct'], ['dimensión', 'ancho'], ['ángulo', 'apertura', 'optics']],
+  'led-strip-220': [['temperatura', 'cct'], ['dimensión', 'ancho'], ['ángulo', 'apertura', 'optics']],
+  'neon-flex': [['potencia', 'power'], ['dimensión', 'sección'], ['temperatura', 'cct'], ['ip', 'protección']],
   profile: [['dimensión'], ['longitud'], ['material'], ['montaje'], ['difusor'], ['acabado']],
-  projector: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['cct', 'temperatura'], ['cri'], ['óptica', 'angulo', 'ángulo'], ['regul']],
-  panel: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['cct', 'temperatura'], ['cri'], ['dimensión'], ['ángulo', 'apertura']],
-  downlight: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['cct', 'temperatura'], ['cri'], ['ugr'], ['ip', 'regul']],
+  projector: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['óptica', 'optics', 'angulo', 'ángulo'], ['cct', 'temperatura']],
+  panel: [['potencia', 'power', 'tensión', 'volt'], ['dimensión'], ['cri'], ['ángulo', 'apertura']],
+  downlight: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['ugr'], ['cct', 'temperatura']],
+  driver: [['potencia', 'power'], ['tensión', 'volt'], ['regul'], ['ip', 'protección']],
   watertight: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['ip'], ['ik'], ['longitud'], ['cct', 'temperatura']],
 }
 const codeValue = (row, key) => clean(row?.[key])
@@ -99,6 +101,11 @@ const highlightValue = (item) => {
   }
   return raw
 }
+const isOperatingTemperature = (row) => {
+  const label = clean(row.label).toLowerCase()
+  const value = clean(row.value).toLowerCase()
+  return /(funcionamiento|ambiente|tc\s*(?:máx|max)|temperatura de trabajo)/i.test(label) || /(?:°|º)\s*c\b/i.test(value)
+}
 const includedQuantity = (value) => String(value || '').match(/\d+(?:[,.]\d+)?/)?.[0] || String(value || '').trim()
 const includedPresentation = (item) => {
   const rawName = clean(item.name)
@@ -114,22 +121,28 @@ const accessoryDisplayName = (name) => {
   if (/fijaci[oó]n/i.test(value) && /perfil/i.test(value)) return 'FIJACIÓN PARA PERFILES'
   return value
 }
-const asFeatureRows = (product, info, family, selectedVariant) => {
+const asFeatureRows = (product, info, family) => {
   const rows = (Array.isArray(product.specs) ? product.specs : []).map(normalizeUnit).filter((row) => row.label || row.value)
-  const additional = [...(info.general || []), ...(info.ledBasic || []), ...(info.ledDimensions || []), ...(info.profileDimensions || [])].map(normalizeUnit).filter((row) => row.label || row.value)
+  const additional = [...(info.general || []), ...(info.ledBasic || []), ...(info.ledDimensions || []), ...(info.profileDimensions || []), ...(info.protections || []).map((value) => ({ label: 'Protección', value }))].map(normalizeUnit).filter((row) => row.label || row.value)
   const codes = technicalCodes(info.codes)
-  const sourceCode = selectedVariant || (codes.length === 1 ? codes[0] : null)
-  const codeRows = sourceCode ? [
-    ['Potencia', 'power'], ['Flujo luminoso', 'luminousFlux'], ['Tensión', 'voltage'], ['CRI', 'cri'], ['IP', 'ip'], ['Temperatura de color', 'temperature'], ['Distancia de corte', 'cuttingDistance'], ['Dimensiones', 'dimensions'], ['Longitud', 'length'], ['Material', 'material'], ['Montaje', 'mounting'], ['Difusor', 'diffuser'], ['Acabado', 'finish'], ['CCT', 'cct'], ['Óptica / ángulo', 'optics'], ['Regulación', 'dimming'], ['UGR', 'ugr'], ['IK', 'ik'],
-  ].map(([label, key]) => ({ label, value: codeValue(sourceCode, key), unit: '', technicalKey: key })).filter((row) => row.value) : []
-  const selectedRows = variantFieldRows(selectedVariant)
-  const all = expandHighlightRows(uniqueRows([...codeRows, ...selectedRows, ...rows, ...additional]).map((row) => ({ ...row, technicalKey: resolveTechnicalKey(row) })))
+  const codeRows = codes.flatMap((code) => [
+    ['Potencia', 'power'], ['Flujo luminoso', 'luminousFlux'], ['Tensión', 'voltage'], ['CRI', 'cri'], ['IP', 'ip'], ['Temperatura de color', 'temperature'], ['Distancia de corte', 'cuttingDistance'], ['Dimensiones', 'dimensions'], ['Ancho', 'width'], ['Longitud', 'length'], ['Material', 'material'], ['Montaje', 'mounting'], ['Difusor', 'diffuser'], ['Acabado', 'finish'], ['CCT', 'cct'], ['Óptica / ángulo', 'optics'], ['Regulación', 'dimming'], ['UGR', 'ugr'], ['IK', 'ik'],
+  ].map(([label, key]) => ({ label, value: codeValue(code, key), unit: '', technicalKey: key })).filter((row) => row.value))
+  const all = expandHighlightRows([...codeRows, ...rows, ...additional].map((row) => ({ ...row, technicalKey: resolveTechnicalKey(row) }))).filter((row) => !isOperatingTemperature(row))
+  const aggregated = all.reduce((result, row) => {
+    const key = conceptKey(row.label)
+    const current = result.find((item) => item.key === key)
+    if (!current) result.push({ key, row: { ...row } })
+    else if (clean(row.value) && !clean(current.row.value).split(' / ').includes(clean(row.value))) current.row.value = [current.row.value, row.value].filter(Boolean).join(' / ')
+    return result
+  }, []).map((item) => item.row)
   const priority = highlightPriority[family] || []
-  const selected = all.filter((row) => row.featured)
-  const legacyKeys = family === 'profile' ? ['length', 'dimensions', 'material', 'mountingSurface', 'mountingSuspended', 'diffuser', 'finish'] : []
-  const source = selected.length ? selected : all.filter((row) => legacyKeys.includes(row.technicalKey))
-  const ordered = priority.flatMap((terms) => source.filter((row) => labelMatches(row.label, terms))).filter((row, index, values) => values.findIndex((item) => item.label === row.label && item.value === row.value) === index)
-  return uniqueRows([...ordered, ...source.filter((row) => !ordered.some((item) => item.label === row.label && item.value === row.value))]).slice(0, 7)
+  const manualKeys = rows.filter((row) => row.featured).map((row) => conceptKey(row.label))
+  const source = manualKeys.length ? aggregated.filter((row) => manualKeys.includes(conceptKey(row.label))) : aggregated
+  const ordered = priority.map((terms) => source.find((row) => labelMatches(row.label, terms))).filter(Boolean).filter((row, index, values) => values.findIndex((item) => conceptKey(item.label) === conceptKey(row.label)) === index)
+  const isLedStrip = family === 'led-strip-24' || family === 'led-strip-220'
+  return (isLedStrip ? ordered : [...ordered, ...source.filter((row) => !ordered.some((item) => conceptKey(item.label) === conceptKey(row.label)))])
+    .slice(0, 4)
 }
 
 export default function ProductoDetalle() {
@@ -173,9 +186,8 @@ export default function ProductoDetalle() {
   const technicalInfo = product.technicalInfo || {}
   const technicalType = technicalFamily(product, categoryTrail)
   const productFamily = familyFromText([family, product.name, product.category, ...(product.categories || [])].join(' '))
-  const highlights = asFeatureRows(product, technicalInfo, productFamily, selectedVariant)
-  const profileHighlightOrder = ['length', 'dimensions', 'material', 'mountingSurface', 'mountingSuspended', 'diffuser']
-  const mainHighlights = productFamily === 'profile' ? profileHighlightOrder.map((key) => highlights.find((row) => row.technicalKey === key)).filter(Boolean) : []
+  const highlights = asFeatureRows(product, technicalInfo, productFamily)
+  const mainHighlights = highlights
   const hasTechnicalInfo = technicalType === 'led-strip'
     ? technicalRows(technicalInfo.ledBasic).length > 0 || technicalRows(technicalInfo.ledDimensions).length > 0 || (technicalInfo.temperatures || []).some(Boolean) || (technicalInfo.protections || []).some(Boolean) || technicalCodes(technicalInfo.codes).length > 0
     : technicalType === 'profile'
@@ -183,7 +195,8 @@ export default function ProductoDetalle() {
       : technicalRows(technicalInfo.general).length > 0
   const hasDescription = Boolean(longDescription.length || features.length || product.description)
   const hasTechnical = specs.length > 0 || hasTechnicalInfo || (product.showTechnicalDrawing && product.technicalDrawing) || product.technicalNotice
-  const tabList = [{ id: 'descripcion', label: 'Descripción', show: hasDescription }, { id: 'aplicaciones', label: 'Aplicaciones', show: apps.length > 0 }, { id: 'ventajas', label: 'Ventajas', show: benefits.length > 0 }, { id: 'datos', label: 'Datos técnicos', show: hasTechnical }, { id: 'descargas', label: 'Descargas', show: documents.length > 0 }].filter((tab) => tab.show)
+  const hasAccessories = included.length > 0 || accessories.length > 0
+  const tabList = [{ id: 'descripcion', label: 'Descripción', show: hasDescription }, { id: 'aplicaciones', label: 'Aplicaciones', show: apps.length > 0 }, { id: 'ventajas', label: 'Ventajas', show: benefits.length > 0 }, { id: 'datos', label: 'Datos técnicos', show: hasTechnical }, { id: 'accesorios', label: 'Accesorios', show: hasAccessories }, { id: 'descargas', label: 'Descargas', show: documents.length > 0 }].filter((tab) => tab.show)
   const currentTab = tabList.some((tab) => tab.id === activeTab) ? activeTab : tabList[0]?.id
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant || null)
@@ -199,6 +212,7 @@ export default function ProductoDetalle() {
      {tab.id === 'aplicaciones' && <div className="content-card-grid">{apps.map((item, i) => <article className="content-card" key={i}><span className="content-card-number">{String(i + 1).padStart(2, '0')}</span>{item.image && <img className="content-card-image" src={item.image} alt="" /> }<div><h3>{item.title}</h3>{item.description && <p>{item.description}</p>}{item.spaceType && <small>{item.spaceType}</small>}{item.inspiration && <small>Imagen de inspiración</small>}</div></article>)}</div>}
     {tab.id === 'ventajas' && <div className="content-card-grid">{benefits.map((item, i) => <article className="content-card benefit-card" key={i}>{item.icon ? <img src={item.icon} alt="" /> : <span className="benefit-check">✓</span>}<div><h3>{item.title}</h3>{item.description && <p>{item.description}</p>}</div></article>)}</div>}
       {tab.id === 'datos' && <div className="technical-layout"><div>{specs.length > 0 && <div className="spec-table-wrap"><table className="spec-table"><tbody>{specs.map((spec, i) => <tr key={i}><th>{spec.label}</th><td>{spec.value}{spec.unit ? ` ${spec.unit}` : ''}</td></tr>)}</tbody></table></div>}{product.technicalNotice && <aside className="technical-notice">{product.technicalNotice}</aside>}{hasTechnicalInfo && <ProductTechnicalInfo type={technicalType} value={technicalInfo} selectedVariant={selectedVariant} />}</div>{product.showTechnicalDrawing && product.technicalDrawing && <figure className="technical-drawing"><img src={product.technicalDrawing} alt={`Dibujo técnico de ${product.name}`} onClick={() => setZoomImage(product.technicalDrawing)} /><figcaption>Ampliar dibujo técnico</figcaption></figure>}</div>}
+     {tab.id === 'accesorios' && <div className="product-accessories-tab">{included.length > 0 && <section className="product-accessories-tab-included"><h3>Incluido con el producto</h3><div>{included.map((item, index) => { const presentation = includedPresentation(item); return <span key={index}>{presentation.quantity} × {presentation.name}</span> })}</div></section>}{accessories.length > 0 && <section className="product-accessories-tab-compatible"><h3>Accesorios compatibles</h3><p>Elementos disponibles por separado para completar la instalación.</p><div>{accessories.map((item, index) => { const reference = item.reference || item.product?.ref; return <article key={`${item.name}-${reference || ''}-${index}`}><h4>{accessoryDisplayName(item.name)}</h4>{reference && <span>Ref. {reference}</span>}</article> })}</div></section>}</div>}
      {tab.id === 'descargas' && <div className="documents-list">{documents.map((document, i) => <a className="document-item" key={i} href={isDataUrl(document.file) ? undefined : fileUrl(document.file)} download={!isDataUrl(document.file) ? undefined : document.name} onClick={isDataUrl(document.file) ? (event) => { event.preventDefault(); openPdfDataUrl(document.file) } : undefined}><span className="document-icon">↓</span><span><strong>{document.name}</strong><small>{document.type || 'Documento'}</small></span><b>Descargar</b></a>)}</div>}
   </div>
 
@@ -227,16 +241,12 @@ export default function ProductoDetalle() {
     />
     <main className="product-page"><div className="container product-container">
       <nav className="breadcrumb product-breadcrumb" aria-label="Migas de pan"><Link to="/">Inicio</Link><span>/</span><Link to="/productos">Productos</Link>{categoryTrail.map((cat) => <span key={cat.slug}><span>/</span>{cat.slug === product.category ? <span>{cat.name}</span> : <Link to={`/categoria/${cat.slug}`}>{cat.name}</Link>}</span>)}</nav>
-        <div className="product-detail"><div className="product-gallery"><Carousel images={gallery} alt={product.name} onImageClick={setZoomImage} /></div><div className="product-info"><p className="product-kicker">{family || 'Producto'}</p><h1>{product.name}</h1>{(variantReference(selectedVariant) || product.ref) && <p className="ref product-ref">Ref. {variantReference(selectedVariant) || product.ref}</p>}{product.description && <p className="product-short-description">{product.description}</p>}{mainHighlights.length > 0 && <section className="product-highlights product-highlights-band"><h2>Características principales</h2><div className="product-highlights-list">{mainHighlights.map((item, index) => <div className="product-highlight-band-item" key={`${item.label}-${index}`}><strong>{highlightValue(item)}</strong><span>{item.technicalKey === 'mountingSurface' || item.technicalKey === 'mountingSuspended' ? 'Montaje' : item.label}</span></div>)}</div></section>}<ProductOptions product={product} type={technicalType} selectedVariant={selectedVariant} onVariantChange={handleVariantChange} /><div className="product-actions"><Link to={`/contacto?productos=${selectedVariantCode || product.ref || ''}`} className="btn btn-primary">Solicitar presupuesto</Link>{product.datasheet && <a href={isDataUrl(product.datasheet) ? undefined : fileUrl(product.datasheet)} onClick={isDataUrl(product.datasheet) ? (e) => { e.preventDefault(); openPdfDataUrl(product.datasheet) } : undefined} target={isDataUrl(product.datasheet) ? undefined : '_blank'} rel="noreferrer" className="datasheet-link">↓ Descargar ficha técnica</a>}</div></div></div>
+        <div className="product-detail"><div className="product-gallery"><Carousel images={gallery} alt={product.name} onImageClick={setZoomImage} /></div><div className="product-info"><p className="product-kicker">{family || 'Producto'}</p><h1>{product.name}</h1>{(variantReference(selectedVariant) || product.ref) && <p className="ref product-ref">Ref. {variantReference(selectedVariant) || product.ref}</p>}{product.description && <p className="product-short-description">{product.description}</p>}{mainHighlights.length > 0 && <section className="product-highlights product-highlights-band"><h2>Características principales</h2><div className="product-highlights-list">{mainHighlights.map((item, index) => <div className="product-highlight-band-item" key={`${item.label}-${index}`}><strong>{highlightValue(item)}</strong><span>{item.technicalKey === 'mountingSurface' || item.technicalKey === 'mountingSuspended' ? 'Montaje' : item.label}</span></div>)}</div></section>}{technicalType !== 'led-strip' && <ProductOptions product={product} type={technicalType} selectedVariant={selectedVariant} onVariantChange={handleVariantChange} />}<div className="product-actions"><Link to={`/contacto?productos=${selectedVariantCode || product.ref || ''}`} className="btn btn-primary">Solicitar presupuesto</Link>{product.datasheet && <a href={isDataUrl(product.datasheet) ? undefined : fileUrl(product.datasheet)} onClick={isDataUrl(product.datasheet) ? (e) => { e.preventDefault(); openPdfDataUrl(product.datasheet) } : undefined} target={isDataUrl(product.datasheet) ? undefined : '_blank'} rel="noreferrer" className="datasheet-link">↓ Descargar ficha técnica</a>}</div></div></div>
        <div className="product-lower-row">
           <div className="product-below-hero" />
          {tabList.length > 0 && <section className="product-description"><div className="tabs">{tabList.map((tab) => <button key={tab.id} className={`tab${currentTab === tab.id ? ' active' : ''}`} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}</div><div className="desktop-tab-content">{panel({ ...tabList.find((tab) => tab.id === currentTab), id: currentTab })}</div><div className="mobile-accordion">{tabList.map((tab) => <div className={`accordion-item${currentTab === tab.id ? ' is-open' : ''}`} key={tab.id}><button className="accordion-trigger" onClick={() => setActiveTab(currentTab === tab.id ? '' : tab.id)} aria-expanded={currentTab === tab.id}>{tab.label}<span>{currentTab === tab.id ? '−' : '+'}</span></button>{currentTab === tab.id && panel(tab)}</div>)}</div></section>}
        </div>
        {example.image && !legacyExampleIsIntegrated && <section className="application-example product-section"><img src={example.image} alt={example.title || 'Ejemplo de aplicación'} onClick={() => setZoomImage(example.image)} /><div><p className="product-kicker">Ejemplo de aplicación</p><h2>{example.title}</h2>{example.description && <p>{example.description}</p>}{example.spaceType && <span className="space-label">{example.spaceType}</span>}{example.inspiration && <small>Imagen de inspiración</small>}</div></section>}
-           {(included.length > 0 || accessories.length > 0) && <div className="product-secondary-band">
-             {included.length > 0 && <section className="product-section included-section"><SectionHeading title="Qué incluye" /><div className="included-editorial">{included.map((item, i) => { const presentation = includedPresentation(item); return <article key={i}><div><strong><span className="included-count-inline">{presentation.quantity} ×</span> {presentation.name}</strong><span>Incluidas con el perfil</span>{item.description && <p>{item.description}</p>}</div></article> })}</div></section>}
-             {accessories.length > 0 && <section className="product-section accessories-section"><SectionHeading title="Accesorios compatibles" text="Accesorios específicos del producto, disponibles por separado." /><div className="accessories-editorial">{accessories.map((item, index) => { const reference = item.reference || item.product?.ref; return <article key={`${item.name}-${reference || ''}-${index}`}><span className="accessory-index">{String(index + 1).padStart(2, '0')}</span><span className="accessory-rule" /><h3>{accessoryDisplayName(item.name)}</h3>{reference && <p className="ref">Ref. {reference}</p>}</article> })}</div></section>}
-           </div>}
          {compatible.length > 0 && <section className="product-section solution-section"><SectionHeading title="Completa la solución" text="Productos compatibles para configurar la instalación." /><div className="solution-list">{compatible.map(({ product: item, function: relationFunction, reason, recommended }, index) => <article className="solution-item" key={item.id}><span className="solution-number">{String(index + 1).padStart(2, '0')}</span><div className="solution-function">{relationFunction || 'Producto compatible'}</div><img src={imageSrc(item.image) || 'images/placeholder.svg'} alt={item.name} /><div className="solution-copy"><h3>{item.name}</h3>{item.ref && <p className="ref">Ref. {item.ref}</p>}{reason && <p>{reason}</p>}{recommended && <small>Recomendado</small>}<Link to={`/producto/${item.id}`}>Ver producto <span aria-hidden="true">→</span></Link></div></article>)}</div></section>}
       {similar.length > 0 && <section className="product-section related-products"><SectionHeading title="También te puede interesar" /><div className="grid grid-4">{similar.map((item) => <article className="similar-card" key={item.id}><Link to={`/producto/${item.id}`}><div className="card-img"><img src={item.image || 'images/placeholder.svg'} alt={item.name} loading="lazy" /></div><div className="card-body"><h3>{item.name}</h3><div className="ref">{item.ref}</div></div></Link><label className="check"><input type="checkbox" checked={compareIds.includes(item.id)} onChange={() => toggleCompare(item.id)} /> Comparar</label></article>)}</div>{similar.length >= 2 && <button className="btn btn-outline compare-button" disabled={compareIds.length < 2} onClick={() => setShowComparison(true)}>Comparar seleccionados</button>}{showComparison && comparisonProducts.length >= 2 && <div className="comparison-wrap"><button className="comparison-close" onClick={() => setShowComparison(false)}>Cerrar</button><div className="comparison-scroll"><table className="comparison-table"><thead><tr><th>Especificación</th>{comparisonProducts.map((item) => <th key={item.id}>{item.name}</th>)}</tr></thead><tbody>{sharedSpecs.map((row) => <tr key={row.label}><th>{row.label}</th>{row.values.map((value, i) => <td key={i}>{value?.value ? `${value.value}${value.unit ? ` ${value.unit}` : ''}` : '—'}</td>)}</tr>)}</tbody></table></div></div>}</section>}
        <section className="technical-advice"><div><h2>¿Necesitas ayuda para configurar tu instalación?</h2><p>Indícanos los metros, el tipo de espacio y el efecto de luz que buscas. Nuestro equipo técnico te ayudará a seleccionar el perfil, la tira LED y el sistema de alimentación adecuados.</p></div><div className="advice-contact"><Link to={`/contacto?productos=${product.ref || ''}`} className="btn btn-primary">Solicitar asesoramiento</Link><a href={`tel:${settings.phone}`}>{settings.phone}</a><a href={`mailto:${settings.email}`}>{settings.email}</a>{settings.hours && <span>{settings.hours}</span>}</div></section>
@@ -308,22 +318,22 @@ function ProductTechnicalInfo({ type, value, selectedVariant }) {
        {finishes.length > 0 && <section className="product-technical-section product-technical-finishes"><h3>Acabado</h3><div className="product-filter-buttons">{finishes.map((finish, index) => <button type="button" className={`product-filter-button${selectedFinish === finish.name ? ' is-active' : ''}`} key={index} onClick={() => setSelectedFinish((current) => current === finish.name ? '' : finish.name)}>{finish.color && <span className="product-finish-swatch" style={{ backgroundColor: finish.color }} aria-hidden="true" />}<span>{finish.name}</span></button>)}</div></section>}
        {dimensions.length > 0 && <section className="product-technical-section product-technical-dimensions"><h3>Dimensiones</h3><div className="product-filter-buttons">{dimensions.map((dimension, index) => <button type="button" className={`product-filter-button${selectedDimension === dimension.option ? ' is-active' : ''}`} key={index} onClick={() => setSelectedDimension((current) => current === dimension.option ? '' : dimension.option)}>{dimension.option}</button>)}</div></section>}
        {codes.length > 0 && <section className="product-technical-section product-technical-codes"><h3>Referencias y variantes</h3><p className="product-codes-intro">Selecciona la referencia según temperatura de color y grado de protección.</p>{filteredCodes.length > 0 ? <div className="product-code-table-wrap"><table className="product-code-table"><thead><tr><th>Código de producto</th><th>Acabado</th><th>Dimensiones</th></tr></thead><tbody>{filteredCodes.map((row, index) => { const finish = finishes.find((item) => item.name === row.finish); return <tr key={index}><td data-label="Código de producto">{row.code}</td><td data-label="Acabado"><span className="product-code-finish">{finish?.color && <span className="product-finish-swatch" style={{ backgroundColor: finish.color }} aria-hidden="true" />}<span>{row.finish}</span></span></td><td data-label="Dimensiones">{row.dimensions}</td></tr> })}</tbody></table></div> : <p className="product-filter-empty">No hay códigos para los filtros seleccionados.</p>}</section>}
-    </div>
-  }
-  if (type === 'led-strip') {
-    const temperatures = [...new Set((value.temperatures?.length ? value.temperatures : codes.map((row) => row.temperature)).filter(Boolean))]
-    const protections = [...new Set((value.protections?.length ? value.protections : codes.map((row) => row.ip)).filter(Boolean))]
-    const filteredCodes = codes.filter((row) => (!selectedFinish || row.temperature === selectedFinish) && (!selectedDimension || row.ip === selectedDimension))
-    const clearFilters = () => { setSelectedFinish(''); setSelectedDimension('') }
-      return <div className="product-technical-block product-technical-led"><TechnicalRows title="Variante seleccionada" rows={selectedTechnicalRows} />
-       {(temperatures.length > 0 || protections.length > 0) && <div className="product-filter-toolbar"><button type="button" className="product-filter-clear" onClick={clearFilters}>Limpiar filtros</button></div>}
-       {temperatures.length > 0 && <section className="product-technical-section product-technical-led-temperature"><h3>Temperatura</h3><div className="product-filter-buttons">{temperatures.map((temperature) => <button type="button" className={`product-filter-button${selectedFinish === temperature ? ' is-active' : ''}`} key={temperature} onClick={() => setSelectedFinish((current) => current === temperature ? '' : temperature)}>{temperature}</button>)}</div></section>}
-       {protections.length > 0 && <section className="product-technical-section product-technical-led-protection"><h3>Protección</h3><div className="product-filter-buttons">{protections.map((protection) => <button type="button" className={`product-filter-button${selectedDimension === protection ? ' is-active' : ''}`} key={protection} onClick={() => setSelectedDimension((current) => current === protection ? '' : protection)}>{protection}</button>)}</div></section>}
-        {codes.length > 0 && <section className="product-technical-section product-technical-codes"><h3>Referencias y variantes</h3><p className="product-codes-intro">Selecciona la referencia según temperatura de color y grado de protección.</p>{filteredCodes.length > 0 ? <div className="product-code-table-wrap"><table className="product-code-table"><thead><tr><th>Código de producto</th><th>Potencia (W/m)</th><th>Temperatura de color (K)</th><th>CRI</th><th>Flujo luminoso (lm)</th><th>Regulación</th><th>Protección</th></tr></thead><tbody>{filteredCodes.map((row, index) => <tr key={index}><td data-label="Código de producto">{row.code}</td><td data-label="Potencia (W/m)">{row.power}</td><td data-label="Temperatura de color (K)">{row.temperature}</td><td data-label="CRI">{row.cri}</td><td data-label="Flujo luminoso (lm)">{row.luminousFlux}</td><td data-label="Regulación">{row.dimming}</td><td data-label="Protección">{row.ip}</td></tr>)}</tbody></table></div> : <p className="product-filter-empty">No hay códigos para los filtros seleccionados.</p>}</section>}
-       <TechnicalRows title="Información básica" rows={value.ledBasic} />
-       <TechnicalRows title="Dimensiones" rows={value.ledDimensions} />
      </div>
-  }
+   }
+   if (type === 'led-strip') {
+     const temperatures = [...new Set((value.temperatures?.length ? value.temperatures : codes.map((row) => row.temperature)).filter(Boolean))]
+     const protections = [...new Set((value.protections?.length ? value.protections : codes.map((row) => row.ip)).filter(Boolean))]
+     const filteredCodes = codes.filter((row) => (!selectedFinish || row.temperature === selectedFinish) && (!selectedDimension || row.ip === selectedDimension))
+     const clearFilters = () => { setSelectedFinish(''); setSelectedDimension('') }
+       return <div className="product-technical-block product-technical-led"><TechnicalRows title="Variante seleccionada" rows={selectedTechnicalRows} />
+        {(temperatures.length > 0 || protections.length > 0) && <div className="product-filter-toolbar"><button type="button" className="product-filter-clear" onClick={clearFilters}>Limpiar filtros</button></div>}
+        {temperatures.length > 0 && <section className="product-technical-section product-technical-led-temperature"><h3>Temperatura</h3><div className="product-filter-buttons">{temperatures.map((temperature) => <button type="button" className={`product-filter-button${selectedFinish === temperature ? ' is-active' : ''}`} key={temperature} onClick={() => setSelectedFinish((current) => current === temperature ? '' : temperature)}>{temperature}</button>)}</div></section>}
+        {protections.length > 0 && <section className="product-technical-section product-technical-led-protection"><h3>Protección</h3><div className="product-filter-buttons">{protections.map((protection) => <button type="button" className={`product-filter-button${selectedDimension === protection ? ' is-active' : ''}`} key={protection} onClick={() => setSelectedDimension((current) => current === protection ? '' : protection)}>{protection}</button>)}</div></section>}
+         {codes.length > 0 && <section className="product-technical-section product-technical-codes"><h3>Referencias y variantes</h3><p className="product-codes-intro">Selecciona la referencia según temperatura de color y grado de protección.</p>{filteredCodes.length > 0 ? <div className="product-code-table-wrap"><table className="product-code-table"><thead><tr><th>Código de producto</th><th>Potencia (W/m)</th><th>Temperatura de color (K)</th><th>CRI</th><th>Flujo luminoso (lm)</th><th>Regulación</th><th>Protección</th></tr></thead><tbody>{filteredCodes.map((row, index) => <tr key={index}><td data-label="Código de producto">{row.code}</td><td data-label="Potencia (W/m)">{row.power}</td><td data-label="Temperatura de color (K)">{row.temperature}</td><td data-label="CRI">{row.cri}</td><td data-label="Flujo luminoso (lm)">{row.luminousFlux}</td><td data-label="Regulación">{row.dimming}</td><td data-label="Protección">{row.ip}</td></tr>)}</tbody></table></div> : <p className="product-filter-empty">No hay códigos para los filtros seleccionados.</p>}</section>}
+        <TechnicalRows title="Información básica" rows={value.ledBasic} />
+        <TechnicalRows title="Dimensiones" rows={value.ledDimensions} />
+      </div>
+   }
 
-  return <div className="product-technical-block"><TechnicalRows title="Información técnica" rows={value.general} /></div>
-}
+   return <div className="product-technical-block"><TechnicalRows title="Información técnica" rows={value.general} /></div>
+ }
