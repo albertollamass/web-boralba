@@ -66,6 +66,11 @@ const highlightPriority = {
   watertight: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['ip'], ['ik'], ['longitud'], ['cct', 'temperatura']],
 }
 const codeValue = (row, key) => clean(row?.[key])
+const optionName = (option) => typeof option === 'string' ? clean(option) : clean(option?.name || option?.label || option?.value)
+const optionColor = (option) => typeof option === 'object' ? clean(option?.color) : ''
+const optionList = (value) => Array.isArray(value) ? value : String(value || '').split(/[,\n]/).map((item) => item.trim()).filter(Boolean)
+const ledTechnicalFields = [['Potencia', 'power'], ['CRI', 'cri'], ['Flujo luminoso', 'luminousFlux'], ['Tensión', 'voltage'], ['LEDs por metro', 'ledsPerMeter'], ['Distancia de corte', 'cuttingDistance'], ['Ángulo', 'angle'], ['Regulación', 'dimming'], ['Vida útil', 'lifetime']]
+const codeTechnicalText = (code, fields) => fields.map(([label, key]) => codeValue(code, key) ? `${label}: ${codeValue(code, key)}` : '').filter(Boolean).join(' · ')
 const variantReference = (variant) => clean(variant?.code || variant?.ref || variant?.reference)
 const variantFieldRows = (variant) => {
   const source = variant?.attributes || variant?.options || variant?.specifications || {}
@@ -122,13 +127,14 @@ const accessoryDisplayName = (name) => {
   return value
 }
 const asFeatureRows = (product, info, family) => {
+  const isLedStrip = family === 'led-strip-24' || family === 'led-strip-220'
   const rows = (Array.isArray(product.specs) ? product.specs : []).map(normalizeUnit).filter((row) => row.label || row.value)
-  const additional = [...(info.general || []), ...(info.ledBasic || []), ...(info.ledDimensions || []), ...(info.profileDimensions || []), ...(info.protections || []).map((value) => ({ label: 'Protección', value }))].map(normalizeUnit).filter((row) => row.label || row.value)
+  const additional = [...(info.general || []), ...(info.ledBasic || []), ...(isLedStrip ? [] : info.ledDimensions || []), ...(info.profileDimensions || []), ...(info.protections || []).map((value) => ({ label: 'Protección', value: optionName(value) }))].map(normalizeUnit).filter((row) => row.label || row.value)
   const codes = technicalCodes(info.codes)
   const codeRows = codes.flatMap((code) => [
     ['Potencia', 'power'], ['Flujo luminoso', 'luminousFlux'], ['Tensión', 'voltage'], ['CRI', 'cri'], ['IP', 'ip'], ['Temperatura de color', 'temperature'], ['Distancia de corte', 'cuttingDistance'], ['Dimensiones', 'dimensions'], ['Ancho', 'width'], ['Longitud', 'length'], ['Material', 'material'], ['Montaje', 'mounting'], ['Difusor', 'diffuser'], ['Acabado', 'finish'], ['CCT', 'cct'], ['Óptica / ángulo', 'optics'], ['Regulación', 'dimming'], ['UGR', 'ugr'], ['IK', 'ik'],
   ].map(([label, key]) => ({ label, value: codeValue(code, key), unit: '', technicalKey: key })).filter((row) => row.value))
-  const all = expandHighlightRows([...codeRows, ...rows, ...additional].map((row) => ({ ...row, technicalKey: resolveTechnicalKey(row) }))).filter((row) => !isOperatingTemperature(row))
+  const all = expandHighlightRows([...codeRows.filter((row) => !(isLedStrip && row.technicalKey === 'dimensions')), ...rows, ...additional].map((row) => ({ ...row, technicalKey: resolveTechnicalKey(row) }))).filter((row) => !isOperatingTemperature(row))
   const aggregated = all.reduce((result, row) => {
     const key = conceptKey(row.label)
     const current = result.find((item) => item.key === key)
@@ -140,7 +146,6 @@ const asFeatureRows = (product, info, family) => {
   const manualKeys = rows.filter((row) => row.featured).map((row) => conceptKey(row.label))
   const source = manualKeys.length ? aggregated.filter((row) => manualKeys.includes(conceptKey(row.label))) : aggregated
   const ordered = priority.map((terms) => source.find((row) => labelMatches(row.label, terms))).filter(Boolean).filter((row, index, values) => values.findIndex((item) => conceptKey(item.label) === conceptKey(row.label)) === index)
-  const isLedStrip = family === 'led-strip-24' || family === 'led-strip-220'
   return (isLedStrip ? ordered : [...ordered, ...source.filter((row) => !ordered.some((item) => conceptKey(item.label) === conceptKey(row.label)))])
     .slice(0, 4)
 }
@@ -189,7 +194,7 @@ export default function ProductoDetalle() {
   const highlights = asFeatureRows(product, technicalInfo, productFamily)
   const mainHighlights = highlights
   const hasTechnicalInfo = technicalType === 'led-strip'
-    ? technicalRows(technicalInfo.ledBasic).length > 0 || technicalRows(technicalInfo.ledDimensions).length > 0 || (technicalInfo.temperatures || []).some(Boolean) || (technicalInfo.protections || []).some(Boolean) || technicalCodes(technicalInfo.codes).length > 0
+    ? technicalRows(technicalInfo.ledBasic).length > 0 || technicalRows(technicalInfo.ledDimensions).length > 0 || optionList(technicalInfo.temperatures).some(Boolean) || optionList(technicalInfo.protections).some(Boolean) || technicalCodes(technicalInfo.codes).length > 0
     : technicalType === 'profile'
       ? (technicalInfo.profileFinishes || []).some((finish) => finish?.name || finish?.color) || technicalRows(technicalInfo.profileDimensions).length > 0 || technicalCodes(technicalInfo.codes).length > 0
       : technicalRows(technicalInfo.general).length > 0
@@ -244,7 +249,7 @@ export default function ProductoDetalle() {
         <div className="product-detail"><div className="product-gallery"><Carousel images={gallery} alt={product.name} onImageClick={setZoomImage} /></div><div className="product-info"><p className="product-kicker">{family || 'Producto'}</p><h1>{product.name}</h1>{(variantReference(selectedVariant) || product.ref) && <p className="ref product-ref">Ref. {variantReference(selectedVariant) || product.ref}</p>}{product.description && <p className="product-short-description">{product.description}</p>}{mainHighlights.length > 0 && <section className="product-highlights product-highlights-band"><h2>Características principales</h2><div className="product-highlights-list">{mainHighlights.map((item, index) => <div className="product-highlight-band-item" key={`${item.label}-${index}`}><strong>{highlightValue(item)}</strong><span>{item.technicalKey === 'mountingSurface' || item.technicalKey === 'mountingSuspended' ? 'Montaje' : item.label}</span></div>)}</div></section>}{technicalType !== 'led-strip' && <ProductOptions product={product} type={technicalType} selectedVariant={selectedVariant} onVariantChange={handleVariantChange} />}<div className="product-actions"><Link to={`/contacto?productos=${selectedVariantCode || product.ref || ''}`} className="btn btn-primary">Solicitar presupuesto</Link>{product.datasheet && <a href={isDataUrl(product.datasheet) ? undefined : fileUrl(product.datasheet)} onClick={isDataUrl(product.datasheet) ? (e) => { e.preventDefault(); openPdfDataUrl(product.datasheet) } : undefined} target={isDataUrl(product.datasheet) ? undefined : '_blank'} rel="noreferrer" className="datasheet-link">↓ Descargar ficha técnica</a>}</div></div></div>
        <div className="product-lower-row">
           <div className="product-below-hero" />
-         {tabList.length > 0 && <section className="product-description"><div className="tabs">{tabList.map((tab) => <button key={tab.id} className={`tab${currentTab === tab.id ? ' active' : ''}`} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}</div><div className="desktop-tab-content">{panel({ ...tabList.find((tab) => tab.id === currentTab), id: currentTab })}</div><div className="mobile-accordion">{tabList.map((tab) => <div className={`accordion-item${currentTab === tab.id ? ' is-open' : ''}`} key={tab.id}><button className="accordion-trigger" onClick={() => setActiveTab(currentTab === tab.id ? '' : tab.id)} aria-expanded={currentTab === tab.id}>{tab.label}<span>{currentTab === tab.id ? '−' : '+'}</span></button>{currentTab === tab.id && panel(tab)}</div>)}</div></section>}
+          {tabList.length > 0 && <section className="product-description"><div className="tabs">{tabList.map((tab) => <button type="button" key={tab.id} className={`tab${currentTab === tab.id ? ' active' : ''}`} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}</div><div className="desktop-tab-content">{panel({ ...tabList.find((tab) => tab.id === currentTab), id: currentTab })}</div><div className="mobile-accordion">{tabList.map((tab) => <div className={`accordion-item${currentTab === tab.id ? ' is-open' : ''}`} key={tab.id}><button type="button" className="accordion-trigger" onClick={() => setActiveTab(currentTab === tab.id ? '' : tab.id)} aria-expanded={currentTab === tab.id}>{tab.label}<span>{currentTab === tab.id ? '−' : '+'}</span></button>{currentTab === tab.id && panel(tab)}</div>)}</div></section>}
        </div>
        {example.image && !legacyExampleIsIntegrated && <section className="application-example product-section"><img src={example.image} alt={example.title || 'Ejemplo de aplicación'} onClick={() => setZoomImage(example.image)} /><div><p className="product-kicker">Ejemplo de aplicación</p><h2>{example.title}</h2>{example.description && <p>{example.description}</p>}{example.spaceType && <span className="space-label">{example.spaceType}</span>}{example.inspiration && <small>Imagen de inspiración</small>}</div></section>}
          {compatible.length > 0 && <section className="product-section solution-section"><SectionHeading title="Completa la solución" text="Productos compatibles para configurar la instalación." /><div className="solution-list">{compatible.map(({ product: item, function: relationFunction, reason, recommended }, index) => <article className="solution-item" key={item.id}><span className="solution-number">{String(index + 1).padStart(2, '0')}</span><div className="solution-function">{relationFunction || 'Producto compatible'}</div><img src={imageSrc(item.image) || 'images/placeholder.svg'} alt={item.name} /><div className="solution-copy"><h3>{item.name}</h3>{item.ref && <p className="ref">Ref. {item.ref}</p>}{reason && <p>{reason}</p>}{recommended && <small>Recomendado</small>}<Link to={`/producto/${item.id}`}>Ver producto <span aria-hidden="true">→</span></Link></div></article>)}</div></section>}
@@ -269,7 +274,7 @@ function ProductOptions({ product, type, selectedVariant, onVariantChange }) {
   const technicalGroups = type === 'profile'
     ? [{ label: 'Acabado', key: 'finish', values: (info.profileFinishes || []).map((item) => item.name).filter(Boolean) }, { label: 'Dimensiones', key: 'dimensions', values: (info.profileDimensions || []).map((item) => [item.label, item.value].filter(Boolean).join(' · ')).filter(Boolean) }]
     : type === 'led-strip'
-      ? [{ label: 'Temperatura de color', key: 'temperature', values: (info.temperatures || []).concat(codes.map((row) => row.temperature)).filter(Boolean) }, { label: 'Protección', key: 'ip', values: (info.protections || []).concat(codes.map((row) => row.ip)).filter(Boolean) }]
+       ? [{ label: 'Temperatura de color', key: 'temperature', values: optionList(info.temperatures).map(optionName).concat(codes.map((row) => row.temperature)).filter(Boolean) }, { label: 'Protección', key: 'ip', values: optionList(info.protections).map(optionName).concat(codes.map((row) => row.ip)).filter(Boolean) }]
       : []
   const legacy = (Array.isArray(product.variants) ? product.variants : []).filter((variant) => variant && typeof variant === 'object')
   const legacyGroups = [...new Map(legacy.flatMap((variant) => {
@@ -321,19 +326,33 @@ function ProductTechnicalInfo({ type, value, selectedVariant }) {
      </div>
    }
    if (type === 'led-strip') {
-     const temperatures = [...new Set((value.temperatures?.length ? value.temperatures : codes.map((row) => row.temperature)).filter(Boolean))]
-     const protections = [...new Set((value.protections?.length ? value.protections : codes.map((row) => row.ip)).filter(Boolean))]
+      const temperatureOptions = optionList(value.temperatures).length ? optionList(value.temperatures) : codes.map((row) => row.temperature)
+      const temperatures = [...new Set(temperatureOptions.map(optionName).filter(Boolean))]
+      const protectionOptions = optionList(value.protections).length ? optionList(value.protections) : codes.map((row) => row.ip)
+      const protections = [...new Set(protectionOptions.map(optionName).filter(Boolean))]
      const filteredCodes = codes.filter((row) => (!selectedFinish || row.temperature === selectedFinish) && (!selectedDimension || row.ip === selectedDimension))
      const clearFilters = () => { setSelectedFinish(''); setSelectedDimension('') }
        return <div className="product-technical-block product-technical-led"><TechnicalRows title="Variante seleccionada" rows={selectedTechnicalRows} />
         {(temperatures.length > 0 || protections.length > 0) && <div className="product-filter-toolbar"><button type="button" className="product-filter-clear" onClick={clearFilters}>Limpiar filtros</button></div>}
-        {temperatures.length > 0 && <section className="product-technical-section product-technical-led-temperature"><h3>Temperatura</h3><div className="product-filter-buttons">{temperatures.map((temperature) => <button type="button" className={`product-filter-button${selectedFinish === temperature ? ' is-active' : ''}`} key={temperature} onClick={() => setSelectedFinish((current) => current === temperature ? '' : temperature)}>{temperature}</button>)}</div></section>}
+         {temperatures.length > 0 && <section className="product-technical-section product-technical-led-temperature"><h3>Temperatura</h3><div className="product-filter-buttons">{temperatures.map((temperature) => { const option = temperatureOptions.find((item) => optionName(item) === temperature); return <button type="button" className={`product-filter-button${selectedFinish === temperature ? ' is-active' : ''}`} key={temperature} onClick={() => setSelectedFinish((current) => current === temperature ? '' : temperature)}>{optionColor(option) && <span className="product-finish-swatch" style={{ backgroundColor: optionColor(option) }} aria-hidden="true" />}<span>{temperature}</span></button> })}</div></section>}
         {protections.length > 0 && <section className="product-technical-section product-technical-led-protection"><h3>Protección</h3><div className="product-filter-buttons">{protections.map((protection) => <button type="button" className={`product-filter-button${selectedDimension === protection ? ' is-active' : ''}`} key={protection} onClick={() => setSelectedDimension((current) => current === protection ? '' : protection)}>{protection}</button>)}</div></section>}
-         {codes.length > 0 && <section className="product-technical-section product-technical-codes"><h3>Referencias y variantes</h3><p className="product-codes-intro">Selecciona la referencia según temperatura de color y grado de protección.</p>{filteredCodes.length > 0 ? <div className="product-code-table-wrap"><table className="product-code-table"><thead><tr><th>Código de producto</th><th>Potencia (W/m)</th><th>Temperatura de color (K)</th><th>CRI</th><th>Flujo luminoso (lm)</th><th>Regulación</th><th>Protección</th></tr></thead><tbody>{filteredCodes.map((row, index) => <tr key={index}><td data-label="Código de producto">{row.code}</td><td data-label="Potencia (W/m)">{row.power}</td><td data-label="Temperatura de color (K)">{row.temperature}</td><td data-label="CRI">{row.cri}</td><td data-label="Flujo luminoso (lm)">{row.luminousFlux}</td><td data-label="Regulación">{row.dimming}</td><td data-label="Protección">{row.ip}</td></tr>)}</tbody></table></div> : <p className="product-filter-empty">No hay códigos para los filtros seleccionados.</p>}</section>}
-        <TechnicalRows title="Información básica" rows={value.ledBasic} />
-        <TechnicalRows title="Dimensiones" rows={value.ledDimensions} />
-      </div>
-   }
+          {codes.length > 0 && <LedCodeTable codes={filteredCodes} temperatureOptions={temperatureOptions} />}
+         <TechnicalRows title="Información básica" rows={value.ledBasic} />
+       </div>
+}
 
    return <div className="product-technical-block"><TechnicalRows title="Información técnica" rows={value.general} /></div>
- }
+  }
+
+function LedCodeTable({ codes, temperatureOptions }) {
+  const columns = [
+    ['Código de producto', 'code'],
+    ['Temperatura de color', 'temperature'],
+    ['Dimensiones o tamaño', 'dimensions'],
+    ['Protección IP', 'ip'],
+    ...ledTechnicalFields.slice(0, 3),
+  ].filter(([, key]) => codes.some((code) => codeValue(code, key)))
+  const otherFields = ledTechnicalFields.slice(3).filter(([, key]) => codes.some((code) => codeValue(code, key)))
+  if (otherFields.length) columns.push(['Otras características disponibles', 'other'])
+  return <section className="product-technical-section product-technical-codes"><h3>Referencias</h3><p className="product-codes-intro">Cada referencia reúne sus opciones y características técnicas.</p>{codes.length > 0 ? <div className="product-code-table-wrap"><table className="product-code-table"><thead><tr>{columns.map(([label]) => <th key={label}>{label}</th>)}</tr></thead><tbody>{codes.map((row, index) => { const temperature = temperatureOptions.find((option) => optionName(option) === row.temperature); return <tr key={index}>{columns.map(([label, key]) => <td data-label={label} key={key}>{key === 'temperature' ? <span className="product-code-finish">{optionColor(temperature) && <span className="product-finish-swatch" style={{ backgroundColor: optionColor(temperature) }} aria-hidden="true" />}<span>{row.temperature}</span></span> : key === 'other' ? codeTechnicalText(row, otherFields) : codeValue(row, key)}</td>)}</tr> })}</tbody></table></div> : <p className="product-filter-empty">No hay códigos para los filtros seleccionados.</p>}</section>
+}
