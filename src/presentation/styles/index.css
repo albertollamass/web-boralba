@@ -13569,6 +13569,153 @@ textarea {
   .product-page .product-secondary-band .accessories-editorial h3 { overflow-wrap: anywhere; }
 }
 
+/* Reticula final de fichas: un ritmo comun para contenido tecnico y referencias. */
+.product-page .product-lower-row {
+  margin-top: clamp(48px, 5vw, 64px);
+}
+
+.product-page .tabs {
+  gap: clamp(22px, 3vw, 36px);
+}
+
+.product-page .desktop-tab-content {
+  padding-top: clamp(30px, 3.5vw, 42px);
+}
+
+.product-page .technical-layout {
+  grid-template-columns: minmax(0, 1.55fr) minmax(240px, .8fr);
+  gap: clamp(28px, 4vw, 56px);
+}
+
+.product-page .technical-layout .product-technical-block {
+  margin-top: 0;
+}
+
+.product-page .technical-drawing {
+  align-self: start;
+  margin-top: 0;
+}
+
+.product-page .technical-drawing img {
+  max-height: 360px;
+}
+
+.product-page .product-technical-list {
+  column-gap: clamp(24px, 3vw, 42px);
+  row-gap: 16px;
+}
+
+.product-page .product-technical-list > div {
+  min-width: 0;
+}
+
+.product-page .spec-table tr {
+  border-bottom: 0;
+  padding-block: 9px;
+}
+
+.product-page .product-technical-profile,
+.product-page .product-technical-led {
+  margin: 0;
+  padding: 0;
+  column-gap: clamp(20px, 3vw, 32px);
+  row-gap: 16px;
+}
+
+.product-page .product-technical-profile .product-technical-section h3,
+.product-page .product-technical-led .product-technical-section h3,
+.product-page .product-technical-codes h3 {
+  margin-bottom: 8px;
+}
+
+.product-page .product-filter-toolbar {
+  min-height: 0;
+  margin: -2px 0 -4px;
+}
+
+.product-page .product-filter-clear {
+  color: #777;
+  font-size: .7rem;
+}
+
+.product-page .product-lower-row .product-code-table {
+  min-width: 0;
+  table-layout: fixed;
+  border-spacing: 0;
+}
+
+.product-page .product-lower-row .product-code-table th,
+.product-page .product-lower-row .product-code-table td {
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid #ededed;
+  overflow-wrap: anywhere;
+}
+
+.product-page .product-lower-row .product-code-table th:first-child,
+.product-page .product-lower-row .product-code-table td:first-child {
+  width: 36%;
+}
+
+.product-page .product-lower-row .product-code-table th:nth-child(2),
+.product-page .product-lower-row .product-code-table td:nth-child(2) {
+  width: 31%;
+}
+
+.product-page .product-lower-row .product-code-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.product-page > .product-container > .technical-advice {
+  margin-top: clamp(52px, 6vw, 68px);
+}
+
+@media (max-width: 900px) {
+  .product-page .technical-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .product-page .technical-drawing {
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 700px) {
+  .product-page .product-lower-row {
+    margin-top: 42px;
+  }
+
+  .product-page .desktop-tab-content {
+    padding-top: 28px;
+  }
+
+  .product-page .product-technical-profile,
+  .product-page .product-technical-led {
+    row-gap: 18px;
+  }
+
+  .product-page .product-filter-toolbar {
+    justify-content: flex-start;
+    margin: -2px 0 -2px;
+  }
+
+  .product-page .product-lower-row .product-code-table {
+    table-layout: auto;
+  }
+
+  .product-page .product-lower-row .product-code-table th,
+  .product-page .product-lower-row .product-code-table td {
+    padding-block: 7px;
+  }
+
+  .product-page .technical-drawing img {
+    max-height: 300px;
+  }
+
+  .product-page > .product-container > .technical-advice {
+    margin-top: 44px;
+  }
+}
+
 /* ---------- Ajustes responsive finales ----------
    Solo modifica el comportamiento en tablet y móvil. */
 @media (max-width: 1100px) {
@@ -14429,4 +14576,536 @@ textarea {
   .product-page .product-filter-toolbar { justify-content: flex-end; }
   .product-page .product-technical-codes .product-code-table th,
   .product-page .product-technical-codes .product-code-table td { padding-block: 7px !important; }
+}
+
+/* Ajuste final de ritmo en la pestaña tecnica. */
+.product-page .technical-spec-tables {
+  gap: 0 clamp(16px, 2vw, 24px);
+  align-items: start;
+}
+
+.product-page .technical-layout .technical-drawing figcaption {
+  margin-top: 6px;
+}
+
+.product-page .product-technical-profile,
+.product-page .product-technical-led {
+  row-gap: 18px;
+}
+
+.product-page .product-technical-profile {
+  grid-template-areas:
+    "selected selected"
+    "toolbar toolbar"
+    "finish dimensions"
+    "codes codes";
+}
+
+.product-page .product-technical-profile > .product-technical-section:first-child {
+  grid-area: selected;
+}
+
+.product-page .product-technical-profile > .product-filter-toolbar {
+  grid-area: toolbar;
+  justify-content: flex-end;
+  margin: -4px 0 -8px;
+}
+
+.product-page .product-technical-profile .product-technical-finishes {
+  grid-area: finish;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions {
+  grid-area: dimensions;
+}
+
+.product-page .product-technical-profile .product-technical-codes {
+  grid-area: codes;
+  margin-top: 32px !important;
+}
+
+.product-page .product-technical-led .product-filter-toolbar {
+  justify-content: flex-end;
+  margin: -4px 0 -8px;
+}
+
+.product-page .product-technical-led .product-technical-codes {
+  margin-top: 32px !important;
+}
+
+@media (max-width: 700px) {
+  .product-page .product-technical-profile {
+    grid-template-areas:
+      "selected"
+      "toolbar"
+      "finish"
+      "dimensions"
+      "codes";
+  }
+
+  .product-page .product-technical-profile > .product-filter-toolbar,
+  .product-page .product-technical-led .product-filter-toolbar {
+    justify-content: flex-start;
+    margin: -2px 0 -4px;
+  }
+
+  .product-page .product-technical-profile .product-technical-codes,
+  .product-page .product-technical-led .product-technical-codes {
+    margin-top: 28px !important;
+  }
+}
+
+/* Datos tecnicos en tablas compactas, alineadas con el dibujo. */
+.product-page .technical-layout > div > .spec-table-wrap {
+  margin: 0 0 30px;
+}
+
+.product-page .technical-spec-tables {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(24px, 3vw, 42px);
+}
+
+.product-page .technical-spec-tables .spec-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.product-page .technical-spec-tables .spec-table tbody {
+  display: table-row-group !important;
+}
+
+.product-page .technical-spec-tables .spec-table tr {
+  display: grid;
+  grid-template-columns: minmax(100px, .8fr) minmax(0, 1.2fr);
+  gap: 14px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.product-page .technical-spec-tables .spec-table tr:last-child {
+  border-bottom: 0;
+}
+
+.product-page .technical-spec-tables .spec-table th,
+.product-page .technical-spec-tables .spec-table td {
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+.product-page .technical-spec-tables .spec-table th {
+  color: #777;
+  font-size: .74rem;
+  font-weight: 400;
+}
+
+.product-page .technical-spec-tables .spec-table td {
+  color: #171717;
+  font-size: .84rem;
+  font-weight: 600;
+}
+
+.product-page .technical-layout .technical-drawing {
+  align-self: start;
+  margin-top: 0;
+}
+
+.product-page .technical-layout .technical-drawing figcaption {
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .product-page .technical-spec-tables {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .product-page .technical-spec-tables .spec-table + .spec-table {
+    margin-top: 0;
+  }
+
+  .product-page .technical-layout > div > .spec-table-wrap {
+    margin-bottom: 24px;
+  }
+
+  .product-page .technical-spec-tables .spec-table tr {
+    grid-template-columns: minmax(110px, .8fr) minmax(0, 1.2fr);
+  }
+}
+
+/* Ultimo ajuste de jerarquia para opciones y dibujo tecnico. */
+.product-page .technical-layout .technical-drawing {
+  align-self: start;
+  margin-top: 0;
+}
+
+.product-page .technical-layout .technical-drawing figcaption {
+  margin-top: 4px;
+  text-align: center;
+}
+
+.product-page .product-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between !important;
+  gap: 16px;
+  width: 100%;
+}
+
+.product-page .product-filter-heading {
+  color: #171717;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.product-page .product-filter-toolbar .product-filter-clear {
+  margin-left: auto;
+}
+
+.product-page .product-technical-profile .product-technical-codes,
+.product-page .product-technical-led .product-technical-codes {
+  margin-top: 30px !important;
+}
+
+@media (max-width: 700px) {
+  .product-page .product-filter-toolbar {
+    justify-content: space-between !important;
+  }
+
+  .product-page .product-technical-profile .product-technical-codes,
+  .product-page .product-technical-led .product-technical-codes {
+    margin-top: 28px !important;
+  }
+}
+
+/* Correcciones puntuales de alineacion, sin alterar el tratamiento existente. */
+.product-page .technical-layout .technical-drawing {
+  align-self: start;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-page .technical-layout .technical-drawing img {
+  height: auto;
+  flex: 0 0 auto;
+}
+
+.product-page .technical-layout .technical-drawing figcaption {
+  margin-top: 14px;
+}
+
+.product-page .product-technical-profile {
+  column-gap: 24px;
+}
+
+.product-page .product-technical-profile .product-technical-codes,
+.product-page .product-technical-led .product-technical-codes {
+  margin-top: 26px !important;
+}
+
+@media (max-width: 700px) {
+  .product-page .product-technical-profile {
+    column-gap: 0;
+  }
+
+  .product-page .product-technical-profile .product-technical-codes,
+  .product-page .product-technical-led .product-technical-codes {
+    margin-top: 24px !important;
+  }
+}
+
+/* Contenedor del dibujo: flujo natural, sin espacio reservado. */
+.product-page .technical-layout .technical-drawing {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.product-page .technical-layout .technical-drawing figcaption {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+/* Estructura tecnica final: especificaciones y dibujo forman el primer bloque. */
+.product-page .product-technical-content {
+  width: 100%;
+  color: #171717;
+}
+
+.product-page .technical-specifications {
+  width: 100%;
+}
+
+.product-page .technical-spec-heading {
+  margin: 0 0 20px;
+  color: #666;
+  font-size: .78rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.product-page .technical-specifications .technical-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 48px;
+  align-items: start;
+  width: 100%;
+}
+
+.product-page .specifications-table {
+  width: 100%;
+  min-width: 0;
+}
+
+.product-page .specifications-table .spec-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.product-page .specifications-table .spec-table tbody {
+  display: table-row-group !important;
+}
+
+.product-page .specifications-table .spec-table tr {
+  display: grid;
+  grid-template-columns: 45% 55%;
+  gap: 0;
+  min-height: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.product-page .specifications-table .spec-table tr:last-child {
+  border-bottom: 0;
+}
+
+.product-page .specifications-table .spec-table th,
+.product-page .specifications-table .spec-table td {
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+.product-page .specifications-table .spec-table th {
+  color: #666;
+  font-size: .74rem;
+  font-weight: 400;
+}
+
+.product-page .specifications-table .spec-table td {
+  color: #171717;
+  font-size: .84rem;
+  font-weight: 600;
+}
+
+.product-page .technical-specifications .technical-drawing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.product-page .technical-specifications .technical-drawing img {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  max-height: 260px;
+  height: auto;
+  object-fit: contain;
+}
+
+.product-page .technical-specifications .technical-drawing figcaption {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.product-page .technical-specifications .technical-notice {
+  margin: 24px 0 0;
+}
+
+.product-page .product-technical-content > .product-technical-block {
+  margin: 32px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.product-page .product-technical-content .product-technical-profile,
+.product-page .product-technical-content .product-technical-led {
+  margin: 32px 0 0;
+}
+
+.product-page .product-technical-content .product-technical-profile .product-technical-codes,
+.product-page .product-technical-content .product-technical-led .product-technical-codes {
+  margin-top: 32px !important;
+}
+
+@media (max-width: 1024px) {
+  .product-page .product-technical-content .technical-specifications .technical-layout {
+    gap: 32px;
+  }
+}
+
+@media (max-width: 767px) {
+  .product-page .product-technical-content .technical-specifications .technical-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .product-page .product-technical-content .technical-drawing {
+    width: 100%;
+  }
+
+  .product-page .product-technical-content .product-technical-profile,
+  .product-page .product-technical-content .product-technical-led {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "selected"
+      "toolbar"
+      "finish"
+      "dimensions"
+      "codes";
+    row-gap: 18px;
+    margin-top: 32px;
+  }
+
+  .product-page .product-technical-content .product-technical-profile .product-technical-codes,
+  .product-page .product-technical-content .product-technical-led .product-technical-codes {
+    grid-column: auto;
+    margin-top: 28px !important;
+  }
+}
+
+/* Composicion integrada de especificaciones, opciones y referencias. */
+.product-page .technical-layout > div > .spec-table-wrap {
+  margin-bottom: 32px;
+}
+
+.product-page .technical-spec-heading {
+  margin: 0 0 12px;
+  color: #666;
+  font-size: .78rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.product-page .technical-layout > div > .spec-table-wrap > .spec-table {
+  width: 100%;
+}
+
+.product-page .product-technical-profile .product-technical-codes,
+.product-page .product-technical-led .product-technical-codes {
+  margin-top: 32px !important;
+}
+
+@media (max-width: 700px) {
+  .product-page .technical-layout > div > .spec-table-wrap {
+    margin-bottom: 28px;
+  }
+
+  .product-page .product-technical-profile .product-technical-codes,
+  .product-page .product-technical-led .product-technical-codes {
+    margin-top: 28px !important;
+  }
+}
+
+/* Ajustes puntuales de dibujo, dimensiones y referencias. */
+.product-page .technical-specifications .technical-drawing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.product-page .technical-specifications .technical-drawing figcaption {
+  margin: 0;
+  padding: 0;
+}
+
+.product-page .technical-specifications .technical-drawing img {
+  padding: 0;
+  background: transparent;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-buttons,
+.product-page .product-technical-led .product-technical-led-protection .product-filter-buttons {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-buttons {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  column-gap: 16px !important;
+  row-gap: 12px !important;
+  align-items: flex-start;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button {
+  flex: 0 0 auto;
+}
+
+.product-page .product-technical-codes .product-code-table-wrap {
+  width: 100%;
+  max-width: 900px;
+  margin-right: auto;
+}
+
+.product-page .product-technical-codes .product-code-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+
+@media (max-width: 767px) {
+  .product-page .product-technical-codes .product-code-table-wrap {
+    max-width: none;
+  }
+
+  .product-page .product-technical-codes .product-code-table {
+    table-layout: auto;
+  }
 }
