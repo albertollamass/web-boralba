@@ -158,7 +158,10 @@ export default function Servicios() {
 
           {selectedService === 'technology' ? null : <article className="servicio-panel services-detail-layout" key={service.number} role="tabpanel" aria-label={service.name}>
             <div className="servicio-panel-copy">
-              <span className="servicio-number">{service.number}</span>
+              <span className="servicio-number">
+                {service.number}
+                <span className="servicio-name">{service.name}</span>
+              </span>
               <h2 className="sr-only">{service.name}</h2>
               <p className="servicio-intro">{service.intro}</p>
               <p className="servicio-text">{service.text}</p>

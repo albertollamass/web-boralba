@@ -10726,7 +10726,7 @@ body:not(:has(.redesign-home)) .flyout {
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   grid-template-rows: auto auto;
   column-gap: clamp(40px, 4vw, 64px);
-  row-gap: clamp(40px, 4vw, 48px);
+  row-gap: clamp(36px, 3vw, 40px);
   align-items: start;
   padding-top: clamp(20px, 3vw, 40px);
 }
@@ -10736,12 +10736,21 @@ body:not(:has(.redesign-home)) .flyout {
 @keyframes servicio-fade { from { opacity: 0; } to { opacity: 1; } }
 .servicio-panel-copy { grid-column: 1; padding-top: 4px; }
 .servicio-number {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
   margin-bottom: 24px;
   color: var(--serv-red);
   font-size: .8rem;
   font-weight: 700;
   letter-spacing: .14em;
+}
+.servicio-name {
+  color: #4b4b4b;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
 }
 .servicio-intro {
   max-width: 42ch;
@@ -10789,7 +10798,7 @@ body:not(:has(.redesign-home)) .flyout {
 .servicios-image-placeholder small { font-family: var(--font-montserrat); text-transform: uppercase; }
 .servicios-image-placeholder span { font-size: .72rem; font-weight: 700; letter-spacing: .15em; }
 .servicios-image-placeholder small { max-width: 260px; color: var(--serv-gray); font-size: .7rem; letter-spacing: .08em; line-height: 1.5; }
-.servicio-actions { grid-column: 1; align-self: end; padding-top: 0; }
+.servicio-actions { grid-column: 1; padding-top: 0; }
 .servicio-actions-label { margin-bottom: 12px; color: var(--serv-gray); font-size: .68rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
 .servicio-actions ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .servicio-actions li { display: flex; gap: 10px; align-items: flex-start; color: var(--serv-ink); font-size: .92rem; line-height: 1.4; }
@@ -10808,7 +10817,7 @@ body:not(:has(.redesign-home)) .flyout {
   .servicios-process-line i { margin-left: 8px; }
 }
 @media (max-width: 760px) {
-  .services-detail-layout { display: flex; flex-direction: column; gap: 44px; }
+  .services-detail-layout { display: flex; flex-direction: column; gap: 40px; }
   .servicio-panel-copy { order: 1; }
   .servicio-actions { order: 2; }
   .servicio-panel-media { order: 3; height: auto; }
