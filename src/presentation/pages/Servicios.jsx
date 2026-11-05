@@ -132,7 +132,7 @@ export default function Servicios() {
       <section className="servicios-explorer" aria-label="Explora nuestros servicios">
         <div className="container">
           <p className="servicios-nav-intro">Explora nuestros servicios</p>
-          <div className="servicios-nav" role="tablist" aria-label="Servicios">
+          <div className="servicios-nav" role="tablist" aria-label="Servicios" tabIndex="0">
             <button
               className={`servicios-nav-item${selectedService === 'technology' ? ' is-active' : ''}`}
               type="button"
@@ -156,10 +156,10 @@ export default function Servicios() {
             ))}
           </div>
 
-          {selectedService === 'technology' ? null : <article className="servicio-panel" key={service.number} role="tabpanel" aria-label={service.name}>
+          {selectedService === 'technology' ? null : <article className="servicio-panel services-detail-layout" key={service.number} role="tabpanel" aria-label={service.name}>
             <div className="servicio-panel-copy">
               <span className="servicio-number">{service.number}</span>
-              <h2>{service.name}</h2>
+              <h2 className="sr-only">{service.name}</h2>
               <p className="servicio-intro">{service.intro}</p>
               <p className="servicio-text">{service.text}</p>
               <Link to="/contacto" className="servicio-cta">Hablar con nosotros <span aria-hidden="true">→</span></Link>
