@@ -14696,6 +14696,29 @@ textarea {
   .product-page .product-lower-row { margin-top: 42px; }
 }
 
+/* Ancho final de la ficha: una única pista compartida por todas sus secciones. */
+.product-page > .product-container {
+  width: calc(100% - 64px) !important;
+  max-width: 1360px !important;
+  padding-inline: 0 !important;
+}
+
+.product-page > .product-container > .product-detail {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: clamp(48px, 4vw, 64px);
+}
+
+@media (max-width: 767px) {
+  .product-page > .product-container {
+    width: calc(100% - 32px) !important;
+  }
+
+  .product-page > .product-container > .product-detail {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+}
+
 /* Final technical section rhythm and table treatment. */
 .product-page .product-technical-list {
   gap: 16px;
