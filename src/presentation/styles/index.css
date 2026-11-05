@@ -11890,7 +11890,8 @@ body:not(:has(.redesign-home)) .flyout {
 .pil-cover {
   width: 100%;
 }
-.pil-cover-frame { position: relative; }
+.pil-cover-frame { position: relative; isolation: isolate; }
+.pil-cover-frame::before { content: ""; position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.58) 0%, rgba(0, 0, 0, 0.25) 45%, rgba(0, 0, 0, 0) 80%); pointer-events: none; }
 .pil-cover-img {
   display: block;
   width: 100%;
@@ -11900,17 +11901,18 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .pil-cover-copy {
   position: absolute;
+  z-index: 2;
   left: clamp(20px, 4vw, 56px);
   bottom: clamp(20px, 4vw, 56px);
-  padding: 28px 32px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
+  max-width: min(52rem, 72%);
+  padding: 0;
   text-align: left;
 }
 .pilates-editorial .pil-cover-copy h1 {
   margin: 0 0 12px;
   max-width: 16ch;
   color: #ffffff;
-  font-size: clamp(48px, 6vw, 82px);
+  font-size: clamp(44px, 5.5vw, 76px);
   font-weight: 600;
   letter-spacing: -0.04em;
   line-height: 0.98;
@@ -11926,14 +11928,14 @@ body:not(:has(.redesign-home)) .flyout {
 }
 
 /* ============ 2 Â· BLOQUE 01 Â· PRESENTACIÃ“N ============ */
-.pil-b1 { margin-top: 96px; }
+.pil-b1 { margin-top: clamp(88px, 8vw, 104px); }
 .pil-b1-grid {
   display: grid;
-  grid-template-columns: 43% 49%;
-  gap: 8%;
-  align-items: center;
+  grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
+  gap: clamp(48px, 5vw, 64px);
+  align-items: start;
 }
-.pil-b1-copy { max-width: 520px; }
+.pil-b1-copy { max-width: none; }
 .pil-b1-label {
   margin: 0 0 16px;
   color: var(--pil-red);
@@ -11946,7 +11948,7 @@ body:not(:has(.redesign-home)) .flyout {
 .pilates-editorial .pil-b1-copy h2 {
   margin: 0 0 28px;
   color: var(--pil-ink);
-  font-size: clamp(34px, 3.5vw, 48px);
+  font-size: clamp(32px, 3.1vw, 44px);
   font-weight: 600;
   letter-spacing: -0.04em;
   line-height: 1.05;
@@ -11979,12 +11981,12 @@ body:not(:has(.redesign-home)) .flyout {
 .pil-b2-media.is-single .pil-b2-img { max-width: 560px; }
 
 /* ============ 3 Â· BLOQUE 02 Â· DETALLES ============ */
-.pil-b2 { margin-top: 112px; }
+.pil-b2 { margin-top: clamp(88px, 8vw, 104px); }
 .pil-b2-grid {
   display: grid;
   grid-template-columns: 58% 34%;
   gap: 8%;
-  align-items: center;
+  align-items: start;
 }
 .pil-b2-media {
   display: grid;
@@ -11993,8 +11995,8 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .pil-b2-img {
   width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   object-position: center;
   border-radius: 2px;
 }
@@ -12017,13 +12019,13 @@ body:not(:has(.redesign-home)) .flyout {
 .pil-b2-copy p + p { margin-top: 16px; }
 
 /* ============ 4 Â· BLOQUE 03 Â· CARRUSEL ============ */
-.pil-b3 { margin-top: 120px; }
+.pil-b3 { margin-top: clamp(88px, 8vw, 104px); }
 .pil-b3-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 28px;
+  margin-bottom: clamp(24px, 2.5vw, 32px);
 }
 .pil-b3-kicker {
   display: block;
@@ -12064,23 +12066,27 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .pil-caro-slide {
   flex: 0 0 100%;
+  width: 100%;
+  height: clamp(300px, 35vw, 520px);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 .pil-caro-slide img {
   display: block;
   width: 100%;
-  max-width: min(100%, 840px);
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   margin-inline: auto;
-  aspect-ratio: 4 / 3;
   object-fit: contain;
   object-position: center;
 }
 .pil-caro-nav {
   position: absolute;
-  right: 16px;
-  bottom: 16px;
+  right: clamp(12px, 2vw, 24px);
+  bottom: clamp(12px, 2vw, 24px);
   display: flex;
   gap: 8px;
 }
@@ -12110,7 +12116,7 @@ body:not(:has(.redesign-home)) .flyout {
 
 /* ============ 5 Â· CIERRE ============ */
 .pil-close {
-  margin-top: 112px;
+  margin-top: clamp(72px, 7vw, 88px);
   border-top: 1px solid var(--pil-line);
 }
 .pil-close-inner {
@@ -12118,7 +12124,7 @@ body:not(:has(.redesign-home)) .flyout {
   align-items: center;
   justify-content: space-between;
   gap: clamp(24px, 4vw, 48px);
-  padding: 64px 0;
+  padding: clamp(48px, 5vw, 64px) 0;
 }
 .pilates-editorial .pil-close-text {
   margin: 0;
@@ -12150,7 +12156,8 @@ body:not(:has(.redesign-home)) .flyout {
   .pil-cover-copy {
     left: clamp(16px, 4vw, 24px);
     bottom: clamp(16px, 4vw, 24px);
-    padding: 22px 24px;
+    max-width: 90%;
+    padding: 0;
   }
   .pil-cover-copy h1 { font-size: clamp(40px, 9vw, 48px); }
 .pil-caro-btn { width: 42px; height: 42px; }
