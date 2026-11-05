@@ -159,17 +159,17 @@ export default function Contacto() {
         </div>
       </section>
 
-      {/* 2 · Cuéntanos tu proyecto: grid 32 / 68 */}
+      {/* 2 · Cuéntanos tu proyecto: contenido y formulario */}
       <section className="contacto-contacto">
         <div className="container">
-          <div className="contacto-section-head">
-            <h2 className="contacto-section-title">Cuéntanos tu proyecto</h2>
-            <p className="contacto-section-sub">
-              Cuéntanos qué necesitas y te ayudaremos a encontrar la solución más adecuada.
-            </p>
-          </div>
           <div className="contacto-info-grid">
             <aside className="contacto-info">
+              <div className="contacto-section-head">
+                <h2 className="contacto-section-title">Cuéntanos tu proyecto</h2>
+                <p className="contacto-section-sub">
+                  Cuéntanos qué necesitas y te ayudaremos a encontrar la solución más adecuada.
+                </p>
+              </div>
               <div className="contacto-info-item">
                 <span className="contacto-info-icon">{icons.phone}</span>
                 <div>
