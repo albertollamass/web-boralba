@@ -8,7 +8,7 @@ export default function Carousel({ images, alt, onImageClick }) {
     return (
       <div className="carousel-shell"><div className="carousel">
         <div className="carousel-track" style={{ transform: 'translateX(0%)' }}>
-          <button type="button" className="carousel-image-button" onClick={() => onImageClick?.(images[0])} aria-label="Ampliar imagen del producto">
+            <button type="button" className="carousel-image-button" onClick={(event) => onImageClick?.(images[0], event)} aria-label="Ampliar imagen del producto">
             <img src={images[0]} alt={alt} loading="lazy" />
           </button>
         </div>
@@ -27,7 +27,7 @@ export default function Carousel({ images, alt, onImageClick }) {
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {images.map((img, j) => (
-            <button type="button" className="carousel-image-button" key={j} onClick={() => onImageClick?.(img)} aria-label={`Ampliar imagen ${j + 1}`}>
+            <button type="button" className="carousel-image-button" key={j} onClick={(event) => onImageClick?.(img, event)} aria-label={`Ampliar imagen ${j + 1}`}>
               <img src={img} alt={alt} loading="lazy" />
             </button>
           ))}

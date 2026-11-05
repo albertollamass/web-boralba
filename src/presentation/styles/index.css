@@ -1504,7 +1504,7 @@ p {
 
 .image-lightbox {
   position: fixed;
-  z-index: 20;
+  z-index: 1100;
   inset: 0;
   display: grid;
   place-items: center;
@@ -1521,8 +1521,11 @@ p {
 
 .image-lightbox button {
   position: absolute;
+  z-index: 1;
   top: 18px;
   right: 24px;
+  min-width: 44px;
+  min-height: 44px;
   border: 0;
   background: none;
   color: #fff;
@@ -15723,6 +15726,64 @@ textarea {
 
 .product-page .product-technical-profile .product-technical-codes {
   margin-top: 0 !important;
+}
+
+/* Referencias y variantes: recuperar la tabla legible sin estrechar sus columnas. */
+.product-page .product-technical-profile .product-code-table-wrap {
+  width: 100%;
+  max-width: 700px !important;
+  overflow-x: auto;
+}
+
+.product-page .product-technical-profile .product-code-table {
+  width: 100%;
+  min-width: 620px !important;
+  table-layout: auto !important;
+}
+
+.product-page .product-technical-profile .product-code-table th,
+.product-page .product-technical-profile .product-code-table td {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+.product-page .product-technical-profile .product-code-table td:first-child,
+.product-page .product-technical-profile .product-code-table td:nth-child(2),
+.product-page .product-technical-profile .product-code-table td:nth-child(3) {
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .product-page .product-technical-profile .product-code-table-wrap {
+    max-width: 100% !important;
+  }
+
+  .product-page .product-technical-profile .product-code-table,
+  .product-page .product-technical-profile .product-code-table tbody {
+    display: table;
+    width: 100%;
+  }
+
+  .product-page .product-technical-profile .product-code-table thead {
+    display: table-header-group !important;
+  }
+
+  .product-page .product-technical-profile .product-code-table tr {
+    display: table-row;
+    padding: 0;
+  }
+
+  .product-page .product-technical-profile .product-code-table th,
+  .product-page .product-technical-profile .product-code-table td {
+    display: table-cell;
+    width: auto;
+    padding: 8px 10px 8px 0;
+  }
+
+  .product-page .product-technical-profile .product-code-table td::before {
+    display: none;
+    content: none;
+  }
 }
 
 /* Opciones disponibles: tratamiento técnico, sin botones rectangulares. */
