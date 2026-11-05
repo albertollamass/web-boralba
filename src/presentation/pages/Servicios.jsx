@@ -72,6 +72,17 @@ function PendingImage({ label }) {
   )
 }
 
+function ServiceNote({ note }) {
+  const [name, description] = note.split(' · ')
+
+  return (
+    <div className="servicio-note">
+      <strong>{name}</strong>
+      <span>{description}</span>
+    </div>
+  )
+}
+
 function TechnologyPanel() {
   return (
     <section className="servicios-technology" aria-label="Tecnología y soluciones">
@@ -171,11 +182,11 @@ export default function Servicios() {
               {service.image ? <img src={service.image} alt={service.imageAlt} width="1200" height="800" /> : <PendingImage label={service.imageLabel} />}
             </figure>
             <div className="servicio-actions">
-              <div>
+              <div className="servicio-actions-list">
                 <p className="servicio-actions-label">Qué hacemos</p>
                 <ul>{service.actions.map((action) => <li key={action}>{action}</li>)}</ul>
               </div>
-              {service.note && <p className="servicio-note">{service.note}</p>}
+              {service.note && <ServiceNote note={service.note} />}
             </div>
           </article>}
         </div>
