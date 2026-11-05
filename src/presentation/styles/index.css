@@ -5126,12 +5126,17 @@ background: var(--color-surface-2);
 .contacto-hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(64px, 9vw, 120px) 0 clamp(48px, 6vw, 84px);
+  min-height: clamp(520px, 40vw, 560px);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 48px 0;
 }
 .contacto-hero-grid {
   position: relative;
   z-index: 1;
-  min-height: clamp(320px, 38vw, 400px);
+  min-height: 0;
+  width: 100%;
   display: flex;
   align-items: center;
 }
@@ -5141,9 +5146,11 @@ background: var(--color-surface-2);
   align-items: flex-start;
   justify-content: center;
   max-width: 42%;
-  padding: clamp(24px, 4vw, 48px) 0;
+  gap: 22px;
+  padding: 24px 0;
 }
 .contacto-hero-copy .eyebrow {
+  margin: 0;
   color: var(--boralba-red);
 }
 .contacto-hero-copy h1 {
@@ -5156,14 +5163,14 @@ background: var(--color-surface-2);
   line-height: 1.02;
 }
 .contacto-hero-text {
-  margin: 22px 0 0;
-  max-width: 44ch;
+  max-width: 46ch;
+  margin: 0;
   color: rgba(255, 255, 255, 0.9);
   font-size: clamp(0.98rem, 1.3vw, 1.08rem);
   line-height: 1.65;
 }
 .contacto-hero-copy .btn-primary {
-  margin-top: 30px;
+  margin-top: 0;
 }
 .contacto-page .btn-arrow {
   margin-left: 10px;
@@ -5171,6 +5178,8 @@ background: var(--color-surface-2);
 }
 @media (max-width: 900px) {
   .contacto-hero {
+    min-height: 0;
+    height: auto;
     padding: clamp(48px, 10vw, 80px) 0;
   }
   .contacto-hero-grid {
@@ -5179,11 +5188,14 @@ background: var(--color-surface-2);
   .contacto-hero-copy {
     max-width: 100%;
   }
+  .contacto-contacto {
+    margin-top: 48px;
+  }
 }
 
 /* ---- 2 Â· CuÃ©ntanos tu proyecto: grid 32 / 68 ---- */
 .contacto-contacto {
-  margin-top: clamp(64px, 6.5vw, 96px);
+  margin-top: clamp(64px, 5vw, 72px);
   padding: 0;
 }
 .contacto-contacto .container {
@@ -5384,18 +5396,18 @@ background: var(--color-surface-2);
 /* ---- 3 Â· UbicaciÃ³n: secciÃ³n independiente y panorÃ¡mica ---- */
 .contacto-ubicacion {
   margin-top: clamp(72px, 7vw, 96px);
-  padding: 0;
+  padding: 0 0 clamp(48px, 5vw, 72px);
 }
 .contacto-ubicacion-head {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 18px 36px;
-  margin-bottom: clamp(20px, 3vw, 34px);
+  margin-bottom: clamp(24px, 3vw, 32px);
 }
 .contacto-ubicacion-head h2 {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   font-family: var(--font-montserrat);
   font-size: clamp(1.5rem, 2.2vw, 1.95rem);
   font-weight: 700;
@@ -5403,9 +5415,12 @@ background: var(--color-surface-2);
 }
 .contacto-ubicacion-head p {
   margin: 0;
-  color: var(--boralba-gray);
+  color: #4f4f4f;
   font-size: 0.98rem;
   line-height: 1.65;
+}
+.contacto-ubicacion-head .btn {
+  border-radius: 5px;
 }
 .contacto-ubicacion-media {
   margin: 0;
@@ -5413,13 +5428,14 @@ background: var(--color-surface-2);
 .contacto-ubicacion-media img {
   display: block;
   width: 100%;
-  aspect-ratio: 21 / 9;
+  height: min(400px, 36vw);
   object-fit: cover;
-  border-radius: 14px;
+  object-position: center 46%;
+  border-radius: 5px;
 }
 @media (max-width: 900px) {
   .contacto-ubicacion-media img {
-    aspect-ratio: 16 / 10;
+    height: min(360px, 48vw);
   }
 }
 .site-main .outlet-banner { border-radius: 0; padding: clamp(56px, 8vw, 112px); background: #171719; box-shadow: none; border-left: 5px solid var(--boralba-red); text-align: left; }
@@ -10994,7 +11010,7 @@ body:not(:has(.redesign-home)) .flyout {
   background: #000;
   color: var(--footer-muted);
   margin-top: 0;
-  padding: clamp(72px, 9vw, 124px) 0 0;
+  padding: clamp(64px, 7vw, 96px) 0 0;
 }
 
 .site-frame .footer.footer-minimal .container {
@@ -11024,12 +11040,13 @@ body:not(:has(.redesign-home)) .flyout {
 
 .footer-minimal .footer-grid {
   grid-template-columns: minmax(0, 1.35fr) minmax(180px, .85fr) minmax(180px, .9fr);
-  gap: clamp(48px, 9vw, 150px);
+  align-items: start;
+  gap: clamp(40px, 7vw, 112px);
   padding-bottom: clamp(68px, 8vw, 112px);
 }
 
 .footer-minimal h4 {
-  margin: 0 0 22px;
+  margin: 0 0 24px;
   color: rgba(255, 255, 255, .9);
   font: 600 .68rem var(--font-montserrat);
   letter-spacing: .16em;
@@ -12225,7 +12242,7 @@ textarea {
   .proy-grid--filtered { gap: 40px; }
   .proy-item-media { aspect-ratio: 4 / 3; }
 
-  .contacto-contacto { margin-top: 0; }
+  .contacto-contacto { margin-top: 0; padding-block: 48px 56px; }
   .contacto-section-head { margin-bottom: 32px; }
   .contacto-info-grid { gap: 36px; }
   .contacto-info { gap: 28px; }
@@ -12236,10 +12253,10 @@ textarea {
   .contacto-page .form .check { align-items: flex-start; font-size: .82rem; }
   .contacto-page .form .check input { width: 20px; min-width: 20px; height: 20px; margin-top: 1px; }
   .contacto-page .form .btn-primary { width: 100%; justify-content: center; }
-  .contacto-ubicacion { margin-top: 0; padding-block: 56px; }
+  .contacto-ubicacion { margin-top: 0; padding-block: 56px 40px; }
   .contacto-ubicacion-head { align-items: flex-start; }
   .contacto-ubicacion-head .btn { width: 100%; justify-content: center; }
-  .contacto-ubicacion-media img { aspect-ratio: 4 / 3; border-radius: 2px; }
+  .contacto-ubicacion-media img { height: clamp(210px, 62vw, 300px); aspect-ratio: auto; border-radius: 5px; }
 
   .servicios-nav { gap: 24px; }
   .servicios-nav-item { flex: 0 0 auto; text-align: left; }
