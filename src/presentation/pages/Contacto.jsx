@@ -138,9 +138,9 @@ export default function Contacto() {
         className="contacto-hero"
         style={{
           backgroundImage:
-            'linear-gradient(90deg, rgba(26,26,30,.82) 0%, rgba(26,26,30,.58) 42%, rgba(26,26,30,.16) 72%, rgba(26,26,30,0) 100%), url("images/lobby.png")',
+            'linear-gradient(90deg, rgba(26,26,30,.82) 0%, rgba(26,26,30,.62) 30%, rgba(26,26,30,.34) 56%, rgba(26,26,30,.12) 78%, rgba(26,26,30,0) 100%), url("images/contacto-hero.webp")',
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'center 56%',
         }}
       >
         <div className="container contacto-hero-grid">
