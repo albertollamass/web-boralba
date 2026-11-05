@@ -13719,6 +13719,82 @@ textarea {
   }
 }
 
+/* Ajuste final de ritmo para las fichas de producto. */
+.product-page .product-lower-row {
+  margin-top: clamp(56px, 5vw, 64px);
+}
+
+.product-page .desktop-tab-content {
+  padding-top: clamp(28px, 3vw, 36px);
+}
+
+.product-page .description-copy {
+  width: 100%;
+  max-width: 760px;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.product-page .description-copy p {
+  margin: 0 0 20px;
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-wrap: break-word;
+}
+
+.product-page .description-copy .description-lead {
+  max-width: none;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.product-page .technical-advice.advisory-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: stretch;
+  margin-top: clamp(64px, 6vw, 72px);
+  padding: 32px 40px;
+  border-radius: 4px;
+}
+
+.product-page .advisory-content > div:first-child {
+  min-width: 0;
+}
+
+.product-page .advisory-content h2,
+.product-page .advisory-content p {
+  text-align: left;
+}
+
+.product-page .advisory-content p {
+  max-width: 700px;
+}
+
+.product-page .advisory-content .advice-contact {
+  min-width: 0;
+  align-self: start;
+}
+
+.product-page .advisory-content .advice-contact .btn {
+  width: 100%;
+  max-width: 260px;
+  justify-self: start;
+}
+
+@media (max-width: 700px) {
+  .product-page .technical-advice.advisory-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 64px;
+    padding: 24px 20px;
+  }
+
+  .product-page .advisory-content .advice-contact {
+    width: 100%;
+  }
+}
+
 /* ---------- Ajustes responsive finales ----------
    Solo modifica el comportamiento en tablet y móvil. */
 @media (max-width: 1100px) {
@@ -15215,4 +15291,665 @@ textarea {
   .product-page .product-technical-codes .product-code-table {
     table-layout: auto;
   }
+}
+
+/* Prueba de lectura justificada solo para los párrafos descriptivos. */
+.product-page .description-copy {
+  max-width: 760px !important;
+}
+
+.product-page .description-copy p {
+  text-align: justify;
+  hyphens: auto;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.product-page .description-copy p:not(.description-lead) {
+  color: #333333 !important;
+}
+
+@media (max-width: 767px) {
+  .product-page .description-copy p {
+    text-align: left;
+    hyphens: none;
+  }
+}
+
+/* Aplicaciones: retícula editorial sin tarjetas ni elementos decorativos. */
+.product-page .product-applications-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 48px;
+  row-gap: 40px;
+  align-items: start;
+}
+
+.product-page .product-application-item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.product-page .product-application-item .content-card-number {
+  width: 28px;
+  margin: 0;
+  padding-top: 2px;
+  color: #dd3531;
+  font-size: .72rem;
+  line-height: 1.4;
+  letter-spacing: .08em;
+  text-align: left;
+}
+
+.product-page .product-application-content {
+  min-width: 0;
+}
+
+.product-page .product-application-content .content-card-image {
+  display: block;
+  width: 100%;
+  max-height: 120px;
+  margin: 0 0 16px;
+  object-fit: contain;
+}
+
+.product-page .product-application-content h3 {
+  margin: 0 0 8px;
+  color: #171717;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.product-page .product-application-content p {
+  margin: 0;
+  color: #444444;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.product-page .product-application-content small {
+  display: block;
+  margin-top: 10px;
+  color: #444444;
+}
+
+@media (max-width: 767px) {
+  .product-page .product-applications-grid {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    row-gap: 28px;
+  }
+}
+
+/* Ventajas: composición editorial con checks discretos. */
+.product-page .product-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 48px;
+  row-gap: 36px;
+  align-items: start;
+}
+
+.product-page .product-benefit-item {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: start;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.product-page .product-benefit-icon {
+  width: 18px;
+  height: auto;
+  margin-top: 0;
+  color: #dd3531;
+  line-height: 1.6;
+}
+
+.product-page span.product-benefit-icon {
+  display: flex;
+  height: 24px;
+  align-items: center;
+  line-height: 1;
+  transform: translateY(3px);
+}
+
+.product-page .product-benefit-text {
+  min-width: 0;
+  color: #333333;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.product-page .product-benefit-text h3 {
+  margin: 0;
+  color: #333333;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: inherit;
+}
+
+.product-page .product-benefit-item--detailed .product-benefit-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-page .product-benefit-item--detailed .product-benefit-text h3 {
+  color: #171717;
+  font-weight: 600;
+}
+
+.product-page .product-benefit-text p {
+  margin: 0;
+  color: #333333;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: inherit;
+  text-align: left;
+}
+
+.product-page .product-benefit-item--detailed .product-benefit-text p {
+  color: #444444;
+}
+
+/* Accesorios: composición de catálogo sin tarjetas ni separadores. */
+.product-page .product-accessories-tab {
+  width: 100%;
+  max-width: none;
+  color: #171717;
+}
+
+.product-page .product-accessories-tab section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.product-page .product-accessories-tab h3 {
+  margin: 0;
+  color: #777777;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.product-page .product-accessories-tab-included h3 {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.product-page .product-accessories-tab-included > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.product-page .product-accessories-tab-included > div span {
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 4px;
+  background: #f7f7f5;
+  color: #171717;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.product-page .product-accessories-tab-compatible {
+  margin-top: 48px !important;
+  padding-top: 0 !important;
+  border-top: 0 !important;
+}
+
+.product-page .product-accessories-tab-compatible > p {
+  margin: 6px 0 0;
+  color: #777777;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.product-page .product-accessories-tab-compatible > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  max-width: 1000px;
+  column-gap: 24px;
+  row-gap: 32px;
+  align-items: start;
+  margin-top: 24px;
+  margin-right: auto;
+}
+
+.product-page .product-accessories-tab-compatible h3 {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.product-page .product-accessories-tab-compatible article {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 2;
+  align-content: start;
+  row-gap: 6px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+.product-page .product-accessories-tab-compatible article img {
+  display: block;
+  width: 100%;
+  max-height: 120px;
+  margin: 0 0 12px;
+  object-fit: contain;
+  background: transparent;
+}
+
+.product-page .product-accessory-primary {
+  min-width: 0;
+  align-self: start;
+}
+
+.product-page .product-accessories-tab-compatible h4 {
+  margin: 0;
+  min-height: 0;
+  color: #171717;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+  overflow-wrap: break-word;
+}
+
+.product-page .product-accessories-tab-compatible article span {
+  display: block;
+  margin: 0;
+  align-self: start;
+  color: #777777;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 400;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 1000px) {
+  .product-page .product-accessories-tab-compatible > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .product-page .product-accessories-tab-compatible > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 28px;
+  }
+
+  .product-page .product-accessories-tab-compatible article img {
+    max-height: 100px;
+  }
+}
+
+@media (max-width: 420px) {
+  .product-page .product-accessories-tab-compatible > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Datos técnicos: filtros compactos y adaptables al contenido. */
+.product-page .product-technical-profile {
+  grid-template-columns: repeat(2, minmax(0, 320px));
+  column-gap: 32px;
+  row-gap: 32px;
+  justify-content: start;
+  align-items: start;
+  margin-top: 32px;
+  margin-bottom: 24px;
+}
+
+.product-page .product-technical-profile .product-technical-finishes,
+.product-page .product-technical-profile .product-technical-dimensions {
+  width: 100%;
+  max-width: 320px;
+  min-width: 0;
+}
+
+.product-page .product-technical-profile .product-filter-buttons {
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 8px 14px;
+}
+
+.product-page .product-technical-profile .product-technical-codes {
+  margin-top: 0 !important;
+}
+
+/* Opciones disponibles: tratamiento técnico, sin botones rectangulares. */
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-buttons,
+.product-page .product-technical-profile .product-technical-finishes .product-filter-buttons {
+  column-gap: 16px;
+  row-gap: 14px;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button,
+.product-page .product-technical-profile .product-technical-finishes .product-filter-button {
+  min-height: 0;
+  padding: 3px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #171717;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button::before {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  border: 1px solid #bdbdbd;
+  border-radius: 50%;
+  background: #fff;
+  content: '';
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button:hover::before,
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button.is-active::before {
+  border-color: #dd3531;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button.is-active::before {
+  background: #dd3531;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+.product-page .product-technical-profile .product-technical-finishes .product-filter-button.is-active {
+  color: #171717;
+}
+
+.product-page .product-technical-profile .product-technical-finishes .product-filter-button.is-active .product-finish-swatch {
+  outline: 1px solid #dd3531;
+  outline-offset: 2px;
+}
+
+/* Dimensiones: opciones verticales sin contenedor de botón. */
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-buttons > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: auto;
+  min-height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button:hover {
+  color: #171717;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button:focus-visible {
+  outline: 2px solid rgba(221, 53, 49, .55);
+  outline-offset: 3px;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+@media (max-width: 1024px) and (min-width: 768px) {
+  .product-page .product-technical-profile {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .product-page .product-technical-profile {
+    grid-template-columns: 1fr;
+    row-gap: 24px;
+    margin-top: 28px;
+  }
+
+  .product-page .product-technical-profile .product-technical-finishes,
+  .product-page .product-technical-profile .product-technical-dimensions {
+    max-width: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .product-page .product-benefits-grid {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    row-gap: 28px;
+  }
+}
+
+/* Datos técnicos: flujo natural cuando hay pocas opciones. */
+.product-page .product-technical-profile .product-filter-toolbar,
+.product-page .product-technical-profile .product-technical-finishes,
+.product-page .product-technical-profile .product-technical-dimensions {
+  height: auto;
+  min-height: 0;
+}
+
+.product-page .product-technical-profile .product-filter-toolbar {
+  padding: 0;
+}
+
+.product-page .product-technical-profile .product-technical-finishes,
+.product-page .product-technical-profile .product-technical-dimensions {
+  grid-template-rows: auto auto;
+  row-gap: 8px;
+}
+
+.product-page .product-technical-content .technical-drawing {
+  height: auto;
+  min-height: 0;
+  gap: 12px;
+}
+
+.product-page .product-technical-content .technical-drawing figcaption {
+  margin: 0;
+}
+
+/* Cierre de la composición técnica: el bloque siguiente sigue al más alto. */
+.product-page .product-technical-content .technical-specifications .technical-layout {
+  align-items: start;
+}
+
+.product-page .product-technical-content .technical-drawing {
+  align-self: start;
+}
+
+.product-page .product-technical-content > .product-technical-block,
+.product-page .product-technical-content .product-technical-profile,
+.product-page .product-technical-content .product-technical-led {
+  height: auto;
+  min-height: 0;
+  margin-top: 36px;
+}
+
+.product-page .product-technical-content .product-technical-profile .product-technical-codes,
+.product-page .product-technical-content .product-technical-led .product-technical-codes {
+  width: 100%;
+  max-width: 900px;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.product-page .product-technical-content .product-technical-profile {
+  row-gap: 36px;
+}
+
+.product-page .product-technical-content .product-technical-profile:not(:has(> .product-technical-section)) {
+  grid-template-areas:
+    "toolbar toolbar"
+    "finish dimensions"
+    "codes codes";
+}
+
+@media (max-width: 767px) {
+  .product-page .product-technical-content > .product-technical-block,
+  .product-page .product-technical-content .product-technical-profile,
+  .product-page .product-technical-content .product-technical-led {
+    margin-top: 32px;
+  }
+
+  .product-page .product-technical-content .product-technical-profile {
+    row-gap: 32px;
+  }
+
+  .product-page .product-technical-content .product-technical-profile:not(:has(> .product-technical-section)) {
+    grid-template-areas:
+      "toolbar"
+      "finish"
+      "dimensions"
+      "codes";
+  }
+
+  .product-page .product-technical-content .product-technical-profile .product-technical-codes,
+  .product-page .product-technical-content .product-technical-led .product-technical-codes {
+    max-width: none;
+  }
+}
+
+/* Opciones técnicas: controles claros y agrupados sin alterar su lógica. */
+.product-page .product-technical-profile {
+  row-gap: 32px;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: auto;
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button:hover,
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button.is-active {
+  border: 0;
+  background: transparent;
+  color: #171717;
+}
+
+/* Acabados y dimensiones comparten escala tipográfica e indicadores. */
+.product-page .product-technical-profile .product-technical-finishes .product-filter-button,
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button {
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #171717;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.product-page .product-technical-profile .product-technical-finishes .product-filter-button > span,
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button > span {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.product-page .product-technical-profile .product-technical-finishes .product-filter-button,
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button {
+  gap: 8px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.product-page .product-technical-profile .product-technical-finishes .product-finish-swatch,
+.product-page .product-technical-profile .product-technical-dimensions .product-filter-button::before {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+}
+
+.product-page .product-technical-profile .product-technical-finishes > h3,
+.product-page .product-technical-profile .product-technical-dimensions > h3 {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.product-page .product-technical-profile .product-technical-finishes .product-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+
+.product-page .product-technical-profile .product-technical-finishes .product-filter-button {
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.product-page .product-technical-profile .product-technical-finishes .product-filter-button.is-active {
+  border-color: #dd3531;
+  color: #171717;
+}
+
+.product-page .product-technical-profile .product-technical-codes {
+  margin-top: 0 !important;
 }
