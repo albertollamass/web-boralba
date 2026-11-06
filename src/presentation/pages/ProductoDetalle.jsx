@@ -17,7 +17,7 @@ const itemDescription = (item) => item && typeof item === 'object' ? String(item
 const list = (value) => (Array.isArray(value) ? value : String(value || '').split(/\n/)).map(itemText).filter(Boolean)
 const csv = (value) => (Array.isArray(value) ? value : String(value || '').split(',')).map(itemText).filter(Boolean)
 const contentItems = (value, withIcon = false) => (Array.isArray(value) ? value : String(value || '').split(/\n/)).map((item) => ({ title: itemText(item), description: itemDescription(item), icon: withIcon && item && typeof item === 'object' ? item.icon || '' : '', image: item && typeof item === 'object' ? item.image || '' : '', spaceType: item && typeof item === 'object' ? item.spaceType || '' : '', inspiration: Boolean(item && typeof item === 'object' && item.inspiration) })).filter((item) => item.title || item.description || item.icon || item.image)
-const normalizeUnit = (spec) => ({ ...spec, label: String(spec.label || '').trim(), value: String(spec.value || '').trim(), unit: String(spec.unit || '').trim(), technicalKey: spec.technicalKey || spec.featureType || '' })
+const normalizeUnit = (spec) => ({ ...spec, label: spec.label == null ? '' : String(spec.label).trim(), value: spec.value == null ? '' : String(spec.value).trim(), unit: spec.unit == null ? '' : String(spec.unit).trim(), technicalKey: spec.technicalKey || spec.featureType || '' })
 const imageSrc = (image) => publicUrl(typeof image === 'string' ? image : image?.src || image?.image || '')
 const fileUrl = (value) => (isDataUrl(value) ? value : publicUrl(value))
 const accessoryReference = (item = {}) => {
@@ -41,9 +41,8 @@ const technicalFamily = (product, trail = []) => {
 }
 const technicalRows = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && (row.label || row.value))
 const technicalCodes = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && Object.values(row).some(Boolean))
-const clean = (value) => String(value || '').trim()
+const clean = (value) => String(value == null ? '' : value).trim()
 const presentationBenefitText = (value) => String(value || '').replace(/^\s*[-–—]\s+/, '')
-const labelMatches = (label, terms) => terms.some((term) => clean(label).toLowerCase().includes(term))
 const familyFromText = (text) => {
   const value = clean(text).toLowerCase()
   if (value.includes('perfil')) return 'profile'
@@ -56,18 +55,7 @@ const familyFromText = (text) => {
   if (value.includes('estanca')) return 'watertight'
   return 'generic'
 }
-const highlightPriority = {
-  'led-strip-24': [['temperatura', 'cct'], ['dimensión', 'ancho'], ['ángulo', 'apertura', 'optics']],
-  'led-strip-220': [['temperatura', 'cct'], ['dimensión', 'ancho'], ['ángulo', 'apertura', 'optics']],
-  'neon-flex': [['potencia', 'power'], ['dimensión', 'sección'], ['temperatura', 'cct'], ['ip', 'protección']],
-  profile: [['dimensión'], ['longitud'], ['material'], ['montaje'], ['difusor'], ['acabado']],
-  projector: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['óptica', 'optics', 'angulo', 'ángulo'], ['cct', 'temperatura']],
-  panel: [['potencia', 'power', 'tensión', 'volt'], ['dimensión'], ['cri'], ['ángulo', 'apertura']],
-  downlight: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['ugr'], ['cct', 'temperatura']],
-  driver: [['potencia', 'power'], ['tensión', 'volt'], ['regul'], ['ip', 'protección']],
-  watertight: [['potencia', 'power'], ['flujo', 'luminous', 'lm'], ['ip'], ['ik'], ['longitud'], ['cct', 'temperatura']],
-}
-const codeValue = (row, key) => clean(row?.[key])
+const codeValue = (row, key) => clean(row?.[key] == null ? '' : row[key])
 const optionName = (option) => typeof option === 'string' ? clean(option) : clean(option?.name || option?.label || option?.value)
 const optionColor = (option) => typeof option === 'object' ? clean(option?.color) : ''
 const optionList = (value) => Array.isArray(value) ? value : String(value || '').split(/[,\n]/).map((item) => item.trim()).filter(Boolean)
@@ -89,15 +77,6 @@ const conceptKey = (label) => {
   return value
 }
 const uniqueRows = (rows) => rows.filter((row, index, values) => values.findIndex((item) => conceptKey(item.label) === conceptKey(row.label)) === index)
-const expandHighlightRows = (rows) => rows.flatMap((row) => {
-  const key = row.technicalKey || resolveTechnicalKey(row)
-  const value = clean(row.value).toLowerCase()
-  if (key === 'mounting' && value.includes('superficie') && value.includes('colgant')) {
-    return [{ ...row, label: 'Superficie', technicalKey: 'mountingSurface', value: '' }, { ...row, label: 'Colgante', technicalKey: 'mountingSuspended', value: '' }]
-  }
-  if (key === 'diffuser' && /^\d+(?:[,.]\d+)?$/.test(value)) return []
-  return [{ ...row, technicalKey: key }]
-})
 const highlightValue = (item) => {
   if (item.technicalKey === 'mountingSurface' || item.technicalKey === 'mountingSuspended') return item.label
   const raw = `${clean(item.value)}${item.unit ? ` ${clean(item.unit)}` : ''}`.replace(/\s+/g, ' ').trim()
@@ -106,11 +85,6 @@ const highlightValue = (item) => {
     if (match) return `${match[1]} × ${match[2]} mm`
   }
   return raw
-}
-const isOperatingTemperature = (row) => {
-  const label = clean(row.label).toLowerCase()
-  const value = clean(row.value).toLowerCase()
-  return /(funcionamiento|ambiente|tc\s*(?:máx|max)|temperatura de trabajo)/i.test(label) || /(?:°|º)\s*c\b/i.test(value)
 }
 const includedQuantity = (value) => String(value || '').match(/\d+(?:[,.]\d+)?/)?.[0] || String(value || '').trim()
 const includedPresentation = (item) => {
@@ -128,27 +102,29 @@ const accessoryDisplayName = (name) => {
   return value
 }
 const asFeatureRows = (product, info, family) => {
+  const selected = (Array.isArray(product.specs) ? product.specs : [])
+    .map(normalizeUnit)
+    .filter((row) => row.featured && (row.label || row.value))
+    .map((row) => ({ ...row, technicalKey: resolveTechnicalKey(row) }))
+  if (!selected.length) return []
+
   const isLedStrip = family === 'led-strip-24' || family === 'led-strip-220'
-  const rows = (Array.isArray(product.specs) ? product.specs : []).map(normalizeUnit).filter((row) => row.label || row.value)
-  const additional = [...(info.general || []), ...(info.ledBasic || []), ...(isLedStrip ? [] : info.ledDimensions || []), ...(info.profileDimensions || []), ...(info.protections || []).map((value) => ({ label: 'Protección', value: optionName(value) }))].map(normalizeUnit).filter((row) => row.label || row.value)
+  const additional = [...(info.general || []), ...(info.ledBasic || []), ...(isLedStrip ? [] : info.ledDimensions || []), ...(info.profileDimensions || []), ...(info.protections || []).map((value) => ({ label: 'Protección', value: optionName(value) }))].map(normalizeUnit)
   const codes = technicalCodes(info.codes)
   const codeRows = codes.flatMap((code) => [
     ['Potencia', 'power'], ['Flujo luminoso', 'luminousFlux'], ['Tensión', 'voltage'], ['CRI', 'cri'], ['IP', 'ip'], ['Temperatura de color', 'temperature'], ['Distancia de corte', 'cuttingDistance'], ['Dimensiones', 'dimensions'], ['Ancho', 'width'], ['Longitud', 'length'], ['Material', 'material'], ['Montaje', 'mounting'], ['Difusor', 'diffuser'], ['Acabado', 'finish'], ['CCT', 'cct'], ['Óptica / ángulo', 'optics'], ['Regulación', 'dimming'], ['UGR', 'ugr'], ['IK', 'ik'],
-  ].map(([label, key]) => ({ label, value: codeValue(code, key), unit: '', technicalKey: key })).filter((row) => row.value))
-  const all = expandHighlightRows([...codeRows.filter((row) => !(isLedStrip && row.technicalKey === 'dimensions')), ...rows, ...additional].map((row) => ({ ...row, technicalKey: resolveTechnicalKey(row) }))).filter((row) => !isOperatingTemperature(row))
-  const aggregated = all.reduce((result, row) => {
-    const key = conceptKey(row.label)
-    const current = result.find((item) => item.key === key)
-    if (!current) result.push({ key, row: { ...row } })
-    else if (clean(row.value) && !clean(current.row.value).split(' / ').includes(clean(row.value))) current.row.value = [current.row.value, row.value].filter(Boolean).join(' / ')
-    return result
-  }, []).map((item) => item.row)
-  const priority = highlightPriority[family] || []
-  const manualKeys = rows.filter((row) => row.featured).map((row) => conceptKey(row.label))
-  const source = manualKeys.length ? aggregated.filter((row) => manualKeys.includes(conceptKey(row.label))) : aggregated
-  const ordered = priority.map((terms) => source.find((row) => labelMatches(row.label, terms))).filter(Boolean).filter((row, index, values) => values.findIndex((item) => conceptKey(item.label) === conceptKey(row.label)) === index)
-  return (isLedStrip ? ordered : [...ordered, ...source.filter((row) => !ordered.some((item) => conceptKey(item.label) === conceptKey(row.label)))])
-    .slice(0, 4)
+  ].map(([label, key]) => ({ label, value: codeValue(code, key), unit: '', technicalKey: resolveTechnicalKey({ label, technicalKey: key }) })).filter((row) => row.value))
+  const available = [...(Array.isArray(product.specs) ? product.specs : []).map(normalizeUnit), ...additional, ...codeRows]
+    .map((row) => ({ ...row, technicalKey: resolveTechnicalKey(row) }))
+    .filter((row) => row.label || row.value)
+  return selected.flatMap((row) => {
+    const source = clean(row.value) ? row : available.find((candidate) => candidate.technicalKey === row.technicalKey && clean(candidate.value))
+    if (!source || !clean(source.value)) {
+      console.warn(`Característica principal seleccionada sin valor resoluble: ${row.label || row.technicalKey}`)
+      return []
+    }
+    return [{ ...row, value: source.value, unit: row.unit || source.unit }]
+  })
 }
 
 export default function ProductoDetalle() {
