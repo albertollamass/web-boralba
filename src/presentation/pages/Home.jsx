@@ -135,17 +135,15 @@ export default function Home() {
         </div>
         <div className="home-hero-copy">
           <Reveal>
-            <p className="home-eyebrow">Luz que hace grandes proyectos</p>
+            <p className="home-eyebrow">Iluminación profesional</p>
             <h1>
-              Iluminación LED para
-              <br />
-              grandes proyectos
+              La luz que da forma a tus proyectos.
             </h1>
             <p className="home-hero-sub">
-              Soluciones de iluminación LED que buscan calidad, fiabilidad y un resultado profesional.
+              Soluciones de iluminación LED profesional que combinan calidad, precisión y fiabilidad para cada espacio.
             </p>
           </Reveal>
-          <Reveal delay={120}>
+          <Reveal delay={120} className="home-hero-buttons-reveal">
             <div className="home-hero-actions">
               <Link to="/productos" className="home-btn home-btn--red">Ver productos <span>→</span></Link>
               <Link to="/contacto" className="home-hero-textlink">Cuéntanos tu proyecto <span>→</span></Link>

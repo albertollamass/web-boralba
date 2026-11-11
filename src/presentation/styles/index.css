@@ -149,6 +149,10 @@ p {
   color: #fff;
 }
 
+.site-main .btn-primary:not(.form .btn-primary) {
+  border-radius: 8px;
+}
+
 .btn-primary:hover {
   background: var(--color-primary-dark);
 }
@@ -8082,6 +8086,7 @@ body:not(:has(.redesign-home)) .flyout {
 .home-btn--red {
   background: #dd3531;
   color: #ffffff;
+  border-radius: 8px;
 }
 .home-btn--red:hover {
   background: #c02824;
@@ -8136,10 +8141,10 @@ body:not(:has(.redesign-home)) .flyout {
   pointer-events: auto;
 }
 .home .home-hero-copy > .home-reveal {
-  max-width: 520px;
+  max-width: 600px;
 }
-.home .home-hero-copy > .home-reveal:nth-child(2) {
-  margin-top: 42px;
+.home .home-hero-copy > .home-hero-buttons-reveal {
+  margin-top: 30px;
 }
 .home .home-hero-media {
   position: absolute;
@@ -8162,7 +8167,7 @@ body:not(:has(.redesign-home)) .flyout {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(90deg, rgba(12, 12, 15, 0.9) 0%, rgba(12, 12, 15, 0.72) 30%, rgba(12, 12, 15, 0.32) 56%, rgba(12, 12, 15, 0.04) 84%, transparent 100%);
+  background: linear-gradient(90deg, rgba(12, 12, 15, 0.9) 0%, rgba(12, 12, 15, 0.68) 30%, rgba(12, 12, 15, 0.24) 56%, rgba(12, 12, 15, 0.04) 84%, transparent 100%);
 }
 .home-hero-side-note {
   position: absolute;
@@ -8198,7 +8203,7 @@ body:not(:has(.redesign-home)) .flyout {
   margin-top: 10px;
 }
 .home .home-hero .home-eyebrow {
-  margin: 0 0 22px;
+  margin: 0 0 24px;
   color: #dd3531;
   font: 700 0.7rem var(--font-montserrat);
   letter-spacing: 0.22em;
@@ -8206,12 +8211,13 @@ body:not(:has(.redesign-home)) .flyout {
 }
 .home .home-hero-copy h1 {
   font-family: var(--font-montserrat);
-  font-size: clamp(48px, 4.8vw, 68px);
+  font-size: clamp(44px, 4.4vw, 62px);
   font-weight: 600;
   line-height: 0.98;
   letter-spacing: -0.02em;
   color: #ffffff;
-  white-space: nowrap;
+  max-width: 600px;
+  white-space: normal;
   margin: 0 0 30px;
 }
 .home .home-hero-copy .home-hero-sub {
@@ -9305,7 +9311,7 @@ body:not(:has(.redesign-home)) .flyout {
     max-width: none;
   }
   .home .home-hero-copy h1 {
-    font-size: clamp(32px, 7.5vw, 44px);
+    font-size: clamp(30px, 6.9vw, 40px);
     white-space: normal;
   }
   .home .home-hero-media::after {
@@ -9377,16 +9383,13 @@ body:not(:has(.redesign-home)) .flyout {
   .home .home-hero-copy > .home-reveal {
     max-width: none;
   }
-  .home .home-hero-copy > .home-reveal:nth-child(2) {
-    margin-top: 22px;
-  }
   .home .home-hero .home-eyebrow {
     margin-bottom: 14px;
   }
   .home .home-hero-copy h1 {
-    font-size: clamp(32px, 8.5vw, 42px);
+    font-size: clamp(30px, 7.8vw, 39px);
     line-height: 1.05;
-    margin-bottom: 18px;
+    margin-bottom: 24px;
   }
   .home .home-hero-copy .home-hero-sub {
     font-size: 1rem;
@@ -12232,7 +12235,7 @@ textarea {
   .topbar { display: none; }
   .bh-logo img { height: 34px; }
 
-  .home .home-hero-copy h1 { font-size: clamp(40px, 10vw, 58px); line-height: .98; }
+  .home .home-hero-copy h1 { font-size: clamp(37px, 9.2vw, 53px); line-height: .98; }
   .home .home-hero-copy { padding-inline: 20px; }
   .home-hero-actions { gap: 12px; }
   .home-hero-actions .home-btn { width: 100%; }
@@ -14922,7 +14925,7 @@ textarea {
 
 /* Datos tecnicos en tablas compactas, alineadas con el dibujo. */
 .product-page .technical-layout > div > .spec-table-wrap {
-  margin: 0 0 30px;
+  margin: 0 0 28px;
 }
 
 .product-page .technical-spec-tables {
