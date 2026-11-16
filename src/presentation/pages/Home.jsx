@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import FamilyCarousel from '../components/FamilyCarousel'
 import Reveal from '../components/Reveal'
@@ -36,6 +36,39 @@ export default function Home() {
   const projects = HOME_PROJECT_SLUGS.map((slug) => PROJECTS.find((p) => p.slug === slug)).filter(Boolean)
   const videoRef = useRef(null)
   const ctaRef = useRef(null)
+  const productsHeadingRef = useRef(null)
+  const projectsImageRef = useRef(null)
+  const productsHeadingOffsetRef = useRef(0)
+  const [productsHeadingOffset, setProductsHeadingOffset] = useState(0)
+
+  useEffect(() => {
+    const heading = productsHeadingRef.current
+    const projectImage = projectsImageRef.current
+    if (!heading || !projectImage) return
+
+    let frame = 0
+    const alignHeading = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        const currentOffset = productsHeadingOffsetRef.current
+        const unshiftedHeadingLeft = heading.getBoundingClientRect().left - currentOffset
+        const offset = projectImage.getBoundingClientRect().left - unshiftedHeadingLeft
+        productsHeadingOffsetRef.current = offset
+        setProductsHeadingOffset(offset)
+      })
+    }
+
+    alignHeading()
+    window.addEventListener('resize', alignHeading)
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(alignHeading)
+    observer?.observe(heading)
+    observer?.observe(projectImage)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', alignHeading)
+      observer?.disconnect()
+    }
+  }, [])
 
   useEffect(() => {
     const video = videoRef.current
@@ -163,18 +196,24 @@ export default function Home() {
         {/* ============ 2 · NUESTROS PRODUCTOS ============ */}
         <section className="home-section home-section--products">
         <div className="container">
-          <div className="home-sec-head">
-            <Reveal>
-              <p className="home-eyebrow">Producto</p>
-              <h2>Nuestros productos</h2>
-            </Reveal>
-            <Reveal delay={100}>
-              <Link to="/productos" className="home-sec-link">Ver todos los productos <span>→</span></Link>
+          <div className="home-products-layout">
+            <div
+              ref={productsHeadingRef}
+              className="home-products-intro"
+              style={{ '--products-heading-offset': `${productsHeadingOffset}px` }}
+            >
+              <Reveal>
+                <p className="home-eyebrow">Producto</p>
+                <h2>Nuestros productos</h2>
+              </Reveal>
+              <Reveal delay={100}>
+                <Link to="/productos" className="home-sec-link">Ver todos los productos <span>→</span></Link>
+              </Reveal>
+            </div>
+            <Reveal delay={150}>
+              <FamilyCarousel families={families} getCatImage={getCatImage} />
             </Reveal>
           </div>
-          <Reveal delay={150}>
-            <FamilyCarousel families={families} getCatImage={getCatImage} />
-          </Reveal>
         </div>
       </section>
 
@@ -186,7 +225,7 @@ export default function Home() {
               <Reveal delay={0} className="home-projects-main">
                 <Link to={projects[0] ? `/proyectos/${projects[0].category}/${projects[0].slug}` : '/proyectos'} className="home-project home-project--main">
                   <div className="home-project-media">
-                    <img src={projects[0]?.images?.[0]} alt={projects[0]?.name || 'Proyecto de iluminación Boralba'} loading="lazy" width="1200" height="800" />
+                    <img ref={projectsImageRef} src={projects[0]?.images?.[0]} alt={projects[0]?.name || 'Proyecto de iluminación Boralba'} loading="lazy" width="1200" height="800" />
                     <div className="home-project-foot">
                       <span className="home-project-name">{projects[0]?.name}</span>
                       {projects[0]?.type && <span className="home-project-type">{projects[0].type}</span>}

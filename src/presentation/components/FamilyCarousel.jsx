@@ -1,142 +1,90 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
-const DRAG_STEP = 190
-
-function wrapDelta(delta, total) {
-  if (total <= 1) return 0
-  let result = ((delta % total) + total) % total
-  if (result > total / 2) result -= total
-  return result
-}
-
-function getPosition(distance, cardWidth) {
-  const amount = Math.abs(distance)
-  const scale = amount < 0.5 ? 1 : amount < 1.5 ? 0.85 : amount < 2.5 ? 0.73 : 0.68
-  const opacity = amount < 0.5 ? 1 : amount < 1.5 ? 0.9 : amount < 2.5 ? 0.8 : 0.72
-  return {
-    scale,
-    opacity,
-    x: distance * cardWidth * 0.72,
-    zIndex: 100 - Math.round(Math.min(amount, 5) * 10),
-    visible: amount <= 3.2,
-  }
+function getCardsPerPage() {
+  if (typeof window === 'undefined') return 3
+  if (window.matchMedia('(max-width: 640px)').matches) return 1
+  if (window.matchMedia('(max-width: 960px)').matches) return 2
+  return 3
 }
 
 export default function FamilyCarousel({ families, getCatImage }) {
-  const navigate = useNavigate()
-  const total = families.length
-  const containerRef = useRef(null)
-  const dragRef = useRef({ startX: 0, offset: 0, moved: false, active: false })
-  const [active, setActive] = useState(0)
-  const [drag, setDrag] = useState(0)
-  const [dragging, setDragging] = useState(false)
-  const [cardWidth, setCardWidth] = useState(280)
+  const [cardsPerPage, setCardsPerPage] = useState(getCardsPerPage)
+  const [page, setPage] = useState(0)
+  const pageCount = Math.ceil(families.length / cardsPerPage)
 
   useEffect(() => {
-    const measure = () => {
-      const card = containerRef.current?.querySelector('.coverflow-card')
-      if (card) setCardWidth(card.getBoundingClientRect().width)
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
+    const updateCardsPerPage = () => setCardsPerPage(getCardsPerPage())
+    window.addEventListener('resize', updateCardsPerPage)
+    return () => window.removeEventListener('resize', updateCardsPerPage)
   }, [])
 
-  const moveTo = useCallback((index) => {
-    if (total === 0) return
-    setActive(((index % total) + total) % total)
-  }, [total])
+  useEffect(() => {
+    setPage((currentPage) => Math.min(currentPage, Math.max(pageCount - 1, 0)))
+  }, [pageCount])
 
-  const advance = useCallback((direction) => moveTo(active + direction), [active, moveTo])
+  if (!families.length) return null
 
-  const onPointerDown = (event) => {
-    if (event.target.closest?.('.coverflow-arrow, .coverflow-pagination')) return
-    if (event.pointerType === 'mouse' && event.button !== 0) return
-    dragRef.current = { startX: event.clientX, offset: 0, moved: false, active: true }
-    setDragging(true)
-  }
-
-  const onPointerMove = (event) => {
-    if (!dragRef.current.active) return
-    const distance = event.clientX - dragRef.current.startX
-    if (Math.abs(distance) > 8) dragRef.current.moved = true
-    dragRef.current.offset = Math.max(-2.4, Math.min(2.4, distance / DRAG_STEP))
-    setDrag(dragRef.current.offset)
-  }
-
-  const endDrag = useCallback(() => {
-    if (!dragRef.current.active) return
-    const steps = Math.round(-dragRef.current.offset)
-    dragRef.current.active = false
-    if (steps) moveTo(active + steps)
-    dragRef.current.offset = 0
-    setDrag(0)
-    setDragging(false)
-  }, [active, moveTo])
-
-  const onCardClick = (event, index) => {
-    if (dragRef.current.moved) {
-      dragRef.current.moved = false
-      event.preventDefault()
-      return
-    }
-    if (index !== active) {
-      event.preventDefault()
-      moveTo(index)
-      return
-    }
-    navigate(`/categoria/${families[index].slug}`)
-  }
-
-  if (total === 0) return null
+  const visibleFamilies = families.slice(page * cardsPerPage, (page + 1) * cardsPerPage)
 
   return (
-    <div
-      ref={containerRef}
-      className={`coverflow${dragging ? ' is-dragging' : ''}`}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={endDrag}
-      onPointerCancel={endDrag}
-      onPointerLeave={endDrag}
-    >
-      {families.map((family, index) => {
-        const distance = wrapDelta(index - (active + drag), total)
-        const position = getPosition(distance, cardWidth)
-        const isActive = index === active && Math.abs(drag) < 0.5
-        return (
-          <button
-            key={family.slug}
-            type="button"
-            className={`coverflow-card${isActive ? ' is-active' : ''}`}
-            onClick={(event) => onCardClick(event, index)}
-            style={{
-              transform: `translate(-50%, -50%) translateX(${position.x}px) scale(${position.scale})`,
-              opacity: position.opacity,
-              zIndex: position.zIndex,
-              visibility: position.visible ? 'visible' : 'hidden',
-              pointerEvents: position.visible ? 'auto' : 'none',
-            }}
-            aria-label={`Ver categoría ${family.name}`}
-            tabIndex={position.visible ? 0 : -1}
-          >
-            <img src={getCatImage(family.slug)} alt={family.name} loading="lazy" draggable={false} />
-            <h3>{family.name}</h3>
-          </button>
-        )
-      })}
+    <div className="home-products-carousel" aria-label="Familias de productos">
+      {pageCount > 1 && (
+        <div className="home-products-controls">
+          <span className="home-products-count">{page + 1} / {pageCount}</span>
+          <div className="home-products-arrows">
+            <button
+              type="button"
+              className="home-products-arrow"
+              onClick={() => setPage((currentPage) => Math.max(currentPage - 1, 0))}
+              disabled={page === 0}
+              aria-label="Familias anteriores"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+            <button
+              type="button"
+              className="home-products-arrow"
+              onClick={() => setPage((currentPage) => Math.min(currentPage + 1, pageCount - 1))}
+              disabled={page === pageCount - 1}
+              aria-label="Siguientes familias"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+          </div>
+        </div>
+      )}
 
-      <button type="button" className="coverflow-arrow coverflow-arrow--prev" onClick={() => advance(-1)} aria-label="Familia anterior">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-      </button>
-      <button type="button" className="coverflow-arrow coverflow-arrow--next" onClick={() => advance(1)} aria-label="Siguiente familia">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-      </button>
-
-      <div className="coverflow-pagination" aria-label="Seleccionar familia">
-        {families.map((family, index) => <button key={family.slug} type="button" className={index === active ? 'is-active' : ''} onClick={() => moveTo(index)} aria-label={`Mostrar ${family.name}`} />)}
+      <div className="home-products-grid">
+        {visibleFamilies.map((family) => (
+          <article className="home-family-card" key={family.slug}>
+            <Link to={`/categoria/${family.slug}`} className="home-family-card-link" aria-label={`Ver gama ${family.name}`}>
+              <div className="home-product-image">
+                <img src={getCatImage(family.slug)} alt={family.name} loading="lazy" draggable={false} />
+              </div>
+              <div className="home-family-card-info">
+                <h3>{family.name}</h3>
+                <span className="home-family-card-cta">Ver gama <span aria-hidden="true">→</span></span>
+              </div>
+            </Link>
+          </article>
+        ))}
       </div>
+
+      {pageCount > 1 && (
+        <div className="home-products-pagination" aria-label="Seleccionar página de familias">
+          {Array.from({ length: pageCount }, (_, index) => (
+            <button
+              key={index}
+              type="button"
+              className={index === page ? 'is-active' : ''}
+              onClick={() => setPage(index)}
+              aria-label={`Mostrar página ${index + 1}`}
+              aria-current={index === page ? 'page' : undefined}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
