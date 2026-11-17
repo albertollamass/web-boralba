@@ -289,15 +289,25 @@ function TechnicalRows({ title, rows, className = '' }) {
 }
 
 function ProductOptions({ product, onVariantChange }) {
+  const { addItem } = useQuote()
   const candidates = variantCandidates(product)
   const groups = variantGroups(candidates)
   const [selected, setSelected] = useState(() => Object.fromEntries(groups.map((group) => [group.key, ''])))
+  const [quantity, setQuantity] = useState(1)
+  const [quoteAttempted, setQuoteAttempted] = useState(false)
   const matching = candidates.filter((candidate) => Object.entries(selected).every(([key, value]) => !value || variantValue(candidate, key) === value))
   useEffect(() => { onVariantChange(matching.length === 1 ? matching[0] : null) }, [matching, onVariantChange])
   const available = (group, value) => candidates.some((candidate) => Object.entries(selected).every(([key, option]) => key === group.key || !option || variantValue(candidate, key) === option) && variantValue(candidate, group.key) === value)
   const select = (key, value) => setSelected((current) => ({ ...current, [key]: current[key] === value ? '' : value }))
   if (!groups.length) return null
-  return <section className="product-options"><h2>Opciones disponibles</h2>{groups.map((group) => <div className="option-group" key={group.key}><span>{group.label}</span><div>{group.values.map((value) => <button type="button" className={selected[group.key] === value ? 'is-active' : ''} key={value} disabled={!available(group, value)} onClick={() => select(group.key, value)}>{value}</button>)}</div></div>)}</section>
+  const selectedReference = variantReference(matching.length === 1 ? matching[0] : null)
+  const addVariantToQuote = () => {
+    setQuoteAttempted(true)
+    if (!selectedReference) return
+    addItem({ id: `${product.id}|${selectedReference}`, productId: product.id, name: product.name, image: product.image, reference: selectedReference, variantRows: variantLabelRows(matching[0]), unit: product.unit || '', quantity })
+  }
+  const datasheetIsDataUrl = isDataUrl(product.datasheet)
+  return <section className="product-options"><h2>Opciones disponibles</h2><div className="product-option-groups">{groups.map((group) => <div className="option-group" key={group.key}><span>{group.label}</span><div>{group.values.map((value) => <button type="button" className={selected[group.key] === value ? 'is-active' : ''} key={value} disabled={!available(group, value)} aria-pressed={selected[group.key] === value} onClick={() => select(group.key, value)}>{value}</button>)}</div></div>)}</div>{quoteAttempted && !selectedReference && <p className="quote-selection-note" role="status">Selecciona una combinación válida para identificar la referencia.</p>}<div className="product-option-actions"><label className="quote-product-quantity">Cantidad<span className="quantity-stepper"><button type="button" aria-label="Reducir cantidad" onClick={() => setQuantity((current) => Math.max(1, current - 1))}>−</button><output aria-live="polite">{quantity}</output><button type="button" aria-label="Aumentar cantidad" onClick={() => setQuantity((current) => current + 1)}>+</button></span></label><button type="button" className="btn btn-primary" onClick={addVariantToQuote}><span aria-hidden="true">+</span>Añadir al presupuesto</button>{product.datasheet && <a className="datasheet-link" href={datasheetIsDataUrl ? undefined : fileUrl(product.datasheet)} onClick={datasheetIsDataUrl ? (event) => { event.preventDefault(); openPdfDataUrl(product.datasheet) } : undefined}><span aria-hidden="true">↓</span>Descargar ficha técnica</a>}</div></section>
 }
 
 function ProductTechnicalInfo({ type, value, selectedVariant }) {
