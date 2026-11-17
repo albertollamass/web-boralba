@@ -20,6 +20,7 @@ import { webformsMailer, webformsQuoteSender } from './infrastructure/notificati
 import { localContactDirectory } from './infrastructure/browser/localContactDirectory.js'
 import { cloudinaryDocumentStorage } from './infrastructure/documents/documentStorage.js'
 import { firestoreLogger } from './infrastructure/logging/firestoreLogger.js'
+import { QuoteProvider } from './application/quote/QuoteContext.jsx'
 
 configureLogger(firestoreLogger)
 
@@ -35,12 +36,14 @@ createRoot(document.getElementById('root')).render(
       <ProductsProvider repository={firestoreProductRepository} telemetry={telemetry}>
         <CategoriesProvider repository={firestoreCategoryRepository} telemetry={telemetry}>
           <SiteSettingsProvider repository={firestoreSettingsRepository}>
-            <App
-              backendEnabled={isFirebaseConfigured}
-              telemetry={telemetry}
-              documentStorage={cloudinaryDocumentStorage}
-              quoteSender={webformsQuoteSender}
-            />
+              <QuoteProvider>
+                <App
+                  backendEnabled={isFirebaseConfigured}
+                  telemetry={telemetry}
+                  documentStorage={cloudinaryDocumentStorage}
+                  quoteSender={webformsQuoteSender}
+                />
+              </QuoteProvider>
           </SiteSettingsProvider>
         </CategoriesProvider>
       </ProductsProvider>

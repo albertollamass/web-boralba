@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCategories } from '../../application/catalog/CategoriesContext'
+import { useQuote } from '../../application/quote/QuoteContext'
 
 const NAV_ITEMS = [
   { label: 'Productos', to: '/productos', submenuFromCatalog: true },
@@ -39,6 +40,7 @@ export default function HomeHeader({ home = false, menuOpen, onMenuToggle, onNav
 
   /* Desplegable de Productos: todo lo que cuelga de la raíz en Firebase. */
   const { getChildren, ROOT } = useCategories()
+  const { count } = useQuote()
   const navItems = NAV_ITEMS.map((item) =>
     item.submenuFromCatalog
       ? {
@@ -88,6 +90,9 @@ export default function HomeHeader({ home = false, menuOpen, onMenuToggle, onNav
 
           <div className="bh-actions">
             <SearchIcon onClick={onSearchOpen} />
+            <Link to="/presupuesto" className="bh-quote-link" onClick={onNavigate} aria-label={`Mi presupuesto, ${count} productos seleccionados`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3h12l1 4H5l1-4Z" /><path d="M5 7v13h14V7M9 11h6M9 15h6" /></svg><span>Mi presupuesto</span>{count > 0 && <b>{count}</b>}
+            </Link>
             <a href="tel:+34918707113" className="bh-phone">(34) 91 870 71 13</a>
             <Link to="/contacto" className="bh-cta" onClick={onNavigate}>
               Pide presupuesto <span className="bh-cta-arrow">→</span>
@@ -152,6 +157,7 @@ export default function HomeHeader({ home = false, menuOpen, onMenuToggle, onNav
           <button type="button" className="bh-mobile-link" onClick={onSearchOpen}>
             Buscar productos
           </button>
+          <Link to="/presupuesto" className="bh-mobile-link" onClick={onNavigate}>Mi presupuesto {count > 0 && `(${count})`}</Link>
           <a href="tel:+34918707113" className="bh-mobile-link">
             Llamar: (34) 91 870 71 13
           </a>

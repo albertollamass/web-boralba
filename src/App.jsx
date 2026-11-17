@@ -14,6 +14,8 @@ import Contacto from './presentation/pages/Contacto'
 import DisenaTuLuminaria from './presentation/pages/DisenaTuLuminaria'
 import Legal from './presentation/pages/Legal'
 import NotFound from './presentation/pages/NotFound'
+import MiPresupuesto from './presentation/pages/MiPresupuesto'
+import SolicitarPresupuesto from './presentation/pages/SolicitarPresupuesto'
 import AdminLogin from './presentation/admin/AdminLogin'
 import AdminPanel from './presentation/admin/AdminPanel'
 import { useAuth } from './application/identity/AuthContext'
@@ -75,6 +77,8 @@ export default function App({ backendEnabled, telemetry, documentStorage, quoteS
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/empresa" element={<Empresa />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/presupuesto" element={<MiPresupuesto />} />
+          <Route path="/presupuesto/solicitar" element={<SolicitarPresupuesto quoteSender={quoteSender} />} />
           <Route path="/disena-tu-luminaria" element={<DisenaTuLuminaria quoteSender={quoteSender} />} />
           <Route path="/legal/:slug" element={<Legal />} />
         </Route>

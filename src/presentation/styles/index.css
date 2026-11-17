@@ -13562,6 +13562,31 @@ textarea {
 .product-page .product-actions .btn-primary:hover { background: #bd2926; }
 .product-page .product-actions .datasheet-link { background: #fff; }
 .product-page .product-actions .datasheet-link:hover { background: #fff7f7; }
+
+/* Selección de presupuesto: mantiene el lenguaje editorial, sin apariencia de tienda. */
+.bh-quote-link { position: relative; display: inline-flex; align-items: center; gap: 7px; color: inherit; font-size: .72rem; letter-spacing: .02em; }
+.bh-quote-link svg { width: 20px; height: 20px; }
+.bh-quote-link b { display: inline-grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 50%; background: var(--boralba-red); color: #fff; font-size: .62rem; }
+.quote-page { min-height: 60vh; padding: clamp(54px, 8vw, 110px) 0 100px; background: #fff; }
+.quote-shell { max-width: 1080px; }
+.quote-shell h1 { margin: 0 0 14px; font-family: var(--font-montserrat); font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: -.045em; }
+.quote-lead { max-width: 62ch; margin: 0 0 42px; color: var(--boralba-gray); line-height: 1.7; }
+.quote-list { border-top: 1px solid #dededb; }
+.quote-line { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto auto; gap: 24px; align-items: start; padding: 24px 0; border-bottom: 1px solid #dededb; }
+.quote-line > img { width: 112px; height: 100px; object-fit: contain; background: #f7f7f5; }
+.quote-line-info h2 { margin: 0 0 6px; font-size: 1.05rem; font-weight: 600; }
+.quote-line-info .ref { margin: 0 0 12px; }
+.quote-line-info dl { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; color: var(--boralba-gray); font-size: .78rem; }
+.quote-line-info dl div { display: flex; gap: 5px; }.quote-line-info dt { font-weight: 700; }.quote-line-info dd { margin: 0; }
+.quote-quantity { display: grid; gap: 7px; color: var(--boralba-gray); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+.quote-quantity input { width: 72px; padding: 9px; border: 1px solid #d8d8d5; background: #fff; }
+.quote-remove, .quote-clear, .quote-back { border: 0; background: transparent; color: var(--boralba-gray); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: .78rem; }
+.quote-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; padding-top: 28px; }.quote-actions .btn-primary { margin-left: auto; }
+.quote-empty, .quote-success { padding: 42px 0; border-top: 1px solid #dededb; }.quote-empty h2, .quote-success h2 { margin: 0 0 10px; }.quote-empty p, .quote-success p { color: var(--boralba-gray); margin-bottom: 24px; }
+.quote-request-page .quote-back { display: inline-block; margin-bottom: 38px; }.quote-request-form { max-width: 800px; }.quote-review { margin-bottom: 38px; padding: 20px 0; border-block: 1px solid #dededb; }.quote-review h2 { margin: 0 0 16px; font-size: 1rem; }.quote-review div { display: grid; gap: 4px; padding: 10px 0; border-top: 1px solid #eee; }.quote-review span { color: var(--boralba-gray); font-size: .82rem; }
+.quote-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 30px; margin-bottom: 24px; }.quote-form-grid label { display: grid; gap: 8px; color: var(--boralba-gray); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }.quote-form-grid .span-2 { grid-column: 1 / -1; }.quote-form-grid input, .quote-form-grid textarea { width: 100%; box-sizing: border-box; padding: 11px 2px; border: 0; border-bottom: 1px solid #d8d6d1; background: transparent; font: inherit; }.quote-form-grid textarea { min-height: 120px; resize: vertical; }.quote-form-grid input:focus, .quote-form-grid textarea:focus { outline: none; border-color: var(--boralba-red); }
+.quote-request-form > .check { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0; color: var(--boralba-gray); font-size: .76rem; line-height: 1.5; }.quote-request-form > .check input { margin-top: 3px; accent-color: var(--boralba-red); }.quote-request-form > .check a { color: inherit; text-decoration: underline; }.quote-captcha { display: flex; align-items: center; gap: 14px; margin: 26px 0; font-weight: 700; }.quote-captcha input { width: 80px; padding: 9px; border: 1px solid #d8d8d5; }.quote-honeypot { position: absolute; left: -10000px; opacity: 0; }.quote-disclaimer { max-width: 70ch; margin: 25px 0; color: var(--boralba-gray); font-size: .82rem; line-height: 1.6; }.quote-product-quantity { display: flex; align-items: center; gap: 8px; color: var(--boralba-gray); font-size: .75rem; }.quote-product-quantity input { width: 62px; padding: 12px 8px; border: 1px solid #d8d8d5; }.quote-selection-note { margin: 14px 0 0; color: var(--boralba-red); font-size: .82rem; }.quote-added { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 16px; padding: 13px 0; border-top: 1px solid #dededb; color: var(--boralba-gray); font-size: .82rem; }.quote-added a { color: var(--boralba-ink); font-weight: 700; text-decoration: underline; }
+@media (max-width: 760px) { .bh-quote-link span, .bh-phone { display: none; }.quote-line { grid-template-columns: 76px minmax(0, 1fr); gap: 14px; }.quote-line > img { width: 76px; height: 76px; }.quote-quantity { grid-column: 2; }.quote-remove { grid-column: 2; justify-self: start; }.quote-actions { align-items: stretch; flex-direction: column; }.quote-actions .btn-primary { margin-left: 0; }.quote-actions .btn { text-align: center; justify-content: center; }.quote-form-grid { grid-template-columns: 1fr; }.quote-form-grid .span-2 { grid-column: auto; }.quote-request-form > .btn-primary { width: 100%; justify-content: center; } }
 .product-page .product-lower-row { margin-top: 84px; }
 .product-page .tabs { gap: 36px; border-bottom: 1px solid #ededed; }
 .product-page .tabs .tab { padding: 0 0 15px; font-size: .76rem; }

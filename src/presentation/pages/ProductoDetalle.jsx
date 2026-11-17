@@ -10,6 +10,8 @@ import { openPdfDataUrl } from '../utils/pdf'
 import { publicUrl } from '../utils/assets'
 import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import { resolveTechnicalKey } from '../../domain/catalog/technicalFeatures'
+import { useQuote } from '../../application/quote/QuoteContext'
+import { variantCandidates, variantGroups, variantLabelRows, variantValue } from '../../domain/catalog/quoteVariants'
 
 const isDataUrl = (value) => typeof value === 'string' && value.startsWith('data:')
 const itemText = (item) => typeof item === 'string' || typeof item === 'number' ? String(item).trim() : item && typeof item === 'object' ? String(item.text ?? item.title ?? item.name ?? item.label ?? item.application ?? '').trim() : ''
@@ -65,7 +67,6 @@ const variantFieldRows = (variant) => {
   const source = variant?.attributes || variant?.options || variant?.specifications || {}
   return Object.entries(source).map(([label, value]) => ({ label: clean(label), value: clean(value), unit: '', technicalKey: resolveTechnicalKey({ label }) })).filter((row) => row.label && row.value)
 }
-const meaningfulVariantLabel = (label) => clean(label) && !/^opci[oó]n\s*\d+$/i.test(clean(label))
 const conceptKey = (label) => {
   const value = clean(label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   if (value.includes('potencia') || value.includes('power')) return 'potencia'
@@ -132,6 +133,7 @@ export default function ProductoDetalle() {
   const { getProduct, products, hydrated } = useProducts()
   const { getCategory, getBreadcrumb } = useCategories()
   const { settings } = useSiteSettings()
+  const { addItem } = useQuote()
   const product = getProduct(id)
   const [activeTab, setActiveTab] = useState('descripcion')
   const [zoomImage, setZoomImage] = useState(null)
@@ -139,8 +141,9 @@ export default function ProductoDetalle() {
   const lightboxOpenerRef = useRef(null)
   const [compareIds, setCompareIds] = useState([])
   const [showComparison, setShowComparison] = useState(false)
-  const [selectedVariantCode, setSelectedVariantCode] = useState('')
   const [selectedVariant, setSelectedVariant] = useState(null)
+  const [quantity, setQuantity] = useState(1)
+  const [added, setAdded] = useState(false)
 
   const closeLightbox = () => setZoomImage(null)
   const openLightbox = (image, event) => {
@@ -195,6 +198,8 @@ export default function ProductoDetalle() {
   const documents = (Array.isArray(product.documents) ? product.documents : []).filter((document) => document.public !== false && document.file && document.name)
   const family = categoryTrail.length > 1 ? `${categoryTrail[categoryTrail.length - 2].name} · ${category?.name || ''}` : category?.name
   const technicalInfo = product.technicalInfo || {}
+  const candidates = variantCandidates(product)
+  const hasUnidentifiableVariants = (Array.isArray(technicalInfo.codes) && technicalInfo.codes.length > 0 || Array.isArray(product.variants) && product.variants.length > 0) && candidates.length === 0
   const technicalType = technicalFamily(product, categoryTrail)
   const productFamily = familyFromText([family, product.name, product.category, ...(product.categories || [])].join(' '))
   const highlights = asFeatureRows(product, technicalInfo, productFamily)
@@ -210,8 +215,17 @@ export default function ProductoDetalle() {
   const tabList = [{ id: 'descripcion', label: 'Descripción', show: hasDescription }, { id: 'aplicaciones', label: 'Aplicaciones', show: apps.length > 0 }, { id: 'ventajas', label: 'Ventajas', show: benefits.length > 0 }, { id: 'datos', label: 'Datos técnicos', show: hasTechnical }, { id: 'accesorios', label: 'Accesorios', show: hasAccessories }, { id: 'descargas', label: 'Descargas', show: documents.length > 0 }].filter((tab) => tab.show)
   const currentTab = tabList.some((tab) => tab.id === activeTab) ? activeTab : tabList[0]?.id
   const handleVariantChange = (variant) => {
+    const nextReference = variantReference(variant)
+    if (nextReference === variantReference(selectedVariant)) return
     setSelectedVariant(variant || null)
-    setSelectedVariantCode(variantReference(variant))
+  }
+
+  const selectedReference = variantReference(selectedVariant) || (!candidates.length && !hasUnidentifiableVariants ? product.ref : '')
+  const addToQuote = () => {
+    if (!selectedReference) return
+    addItem({ id: `${product.id}|${selectedReference}`, productId: product.id, name: product.name, image: product.image, reference: selectedReference, variantRows: variantLabelRows(selectedVariant), unit: product.unit || '', quantity })
+    setAdded(true)
+    window.setTimeout(() => setAdded(false), 3500)
   }
 
   const toggleCompare = (similarId) => setCompareIds((ids) => ids.includes(similarId) ? ids.filter((item) => item !== similarId) : ids.length < 3 ? [...ids, similarId] : ids)
@@ -227,7 +241,7 @@ export default function ProductoDetalle() {
      {tab.id === 'descargas' && <div className="documents-list">{documents.map((document, i) => <a className="document-item" key={i} href={isDataUrl(document.file) ? undefined : fileUrl(document.file)} download={!isDataUrl(document.file) ? undefined : document.name} onClick={isDataUrl(document.file) ? (event) => { event.preventDefault(); openPdfDataUrl(document.file) } : undefined}><span className="document-icon">↓</span><span><strong>{document.name}</strong><small>{document.type || 'Documento'}</small></span><b>Descargar</b></a>)}</div>}
   </div>
 
-  return <>
+   return <>
     <Seo
       title={`${product.name}${product.ref ? ` ${product.ref}` : ''} — Producto LED`}
       description={product.description || `Ficha técnica de ${product.name}${product.ref ? ` (${product.ref})` : ''}: especificaciones, aplicaciones y soluciones compatibles Boralba Lighting.`}
@@ -250,9 +264,8 @@ export default function ProductoDetalle() {
         },
       ]}
     />
-    <main className="product-page" inert={Boolean(zoomImage)} aria-hidden={zoomImage ? 'true' : undefined}><div className="container product-container">
-      <nav className="breadcrumb product-breadcrumb" aria-label="Migas de pan"><Link to="/">Inicio</Link><span>/</span><Link to="/productos">Productos</Link>{categoryTrail.map((cat) => <span key={cat.slug}><span>/</span>{cat.slug === product.category ? <span>{cat.name}</span> : <Link to={`/categoria/${cat.slug}`}>{cat.name}</Link>}</span>)}</nav>
-       <div className="product-detail"><div className="product-gallery"><Carousel images={gallery} alt={product.name} onImageClick={openLightbox} /></div><div className="product-info"><p className="product-kicker">{family || 'Producto'}</p><h1>{product.name}</h1>{(variantReference(selectedVariant) || product.ref) && <p className="ref product-ref">Ref. {variantReference(selectedVariant) || product.ref}</p>}{product.description && <p className="product-short-description">{product.description}</p>}{mainHighlights.length > 0 && <section className="product-highlights product-highlights-band"><h2>Características principales</h2><div className="product-highlights-list">{mainHighlights.map((item, index) => <div className="product-highlight-band-item" key={`${item.label}-${index}`}><strong>{highlightValue(item)}</strong><span>{item.technicalKey === 'mountingSurface' || item.technicalKey === 'mountingSuspended' ? 'Montaje' : item.label}</span></div>)}</div></section>}{technicalType !== 'led-strip' && <ProductOptions product={product} type={technicalType} selectedVariant={selectedVariant} onVariantChange={handleVariantChange} />}<div className="product-actions"><Link to={`/contacto?productos=${selectedVariantCode || product.ref || ''}`} className="btn btn-primary">Solicitar presupuesto</Link>{product.datasheet && <a href={isDataUrl(product.datasheet) ? undefined : fileUrl(product.datasheet)} onClick={isDataUrl(product.datasheet) ? (e) => { e.preventDefault(); openPdfDataUrl(product.datasheet) } : undefined} target={isDataUrl(product.datasheet) ? undefined : '_blank'} rel="noreferrer" className="datasheet-link">↓ Descargar ficha técnica</a>}</div></div></div>
+     <main className="product-page" inert={Boolean(zoomImage)} aria-hidden={zoomImage ? 'true' : undefined}><div className="container product-container">
+        <div className="product-detail"><div className="product-gallery"><Carousel images={gallery} alt={product.name} onImageClick={openLightbox} /></div><div className="product-info"><p className="product-kicker">{family || 'Producto'}</p><h1>{product.name}</h1>{(selectedReference || product.ref) && <p className="ref product-ref">Ref. {selectedReference || product.ref}</p>}{product.description && <p className="product-short-description">{product.description}</p>}{mainHighlights.length > 0 && <section className="product-highlights product-highlights-band"><h2>Características principales</h2><div className="product-highlights-list">{mainHighlights.map((item, index) => <div className="product-highlight-band-item" key={`${item.label}-${index}`}><strong>{highlightValue(item)}</strong><span>{item.technicalKey === 'mountingSurface' || item.technicalKey === 'mountingSuspended' ? 'Montaje' : item.label}</span></div>)}</div></section>}<ProductOptions product={product} onVariantChange={handleVariantChange} />{(candidates.length > 0 || hasUnidentifiableVariants || !product.ref) && !selectedReference && <p className="quote-selection-note">{hasUnidentifiableVariants ? 'Este producto no tiene referencias de variante identificables y no se puede añadir al presupuesto.' : candidates.length > 0 ? 'Selecciona una combinación válida para identificar la referencia.' : 'Este producto no tiene una referencia disponible y no se puede añadir al presupuesto.'}</p>}<div className="product-actions"><label className="quote-product-quantity">Cantidad<input type="number" min="1" step="1" value={quantity} onChange={(event) => setQuantity(Math.max(1, Number(event.target.value) || 1))} /></label><button type="button" onClick={addToQuote} disabled={!selectedReference} className="btn btn-primary">Añadir al presupuesto</button>{product.datasheet && <a href={isDataUrl(product.datasheet) ? undefined : fileUrl(product.datasheet)} onClick={isDataUrl(product.datasheet) ? (e) => { e.preventDefault(); openPdfDataUrl(product.datasheet) } : undefined} target={isDataUrl(product.datasheet) ? undefined : '_blank'} rel="noreferrer" className="datasheet-link">↓ Descargar ficha técnica</a>}</div>{added && <div className="quote-added" role="status">Añadido a tu presupuesto. <Link to="/productos">Seguir viendo productos</Link><Link to="/presupuesto">Ver presupuesto</Link></div>}</div></div>
        <div className="product-lower-row">
           <div className="product-below-hero" />
           {tabList.length > 0 && <section className="product-description"><div className="tabs">{tabList.map((tab) => <button type="button" key={tab.id} className={`tab${currentTab === tab.id ? ' active' : ''}`} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}</div><div className="desktop-tab-content">{panel({ ...tabList.find((tab) => tab.id === currentTab), id: currentTab })}</div><div className="mobile-accordion">{tabList.map((tab) => <div className={`accordion-item${currentTab === tab.id ? ' is-open' : ''}`} key={tab.id}><button type="button" className="accordion-trigger" onClick={() => setActiveTab(currentTab === tab.id ? '' : tab.id)} aria-expanded={currentTab === tab.id}>{tab.label}<span>{currentTab === tab.id ? '−' : '+'}</span></button>{currentTab === tab.id && panel(tab)}</div>)}</div></section>}
@@ -275,41 +288,16 @@ function TechnicalRows({ title, rows, className = '' }) {
   return <section className={`product-technical-section ${className}`}><h3>{title}</h3><dl className="product-technical-list">{visible.map((row, index) => <div key={index}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl></section>
 }
 
-function ProductOptions({ product, type, selectedVariant, onVariantChange }) {
-  const info = product.technicalInfo || {}
-  const codes = technicalCodes(info.codes)
-  const technicalGroups = type === 'profile'
-    ? [{ label: 'Acabado', key: 'finish', values: (info.profileFinishes || []).map((item) => item.name).filter(Boolean) }, { label: 'Dimensiones', key: 'dimensions', values: (info.profileDimensions || []).map((item) => [item.label, item.value].filter(Boolean).join(' · ')).filter(Boolean) }]
-    : type === 'led-strip'
-       ? [{ label: 'Temperatura de color', key: 'temperature', values: optionList(info.temperatures).map(optionName).concat(codes.map((row) => row.temperature)).filter(Boolean) }, { label: 'Protección', key: 'ip', values: optionList(info.protections).map(optionName).concat(codes.map((row) => row.ip)).filter(Boolean) }]
-      : []
-  const legacy = (Array.isArray(product.variants) ? product.variants : []).filter((variant) => variant && typeof variant === 'object')
-  const legacyGroups = [...new Map(legacy.flatMap((variant) => {
-    const entries = variantFieldRows(variant)
-    const simple = entries.length ? entries : [{ label: variant.label, value: variant.value || variant.option || variant.title, unit: '' }]
-    return simple.filter((row) => meaningfulVariantLabel(row.label) && row.value).map((row) => [`${row.label.toLowerCase()}::${row.value}`, row])
-  })).values()].reduce((groups, row) => {
-    const group = groups.find((item) => item.label.toLowerCase() === row.label.toLowerCase())
-    if (group) group.values.push(row.value)
-    else groups.push({ label: row.label, key: `legacy-${row.label}`, values: [row.value] })
-    return groups
-  }, [])
-  const groups = [...technicalGroups, ...legacyGroups.map((group) => ({ ...group, values: group.values.filter((value) => !technicalGroups.some((technical) => technical.values.some((item) => clean(item).toLowerCase() === clean(value).toLowerCase()))) }))].filter((group) => group.values.length > 1)
-  const [selected, setSelected] = useState(() => Object.fromEntries(technicalGroups.map((group) => [group.key, selectedVariant?.[group.key] || ''])))
-  const available = (group, value) => {
-    if (!codes.length) return true
-    const constraints = Object.entries(selected).filter(([key, option]) => key !== group.key && option)
-    return codes.some((row) => constraints.every(([key, option]) => row[key] === option) && row[group.key] === value)
-  }
-  const select = (key, value) => {
-    const next = { ...selected, [key]: selected[key] === value ? '' : value }
-    const matching = codes.filter((row) => Object.entries(next).every(([field, option]) => !option || row[field] === option))
-    if (!matching.length) return
-    setSelected(next)
-    onVariantChange(matching.length === 1 && Object.values(next).some(Boolean) ? matching[0] : null)
-  }
+function ProductOptions({ product, onVariantChange }) {
+  const candidates = variantCandidates(product)
+  const groups = variantGroups(candidates)
+  const [selected, setSelected] = useState(() => Object.fromEntries(groups.map((group) => [group.key, ''])))
+  const matching = candidates.filter((candidate) => Object.entries(selected).every(([key, value]) => !value || variantValue(candidate, key) === value))
+  useEffect(() => { onVariantChange(matching.length === 1 ? matching[0] : null) }, [matching, onVariantChange])
+  const available = (group, value) => candidates.some((candidate) => Object.entries(selected).every(([key, option]) => key === group.key || !option || variantValue(candidate, key) === option) && variantValue(candidate, group.key) === value)
+  const select = (key, value) => setSelected((current) => ({ ...current, [key]: current[key] === value ? '' : value }))
   if (!groups.length) return null
-  return <section className="product-options"><h2>Opciones disponibles</h2>{groups.map((group) => <div className="option-group" key={group.key}><span>{group.label}</span><div>{[...new Set(group.values)].map((value) => <button type="button" className={selected[group.key] === value ? 'is-active' : ''} key={value} disabled={!available(group, value)} onClick={() => select(group.key, value)}>{value}</button>)}</div></div>)}</section>
+  return <section className="product-options"><h2>Opciones disponibles</h2>{groups.map((group) => <div className="option-group" key={group.key}><span>{group.label}</span><div>{group.values.map((value) => <button type="button" className={selected[group.key] === value ? 'is-active' : ''} key={value} disabled={!available(group, value)} onClick={() => select(group.key, value)}>{value}</button>)}</div></div>)}</section>
 }
 
 function ProductTechnicalInfo({ type, value, selectedVariant }) {
