@@ -32,7 +32,26 @@ const commaText = (value) => (Array.isArray(value) ? value.join(', ') : value ||
 const dataUrl = (value) => typeof value === 'string' && value.startsWith('data:')
 const uniqueValues = (values) => [...new Set(values.map((value) => String(value || '').trim()).filter(Boolean))]
 const optionName = (option) => typeof option === 'string' ? option.trim() : String(option?.name || option?.label || option?.value || '').trim()
-const normalizeTemperatureOptions = (value) => (Array.isArray(value) ? value : []).map((option) => typeof option === 'string' ? { name: option.trim(), color: '' } : { name: optionName(option), color: option?.color || '' }).filter((option) => option.name).filter((option, index, options) => options.findIndex((item) => item.name === option.name) === index)
+const isRgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen)?|v(?:erde)?|b(?:lue)?|azul)$/i.test(String(value || '').trim())
+const isRgbTemperature = (value) => String(value || '').trim().toUpperCase() === 'RGB' || isRgbChannel(value) || /\brgb\b/i.test(String(value || ''))
+const normalizeAdminTemperature = (value) => isRgbChannel(value) ? 'RGB' : String(value || '').trim().replace(/\brgb\b/ig, 'RGB')
+const cctColor = (value) => {
+  const normalized = String(value || '').toLowerCase()
+  const kelvin = Number(normalized.match(/\d{3,4}/)?.[0] || 0)
+  if (normalized.includes('cálid') || normalized.includes('calid') || (kelvin > 0 && kelvin <= 3000)) return '#ffb36b'
+  if (normalized.includes('neutr') || (kelvin > 3000 && kelvin <= 4500)) return '#fff1d6'
+  if (normalized.includes('frí') || normalized.includes('fri') || (kelvin > 4500 && kelvin <= 5500)) return '#eaf4ff'
+  if (kelvin > 5500) return '#dbe9ff'
+  return ''
+}
+const temperatureSwatch = (color) => color ? <span className="product-temperature-swatch" style={{ backgroundColor: color }} aria-hidden="true" /> : null
+const cctSwatch = (items) => <span className="product-cct-swatch" aria-label="Temperaturas CCT configuradas">{items.slice(0, 3).map((item, index) => <i key={index} style={{ backgroundColor: item.color || cctColor(item.name) || '#fff' }} />)}</span>
+const hasRgbData = (value, codes = []) => {
+  const temperatures = [...(Array.isArray(value) ? value : []), ...codes.map((code) => code.temperature)].map(optionName)
+  return temperatures.some((temperature) => temperature.toUpperCase() === 'RGB') || new Set(temperatures.filter(isRgbChannel).map((temperature) => temperature.toLowerCase())).size > 1
+}
+const normalizeRgbTemperature = (value, isRgb) => isRgb && isRgbTemperature(value) ? 'RGB' : String(value || '').trim()
+const normalizeTemperatureOptions = (value, isRgb = false) => (Array.isArray(value) ? value : []).map((option) => ({ name: normalizeRgbTemperature(optionName(option), isRgb), color: option?.color || '' })).filter((option) => option.name).filter((option, index, options) => options.findIndex((item) => item.name === option.name) === index)
 
 function normalizeApplications(value, example = {}) {
   const applications = (Array.isArray(value) ? value : list(value)).map((item) => typeof item === 'string' ? { title: item, description: '' } : { title: item?.text || item?.title || item?.name || item?.application || '', description: item?.description || item?.detail || '', image: item?.image || '', spaceType: item?.spaceType || '', inspiration: Boolean(item?.inspiration) })
@@ -130,14 +149,16 @@ const variantCodeFallback = (variant = {}) => {
   return { ...code, legacyVariantData: { attributes: variant.attributes || [], specs: variant.specs || [] } }
 }
 const normalizeTechnicalInfo = (value = {}, variants = []) => {
-  const codes = (value.codes || []).length ? value.codes.map(technicalCode) : variants.map(variantCodeFallback).filter((code) => Object.values(code).some(Boolean))
-   const temperatures = normalizeTemperatureOptions(value.temperatures)
+    const sourceCodes = (value.codes || []).length ? value.codes.map(technicalCode) : variants.map(variantCodeFallback).filter((code) => Object.values(code).some(Boolean))
+    const isRgb = hasRgbData(value.temperatures, sourceCodes)
+    const codes = sourceCodes.map((code) => ({ ...code, temperature: normalizeRgbTemperature(code.temperature, isRgb) }))
+    const temperatures = normalizeTemperatureOptions(value.temperatures, isRgb)
    const protections = Array.isArray(value.protections) ? uniqueValues(value.protections.map(optionName)) : []
   return {
    ...value,
    type: value.type || '',
   general: (value.general || []).map(technicalRow),
-   temperatures: [...temperatures, ...codes.map((code) => ({ name: code.temperature, color: '' })).filter((option) => option.name)].filter((option, index, options) => options.findIndex((item) => item.name === option.name) === index),
+    temperatures: [...temperatures, ...codes.map((code) => ({ name: code.temperature, color: '' })).filter((option) => option.name)].filter((option, index, options) => options.findIndex((item) => item.name === option.name) === index),
   protections: [...new Set([...protections, ...codes.map((code) => code.ip).filter(Boolean)])],
   ledBasic: (value.ledBasic || []).map(technicalRow),
   ledDimensions: (value.ledDimensions || []).map(technicalRow),
@@ -310,17 +331,9 @@ export default function ProductForm({ initial, onSubmit, onCancel, allProducts =
        similarProductIds: product.similarProductIds.filter(Boolean),
        documents: product.documents.filter((item) => item.name || item.file).map((item, order) => ({ ...item, order })),
           technicalInfo: {
-           ...product.technicalInfo,
-           type: categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic',
-          general: product.technicalInfo.general.filter((row) => row.label || row.value),
-           temperatures: normalizeTemperatureOptions(product.technicalInfo.temperatures),
-           protections: uniqueValues(product.technicalInfo.protections.map(optionName)),
-         ledBasic: product.technicalInfo.ledBasic.filter((row) => row.label || row.value),
-         ledDimensions: product.technicalInfo.ledDimensions.filter((row) => row.label || row.value),
-         profileFinishes: product.technicalInfo.profileFinishes.filter((finish) => finish.name || finish.color),
-         profileDimensions: product.technicalInfo.profileDimensions.filter((row) => row.label || row.value),
-         codes: product.technicalInfo.codes.filter((row) => Object.values(row).some(Boolean)),
-       },
+            ...normalizeTechnicalInfo(product.technicalInfo, product.variants),
+            type: categoryFamily(product.categories, product) || product.technicalInfo.type || 'generic',
+          },
      })
   }
 
@@ -414,7 +427,7 @@ function TechnicalEditor({ type, value, onChange }) {
   return <>
     <h3>Información técnica de la tira LED</h3>
     <p className="admin-help">Define las opciones disponibles y después vincula cada código con su temperatura y protección IP.</p>
-     <h4>Temperaturas de color</h4>
+      <h4>Temperaturas de color</h4>
      <TemperatureOptionEditor items={value.temperatures} onChange={(temperatures) => onChange({ ...value, temperatures })} />
      <h4>Dimensiones disponibles</h4>
      {renderRows('ledDimensions', [['label', 'Medida'], ['value', 'Valor']], 'dimensión')}
@@ -456,7 +469,13 @@ function OptionEditor({ items, placeholder, onChange }) {
 function TemperatureOptionEditor({ items, onChange }) {
   const update = (index, field, nextValue) => onChange(items.map((item, i) => i === index ? { ...item, [field]: nextValue } : item))
   const isHex = (color) => /^#[0-9a-f]{6}$/i.test(color)
-  return <div className="technical-editor-list">{items.map((item, index) => <div className="technical-editor-row technical-option-row" key={index}><input value={item.name} onChange={(event) => update(index, 'name', event.target.value)} placeholder="Ej. 3000 K" /><span className="technical-color-preview" style={{ backgroundColor: item.color || 'transparent' }} aria-label={item.color ? `Color ${item.color}` : 'Sin color'} /><input className="technical-color-picker" type="color" value={isHex(item.color) ? item.color : '#ffffff'} onChange={(event) => update(index, 'color', event.target.value)} aria-label="Elegir color" /><input type="text" value={item.color} onChange={(event) => update(index, 'color', event.target.value)} placeholder="Color CSS o hexadecimal" /><button type="button" className="btn btn-danger btn-sm" onClick={() => onChange(items.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => onChange([...items, { name: '', color: '' }])}>+ Añadir temperatura</button></div>
+  const cctItems = items.filter((item) => !isRgbTemperature(item.name) && /\d{3,4}/.test(item.name)).sort((a, b) => Number(a.name.match(/\d{3,4}/)?.[0] || 0) - Number(b.name.match(/\d{3,4}/)?.[0] || 0))
+  const addCct = () => {
+    const presets = [{ name: '2700 K', color: '#ffb36b' }, { name: '4000 K', color: '#fff1d6' }, { name: '6000 K', color: '#dbe9ff' }]
+    onChange([...items, ...presets.filter((preset) => !items.some((item) => item.name === preset.name))])
+  }
+  const cctGradient = cctItems.length >= 2 ? `linear-gradient(90deg, ${cctItems.map((item) => item.color || cctColor(item.name)).join(', ')})` : ''
+  return <div className="technical-editor-list"><p className="admin-help">CCT usa un rango continuo. Añade al menos dos temperaturas en Kelvin; el selector público interpolará el degradado entre ellas.</p>{cctItems.length >= 2 && <div className="admin-cct-preview"><strong>Vista previa CCT</strong><span className="admin-cct-gradient" style={{ background: cctGradient }} /><small>{cctItems[0].name} · {cctItems[cctItems.length - 1].name}</small></div>}{items.filter((item) => !isRgbTemperature(item.name)).length >= 3 && <div className="admin-help">Vista conjunta CCT: {cctSwatch(items.filter((item) => !isRgbTemperature(item.name)))}</div>}{items.map((item, index) => <div className="technical-editor-row technical-option-row" key={index}><input value={item.name} onChange={(event) => update(index, 'name', normalizeAdminTemperature(event.target.value))} placeholder="Ej. 3000 K, RGB o RGB + 3000 K" />{isRgbTemperature(item.name) ? <span className="product-option-swatches"><span className="product-rgb-swatch" aria-hidden="true"><i /><i /><i /></span>{item.name.toUpperCase() !== 'RGB' && temperatureSwatch(item.color || cctColor(item.name))}</span> : <span className="technical-color-preview" style={{ backgroundColor: item.color || cctColor(item.name) || 'transparent' }} aria-label={item.color ? `Color ${item.color}` : 'Color automático según temperatura'} />}<input className="technical-color-picker" type="color" value={isHex(item.color) ? item.color : '#ffffff'} onChange={(event) => update(index, 'color', event.target.value)} aria-label="Elegir color" /><input type="text" value={item.color} onChange={(event) => update(index, 'color', event.target.value)} placeholder="Color CSS o hexadecimal" /><button type="button" className="btn btn-danger btn-sm" onClick={() => onChange(items.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => onChange([...items, { name: '', color: '' }])}>+ Añadir temperatura</button><button type="button" className="btn btn-ghost btn-sm" onClick={addCct}>+ Crear rango CCT 2700 / 4000 / 6000 K</button></div>
 }
 
 function Repeater({ items, children, onMove, onReorder, onRemove, itemClass = '' }) {

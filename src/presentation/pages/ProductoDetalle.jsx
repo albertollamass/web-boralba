@@ -5,7 +5,7 @@ import { useProducts } from '../../application/catalog/ProductsContext'
 import { useCategories } from '../../application/catalog/CategoriesContext'
 import Carousel from '../components/Carousel'
 import Seo from '../components/Seo'
-import { SITE, canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
+import { SITE, canonicalFor, breadcrumbJsonLd, productJsonLd } from '../../domain/site/site'
 import { openPdfDataUrl } from '../utils/pdf'
 import { publicUrl } from '../utils/assets'
 import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
@@ -60,6 +60,38 @@ const familyFromText = (text) => {
 const codeValue = (row, key) => clean(row?.[key] == null ? '' : row[key])
 const optionName = (option) => typeof option === 'string' ? clean(option) : clean(option?.name || option?.label || option?.value)
 const optionColor = (option) => typeof option === 'object' ? clean(option?.color) : ''
+const cctColor = (value) => {
+  const normalized = clean(value).toLowerCase()
+  const kelvin = Number(normalized.match(/\d{3,4}/)?.[0] || 0)
+  if (normalized.includes('cálid') || normalized.includes('calid') || (kelvin > 0 && kelvin <= 3000)) return '#ffb36b'
+  if (normalized.includes('neutr') || (kelvin > 3000 && kelvin <= 4500)) return '#fff1d6'
+  if (normalized.includes('frí') || normalized.includes('fri') || (kelvin > 4500 && kelvin <= 5500)) return '#eaf4ff'
+  if (kelvin > 5500) return '#dbe9ff'
+  return ''
+}
+const cctHex = (kelvin, min, max) => {
+  const start = [255, 241, 214]
+  const end = [218, 235, 255]
+  const ratio = Math.max(0, Math.min(1, (kelvin - min) / Math.max(1, max - min)))
+  return `#${start.map((channel, index) => Math.round(channel + (end[index] - channel) * ratio).toString(16).padStart(2, '0')).join('')}`
+}
+const isCctOnlyProduct = (product) => {
+  const temperatures = optionList(product?.technicalInfo?.temperatures)
+  return temperatures.filter((temperature) => !isRgbValue(temperature)).length >= 2 && !temperatures.some(isRgbValue)
+}
+const isRgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen)?|v(?:erde)?|b(?:lue)?|azul)$/i.test(clean(value))
+const isRgbValue = (value) => clean(value).toUpperCase() === 'RGB' || isRgbChannel(value) || /\brgb\b/i.test(clean(value))
+const rgbOptionName = (value) => {
+  const normalized = optionName(value)
+  if (isRgbChannel(normalized)) return 'RGB'
+  return normalized.replace(/\brgb\b/ig, 'RGB')
+}
+const RgbSwatch = () => <span className="product-rgb-swatch" aria-hidden="true"><i /><i /><i /></span>
+const CctSwatch = ({ colors }) => <span className="product-cct-swatch" aria-hidden="true">{colors.map((color, index) => <i key={index} style={{ backgroundColor: color }} />)}</span>
+const CctTemperatureSamples = ({ temperatures, min, max }) => <div className="product-cct-samples" aria-label="Rango CCT de la tira"><i className="product-cct-gradient-sample" style={{ background: `linear-gradient(90deg, ${temperatures.map((temperature) => `${cctHex(temperature, min, max)} ${(temperature - min) / Math.max(1, max - min) * 100}%`).join(', ')})` }} /><span>{temperatures.map((temperature) => <small key={temperature}>{temperature} K</small>)}</span></div>
+const CctTableSamples = () => <span className="product-cct-table-samples" aria-label="2700 K, 4000 K y 6000 K"><i className="product-cct-table-gradient" style={{ background: `linear-gradient(90deg, ${cctHex(2700, 2700, 6000)} 0%, ${cctHex(4000, 2700, 6000)} 50%, ${cctHex(6000, 2700, 6000)} 100%)` }} /><span><small>2700 K</small><small>4000 K</small><small>6000 K</small></span></span>
+const temperatureSwatch = (color) => color ? <span className="product-temperature-swatch" style={{ backgroundColor: color }} aria-hidden="true" /> : null
+const optionSwatches = (color) => <span className="product-option-swatches"><RgbSwatch />{temperatureSwatch(color)}</span>
 const optionList = (value) => Array.isArray(value) ? value : String(value || '').split(/[,\n]/).map((item) => item.trim()).filter(Boolean)
 const ledTechnicalFields = [['Potencia', 'power'], ['CRI', 'cri'], ['Flujo luminoso', 'luminousFlux'], ['Tensión', 'voltage'], ['LEDs por metro', 'ledsPerMeter'], ['Distancia de corte', 'cuttingDistance'], ['Ángulo', 'angle'], ['Regulación', 'dimming'], ['Vida útil', 'lifetime']]
 const variantReference = (variant) => clean(variant?.code || variant?.ref || variant?.reference)
@@ -128,7 +160,7 @@ const asFeatureRows = (product, info, family) => {
   })
 }
 
-export default function ProductoDetalle() {
+export default function ProductoDetalle({ analytics }) {
   const { id } = useParams()
   const { getProduct, products, hydrated } = useProducts()
   const { getCategory, getBreadcrumb } = useCategories()
@@ -144,6 +176,11 @@ export default function ProductoDetalle() {
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
+
+  useEffect(() => {
+    if (!hydrated || !product) return
+    analytics?.track('view_item', { item_id: product.id, item_name: product.name, item_reference: product.ref || undefined, item_category: product.category || undefined })
+  }, [analytics, hydrated, product])
 
   const closeLightbox = () => setZoomImage(null)
   const openLightbox = (image, event) => {
@@ -218,12 +255,18 @@ export default function ProductoDetalle() {
     const nextReference = variantReference(variant)
     if (nextReference === variantReference(selectedVariant)) return
     setSelectedVariant(variant || null)
+    analytics?.track('select_item_variant', {
+      item_id: product.id,
+      item_name: product.name,
+      item_reference: nextReference || undefined,
+    })
   }
 
   const selectedReference = variantReference(selectedVariant) || (!candidates.length && !hasUnidentifiableVariants ? product.ref : '')
   const addToQuote = () => {
     if (!selectedReference) return
     addItem({ id: `${product.id}|${selectedReference}`, productId: product.id, name: product.name, image: product.image, reference: selectedReference, variantRows: variantLabelRows(selectedVariant), unit: product.unit || '', quantity })
+    analytics?.track('add_to_quote', { item_id: product.id, item_name: product.name, item_reference: selectedReference, quantity })
     setAdded(true)
     window.setTimeout(() => setAdded(false), 3500)
   }
@@ -253,15 +296,7 @@ export default function ProductoDetalle() {
           { name: 'Productos', url: canonicalFor('/productos') },
           { name: product.name, url: canonicalFor(`/producto/${product.id}`) },
         ]),
-        {
-          '@context': 'https://schema.org',
-          '@type': 'Product',
-          name: product.name,
-          sku: product.ref || undefined,
-          description: product.description || undefined,
-          image: product.image ? `${SITE.url}/${String(product.image).replace(/^\//, '')}` : undefined,
-          brand: { '@type': 'Brand', name: 'Boralba Lighting' },
-        },
+        productJsonLd(product),
       ]}
     />
      <main className="product-page" inert={Boolean(zoomImage)} aria-hidden={zoomImage ? 'true' : undefined}><div className="container product-container">
@@ -288,15 +323,19 @@ function TechnicalRows({ title, rows, className = '' }) {
   return <section className={`product-technical-section ${className}`}><h3>{title}</h3><dl className="product-technical-list">{visible.map((row, index) => <div key={index}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl></section>
 }
 
-function ProductOptions({ product, onVariantChange }) {
+function ProductOptions({ product, analytics, onVariantChange }) {
   const { addItem } = useQuote()
   const candidates = variantCandidates(product)
   const groups = variantGroups(candidates)
+  const cctOnly = isCctOnlyProduct(product)
+  const visibleGroups = groups.filter((group) => !(cctOnly && group.key.includes('temperatura')))
   const [selected, setSelected] = useState(() => Object.fromEntries(groups.map((group) => [group.key, ''])))
   const [quantity, setQuantity] = useState(1)
   const [quoteAttempted, setQuoteAttempted] = useState(false)
+  const temperatureOptions = optionList(product.technicalInfo?.temperatures)
+  const temperatureColor = (value) => optionColor(temperatureOptions.find((option) => rgbOptionName(option) === rgbOptionName(value))) || cctColor(value)
   const matching = candidates.filter((candidate) => Object.entries(selected).every(([key, value]) => !value || variantValue(candidate, key) === value))
-  useEffect(() => { onVariantChange(matching.length === 1 ? matching[0] : null) }, [matching, onVariantChange])
+  useEffect(() => { onVariantChange(matching.length === 1 || (cctOnly && matching.length > 0 && Object.values(selected).some(Boolean)) ? matching[0] : null) }, [cctOnly, matching, onVariantChange, selected])
   const available = (group, value) => candidates.some((candidate) => Object.entries(selected).every(([key, option]) => key === group.key || !option || variantValue(candidate, key) === option) && variantValue(candidate, group.key) === value)
   const select = (key, value) => setSelected((current) => ({ ...current, [key]: current[key] === value ? '' : value }))
   if (!groups.length) return null
@@ -305,9 +344,11 @@ function ProductOptions({ product, onVariantChange }) {
     setQuoteAttempted(true)
     if (!selectedReference) return
     addItem({ id: `${product.id}|${selectedReference}`, productId: product.id, name: product.name, image: product.image, reference: selectedReference, variantRows: variantLabelRows(matching[0]), unit: product.unit || '', quantity })
+    analytics?.track('add_to_quote', { item_id: product.id, item_name: product.name, item_reference: selectedReference, quantity })
   }
   const datasheetIsDataUrl = isDataUrl(product.datasheet)
-  return <section className="product-options"><h2>Opciones disponibles</h2><div className="product-option-groups">{groups.map((group) => <div className="option-group" key={group.key}><span>{group.label}</span><div>{group.values.map((value) => <button type="button" className={selected[group.key] === value ? 'is-active' : ''} key={value} disabled={!available(group, value)} aria-pressed={selected[group.key] === value} onClick={() => select(group.key, value)}>{value}</button>)}</div></div>)}</div>{quoteAttempted && !selectedReference && <p className="quote-selection-note" role="status">Selecciona una combinación válida para identificar la referencia.</p>}<div className="product-option-actions"><label className="quote-product-quantity">Cantidad<span className="quantity-stepper"><button type="button" aria-label="Reducir cantidad" onClick={() => setQuantity((current) => Math.max(1, current - 1))}>−</button><output aria-live="polite">{quantity}</output><button type="button" aria-label="Aumentar cantidad" onClick={() => setQuantity((current) => current + 1)}>+</button></span></label><button type="button" className="btn btn-primary" onClick={addVariantToQuote}><span aria-hidden="true">+</span>Añadir al presupuesto</button>{product.datasheet && <a className="datasheet-link" href={datasheetIsDataUrl ? undefined : fileUrl(product.datasheet)} onClick={datasheetIsDataUrl ? (event) => { event.preventDefault(); openPdfDataUrl(product.datasheet) } : undefined}><span aria-hidden="true">↓</span>Descargar ficha técnica</a>}</div></section>
+  const cctColors = temperatureOptions.filter((option) => !isRgbValue(optionName(option))).slice(0, 3).map((option) => optionColor(option) || cctColor(optionName(option)))
+  return <section className="product-options"><h2>Opciones disponibles</h2><div className="product-option-groups">{visibleGroups.map((group) => <div className="option-group" key={group.key}><span>{group.label}</span><div>{group.key.includes('temperatura') && cctColors.length === 3 && !group.values.some(isRgbValue) && <CctSwatch colors={cctColors} />}{group.values.map((value) => <button type="button" className={selected[group.key] === value ? 'is-active' : ''} key={value} disabled={!available(group, value)} aria-pressed={selected[group.key] === value} onClick={() => select(group.key, value)}>{group.key.includes('temperatura') && isRgbValue(value) ? <>{optionSwatches(temperatureColor(value))}<span>{value}</span></> : value}</button>)}</div></div>)}</div>{quoteAttempted && !selectedReference && <p className="quote-selection-note" role="status">Selecciona una combinación válida para identificar la referencia.</p>}<div className="product-option-actions"><label className="quote-product-quantity">Cantidad<span className="quantity-stepper"><button type="button" aria-label="Reducir cantidad" onClick={() => setQuantity((current) => Math.max(1, current - 1))}>−</button><output aria-live="polite">{quantity}</output><button type="button" aria-label="Aumentar cantidad" onClick={() => setQuantity((current) => current + 1)}>+</button></span></label><button type="button" className="btn btn-primary" onClick={addVariantToQuote}><span aria-hidden="true">+</span>Añadir al presupuesto</button>{product.datasheet && <a className="datasheet-link" href={datasheetIsDataUrl ? undefined : fileUrl(product.datasheet)} onClick={datasheetIsDataUrl ? (event) => { event.preventDefault(); openPdfDataUrl(product.datasheet) } : undefined}><span aria-hidden="true">↓</span>Descargar ficha técnica</a>}</div></section>
 }
 
 function ProductTechnicalInfo({ type, value, selectedVariant }) {
@@ -332,14 +373,18 @@ function ProductTechnicalInfo({ type, value, selectedVariant }) {
    }
    if (type === 'led-strip') {
       const temperatureOptions = optionList(value.temperatures).length ? optionList(value.temperatures) : codes.map((row) => row.temperature)
-      const temperatures = [...new Set(temperatureOptions.map(optionName).filter(Boolean))]
+      const temperatures = [...new Set(temperatureOptions.map(rgbOptionName).filter(Boolean))]
+      const cctTemperatures = temperatures.filter((temperature) => !isRgbValue(temperature)).map((temperature) => Number(temperature.match(/\d{3,4}/)?.[0] || 0)).filter(Boolean)
+      const cctOnly = cctTemperatures.length >= 2 && !temperatures.some(isRgbValue)
+      const cctMin = Math.min(...cctTemperatures)
+      const cctMax = Math.max(...cctTemperatures)
       const protectionOptions = optionList(value.protections).length ? optionList(value.protections) : codes.map((row) => row.ip)
       const protections = [...new Set(protectionOptions.map(optionName).filter(Boolean))]
-     const filteredCodes = codes.filter((row) => (!selectedFinish || row.temperature === selectedFinish) && (!selectedDimension || row.ip === selectedDimension))
+      const filteredCodes = codes.filter((row) => (!cctOnly && (!selectedFinish || rgbOptionName(row.temperature) === selectedFinish) || cctOnly) && (!selectedDimension || row.ip === selectedDimension))
      const clearFilters = () => { setSelectedFinish(''); setSelectedDimension('') }
         return <div className="product-technical-block product-technical-led product-technical-strip"><TechnicalRows title="Variante seleccionada" rows={selectedTechnicalRows} />
           {(temperatures.length > 0 || protections.length > 0) && <div className="product-filter-toolbar"><span className="product-filter-heading">Opciones disponibles</span>{(selectedFinish || selectedDimension) && <button type="button" className="product-filter-clear" onClick={clearFilters}>Limpiar filtros</button>}</div>}
-         {temperatures.length > 0 && <section className="product-technical-section product-technical-led-temperature"><h3>Temperatura</h3><div className="product-filter-buttons">{temperatures.map((temperature) => { const option = temperatureOptions.find((item) => optionName(item) === temperature); return <button type="button" className={`product-filter-button${selectedFinish === temperature ? ' is-active' : ''}`} key={temperature} onClick={() => setSelectedFinish((current) => current === temperature ? '' : temperature)}>{optionColor(option) && <span className="product-finish-swatch" style={{ backgroundColor: optionColor(option) }} aria-hidden="true" />}<span>{temperature}</span></button> })}</div></section>}
+          {temperatures.length > 0 && <section className="product-technical-section product-technical-led-temperature"><h3>CCT</h3>{cctOnly ? <div className="product-cct-control"><CctTemperatureSamples temperatures={cctTemperatures.length >= 3 ? cctTemperatures.slice(0, 3) : [cctMin, Math.round((cctMin + cctMax) / 200) * 100, cctMax]} min={cctMin} max={cctMax} /></div> : <div className="product-filter-buttons">{temperatures.length === 3 && !temperatures.some(isRgbValue) && <CctSwatch colors={temperatures.map((temperature) => { const option = temperatureOptions.find((item) => rgbOptionName(item) === temperature); return optionColor(option) || cctColor(temperature) })} />}{temperatures.map((temperature) => { const option = temperatureOptions.find((item) => rgbOptionName(item) === temperature); const color = optionColor(option) || cctColor(temperature); return <button type="button" className={`product-filter-button${selectedFinish === temperature ? ' is-active' : ''}`} key={temperature} onClick={() => setSelectedFinish((current) => current === temperature ? '' : temperature)}>{isRgbValue(temperature) ? optionSwatches(color) : color && <span className="product-finish-swatch" style={{ backgroundColor: color }} aria-hidden="true" />}<span>{temperature}</span></button> })}</div>}</section>}
         {protections.length > 0 && <section className="product-technical-section product-technical-led-protection"><h3>Protección</h3><div className="product-filter-buttons">{protections.map((protection) => <button type="button" className={`product-filter-button${selectedDimension === protection ? ' is-active' : ''}`} key={protection} onClick={() => setSelectedDimension((current) => current === protection ? '' : protection)}>{protection}</button>)}</div></section>}
           {codes.length > 0 && <LedCodeTable codes={filteredCodes} temperatureOptions={temperatureOptions} />}
          <TechnicalRows title="Información básica" rows={value.ledBasic} />
@@ -357,5 +402,5 @@ function LedCodeTable({ codes, temperatureOptions }) {
     ['Protección IP', 'ip'],
     ...ledTechnicalFields.slice(0, 3),
   ]
-    return <section className="product-technical-section product-technical-codes product-led-references"><h3>Referencias</h3><p className="product-codes-intro">Selecciona la referencia según temperatura de color y protección IP.</p>{codes.length > 0 ? <div className="product-code-table-wrap product-led-references-wrapper"><table className="product-code-table product-led-references-table"><thead><tr>{columns.map(([label]) => <th key={label}>{label}</th>)}</tr></thead><tbody>{codes.map((row, index) => { const temperature = temperatureOptions.find((option) => optionName(option) === row.temperature); return <tr key={index}>{columns.map(([label, key]) => <td data-label={label} key={key}>{key === 'temperature' ? <span className="product-code-finish">{optionColor(temperature) && <span className="product-finish-swatch" style={{ backgroundColor: optionColor(temperature) }} aria-hidden="true" />}<span>{row.temperature}</span></span> : codeValue(row, key)}</td>)}</tr> })}</tbody></table></div> : <p className="product-filter-empty">No hay códigos para los filtros seleccionados.</p>}</section>
+    return <section className="product-technical-section product-technical-codes product-led-references"><h3>Referencias</h3><p className="product-codes-intro">Selecciona la referencia según temperatura de color y protección IP.</p>{codes.length > 0 ? <div className="product-code-table-wrap product-led-references-wrapper"><table className="product-code-table product-led-references-table"><thead><tr>{columns.map(([label]) => <th key={label}>{label}</th>)}</tr></thead><tbody>{codes.map((row, index) => { const temperature = temperatureOptions.find((option) => rgbOptionName(option) === rgbOptionName(row.temperature)); const color = optionColor(temperature) || cctColor(row.temperature); const isCctRange = /\bcct\b/i.test(codeValue(row, 'temperature')) && /2700/.test(codeValue(row, 'temperature')) && /4000/.test(codeValue(row, 'temperature')) && /6000/.test(codeValue(row, 'temperature')); return <tr key={index}>{columns.map(([label, key]) => <td data-label={label} key={key}>{key === 'temperature' ? isCctRange ? <CctTableSamples /> : <span className="product-code-finish">{isRgbValue(row.temperature) ? optionSwatches(color) : color && <span className="product-finish-swatch" style={{ backgroundColor: color }} aria-hidden="true" />}<span>{rgbOptionName(row.temperature)}</span></span> : codeValue(row, key)}</td>)}</tr> })}</tbody></table></div> : <p className="product-filter-empty">No hay códigos para los filtros seleccionados.</p>}</section>
 }

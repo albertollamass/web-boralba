@@ -11,11 +11,13 @@ export default function CookieBanner() {
 
   const acceptAll = () => {
     localStorage.setItem('boralba_cookies_accepted', 'all')
+    window.dispatchEvent(new Event('boralba-consent-changed'))
     setVisible(false)
   }
 
   const rejectAll = () => {
     localStorage.setItem('boralba_cookies_accepted', 'rejected')
+    window.dispatchEvent(new Event('boralba-consent-changed'))
     setVisible(false)
   }
 
@@ -45,9 +47,8 @@ export default function CookieBanner() {
         }}
       >
         <p style={{ margin: 0, flex: 1, fontSize: '0.9rem', minWidth: 260 }}>
-          Utilizamos cookies para mejorar nuestro servicio y su experiencia. Nos gustaría obtener
-          su consentimiento para poder seguir haciéndolo. Para más información pulse en los
-          Ajustes.
+          Usamos medición analítica opcional para entender el uso del catálogo. No recogemos datos
+          personales. Puedes aceptar o rechazar estas cookies.
         </p>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button className="btn btn-primary btn-sm" onClick={acceptAll}>

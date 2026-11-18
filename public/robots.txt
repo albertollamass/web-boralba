@@ -4,4 +4,18 @@ Disallow: /admin
 Disallow: /admin/login
 Disallow: /buscar?q=
 
+# Googlebot y OAI-SearchBot quedan explícitamente permitidos; las reglas
+# anteriores para User-agent * también se aplican al resto de rastreadores.
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /admin/login
+Disallow: /buscar?q=
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /admin/login
+Disallow: /buscar?q=
+
 Sitemap: https://albertollamass.github.io/web-boralba/sitemap.xml

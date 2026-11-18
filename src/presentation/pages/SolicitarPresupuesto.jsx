@@ -5,7 +5,7 @@ import { useQuote } from '../../application/quote/QuoteContext'
 
 const CAPTCHA = { num1: 12, num2: 8 }
 
-export default function SolicitarPresupuesto({ quoteSender }) {
+export default function SolicitarPresupuesto({ quoteSender, analytics }) {
   const { items, clear } = useQuote()
   const [form, setForm] = useState({ nombre: '', empresa: '', email: '', telefono: '', observaciones: '', privacidad: false, cookies: false, legal: false, website: '' })
   const [captcha, setCaptcha] = useState('')
@@ -33,7 +33,7 @@ export default function SolicitarPresupuesto({ quoteSender }) {
     try {
       const result = await quoteSender.submitQuoteRequest(data)
       if (!result.success) throw new Error(typeof result.message === 'string' ? result.message : 'No se pudo enviar la solicitud. Vuelve a intentarlo.')
-      setStatus('success'); clear()
+       setStatus('success'); analytics?.track('quote_request_success', { items_count: items.length, distinct_products: new Set(items.map((item) => item.productId || item.id)).size }); clear()
     } catch (submitError) { setStatus('error'); setError(submitError instanceof Error ? submitError.message : 'No se pudo enviar la solicitud. Comprueba tu conexión e inténtalo de nuevo.') }
   }
 

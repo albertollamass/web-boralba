@@ -70,6 +70,57 @@ export function websiteJsonLd() {
   }
 }
 
+function absoluteAssetUrl(value) {
+  if (!value) return undefined
+  if (/^https?:\/\//i.test(String(value))) return String(value)
+  return `${SITE.url}/${String(value).replace(/^\//, '')}`
+}
+
+function productProperties(product) {
+  const specs = Array.isArray(product.specs) ? product.specs : []
+  return specs
+    .filter((spec) => spec?.label && spec?.value !== undefined && spec?.value !== null && String(spec.value).trim())
+    .map((spec) => ({
+      '@type': 'PropertyValue',
+      name: String(spec.label),
+      value: `${spec.value}${spec.unit ? ` ${spec.unit}` : ''}`,
+    }))
+}
+
+export function productJsonLd(product) {
+  const variants = Array.isArray(product.variants) ? product.variants : []
+  const codes = Array.isArray(product.technicalInfo?.codes) ? product.technicalInfo.codes : []
+  const variantItems = [...variants, ...codes]
+    .map((variant) => {
+      const sku = variant?.sku || variant?.ref || variant?.reference || variant?.code
+      if (!sku) return null
+      return {
+        '@type': 'Product',
+        name: product.name,
+        sku: String(sku),
+        brand: { '@type': 'Brand', name: 'Boralba Lighting' },
+        isVariantOf: { '@type': 'ProductGroup', name: product.name },
+        additionalProperty: Object.entries(variant)
+          .filter(([key, value]) => !['sku', 'ref', 'reference', 'code', 'image'].includes(key) && (typeof value === 'string' || typeof value === 'number'))
+          .map(([name, value]) => ({ '@type': 'PropertyValue', name, value: String(value) })),
+      }
+    })
+    .filter(Boolean)
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': variantItems.length > 0 ? 'ProductGroup' : 'Product',
+    name: product.name,
+    description: product.description || undefined,
+    sku: variantItems.length > 0 ? undefined : product.ref || undefined,
+    productGroupID: variantItems.length > 0 ? product.id : undefined,
+    image: [product.image, ...(Array.isArray(product.gallery) ? product.gallery : [])].map(absoluteAssetUrl).filter(Boolean),
+    brand: { '@type': 'Brand', name: 'Boralba Lighting' },
+    additionalProperty: productProperties(product),
+    hasVariant: variantItems.length > 0 ? variantItems : undefined,
+  }
+}
+
 export function breadcrumbJsonLd(items) {
   return {
     '@context': 'https://schema.org',

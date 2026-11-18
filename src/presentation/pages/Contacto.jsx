@@ -79,6 +79,20 @@ export default function Contacto() {
       data.append('subject', `Nueva consulta de contacto — ${form.nombre.trim()}`)
       data.append('from_name', form.nombre.trim())
       data.append('replyto', form.email.trim())
+      data.append(
+        'message',
+        [
+          'NUEVA CONSULTA DE CONTACTO',
+          '',
+          `Nombre: ${form.nombre.trim()}`,
+          `Email: ${form.email.trim()}`,
+          `Teléfono: ${form.telefono.trim() || 'No indicado'}`,
+          `Tipo de consulta: ${form.tipo || 'No indicado'}`,
+          '',
+          'MENSAJE',
+          form.mensaje.trim() || 'Sin mensaje',
+        ].join('\n')
+      )
       data.append('Nombre', form.nombre.trim())
       data.append('email', form.email.trim())
       data.append('Teléfono', form.telefono.trim() || 'No indicado')

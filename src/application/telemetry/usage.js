@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { logError } from '../logging/logger.js'
 
 /**
  * Crea el servicio de telemetría de lecturas (cuota diaria de la base de datos).

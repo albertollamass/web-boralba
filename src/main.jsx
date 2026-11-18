@@ -21,6 +21,7 @@ import { localContactDirectory } from './infrastructure/browser/localContactDire
 import { cloudinaryDocumentStorage } from './infrastructure/documents/documentStorage.js'
 import { firestoreLogger } from './infrastructure/logging/firestoreLogger.js'
 import { QuoteProvider } from './application/quote/QuoteContext.jsx'
+import { createGoogleAnalytics } from './infrastructure/analytics/googleAnalytics.js'
 
 configureLogger(firestoreLogger)
 
@@ -29,6 +30,7 @@ const telemetry = createTelemetry({
   mailer: webformsMailer,
   contactDirectory: localContactDirectory,
 })
+const analytics = createGoogleAnalytics()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -39,7 +41,8 @@ createRoot(document.getElementById('root')).render(
               <QuoteProvider>
                 <App
                   backendEnabled={isFirebaseConfigured}
-                  telemetry={telemetry}
+                   telemetry={telemetry}
+                   analytics={analytics}
                   documentStorage={cloudinaryDocumentStorage}
                   quoteSender={webformsQuoteSender}
                 />

@@ -92,7 +92,7 @@ function ProductTile({ product, label }) {
   )
 }
 
-export default function Productos() {
+export default function Productos({ analytics }) {
   const { products, hydrated } = useProducts()
   const { categories, ROOT, getCategory, getChildren, getBreadcrumb, getCategoryPathLabel, getDescendantSlugs, hydrated: categoriesHydrated } = useCategories()
   const { settings } = useSiteSettings()
@@ -253,6 +253,7 @@ export default function Productos() {
     setInput(clean)
     setSuggestionsOpen(false)
     setParams({ q: clean })
+    analytics?.track('search', { search_term: clean.slice(0, 80), results_count: searchProducts(productsWithCategory, clean, { synonyms: settings.searchSynonyms }).length })
   }
 
   /* Al navegar a una categoría, espera a que el bloque exista y compensa la cabecera fija. */

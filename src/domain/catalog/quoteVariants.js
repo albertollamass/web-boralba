@@ -9,6 +9,20 @@ const fieldLabels = {
   dimensions: 'Dimensiones',
 }
 
+const rgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen|reen)?|v(?:erde)?|b(?:lue|lue)?|azul)$/i.test(clean(value))
+const productHasRgb = (product) => {
+  const info = product?.technicalInfo || {}
+  const text = [product?.name, product?.category, ...(product?.categories || []), info.temperatures, ...(info.codes || []).map((code) => code.temperature)].flat().join(' ')
+  return /\brgb\b/i.test(text) || text.split(/[;,\s]+/).filter(Boolean).some(rgbChannel)
+}
+
+const normalizeTemperature = (value, isRgb) => {
+  const normalized = clean(value)
+  if (!isRgb || !normalized) return normalized
+  if (rgbChannel(normalized)) return 'RGB'
+  return normalized.replace(/\brgb\b/ig, 'RGB')
+}
+
 function rowsFromVariant(variant) {
   const rows = Array.isArray(variant.attributes)
     ? variant.attributes
@@ -19,9 +33,10 @@ function rowsFromVariant(variant) {
 export function variantCandidates(product) {
   const codes = Array.isArray(product?.technicalInfo?.codes) ? product.technicalInfo.codes : []
   const variants = Array.isArray(product?.variants) ? product.variants : []
+  const isRgb = productHasRgb(product)
   const candidates = [
-    ...codes.map((code) => ({ ...code, reference: clean(code.code || code.reference || code.ref), rows: Object.entries(fieldLabels).map(([key, label]) => ({ label, value: clean(code[key]) })).filter((row) => row.value) })),
-    ...variants.map((variant) => ({ ...variant, reference: clean(variant.reference || variant.ref || variant.code), rows: rowsFromVariant(variant) })),
+    ...codes.map((code) => ({ ...code, temperature: normalizeTemperature(code.temperature, isRgb), reference: clean(code.code || code.reference || code.ref), rows: Object.entries(fieldLabels).map(([key, label]) => ({ label, value: key === 'temperature' ? normalizeTemperature(code[key], isRgb) : clean(code[key]) })).filter((row) => row.value) })),
+    ...variants.map((variant) => ({ ...variant, reference: clean(variant.reference || variant.ref || variant.code), rows: rowsFromVariant(variant).map((row) => ({ ...row, value: labelKey(row.label).includes('temperatura') ? normalizeTemperature(row.value, isRgb) : row.value })) })),
   ].filter((variant) => variant.reference)
   return candidates.filter((variant, index, values) => values.findIndex((candidate) => candidate.reference === variant.reference) === index)
 }

@@ -20,6 +20,7 @@ import AdminLogin from './presentation/admin/AdminLogin'
 import AdminPanel from './presentation/admin/AdminPanel'
 import { useAuth } from './application/identity/AuthContext'
 import ScrollToTop from './presentation/components/ScrollToTop'
+import { useAnalyticsPageView } from './application/analytics/useAnalyticsPageView.js'
 
 const BASENAME = import.meta.env.PROD ? '/web-boralba' : '/'
 
@@ -60,25 +61,26 @@ function CategoriaRedirect() {
   )
 }
 
-export default function App({ backendEnabled, telemetry, documentStorage, quoteSender }) {
+export default function App({ backendEnabled, telemetry, analytics, documentStorage, quoteSender }) {
   return (
     <BrowserRouter basename={BASENAME}>
       <ScrollToTop />
+      <AnalyticsPageViews analytics={analytics} />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/productos" element={<Productos />} />
           <Route path="/categoria/:slug" element={<CategoriaRedirect />} />
-          <Route path="/producto/:id" element={<ProductoDetalle />} />
+          <Route path="/producto/:id" element={<ProductoDetalle analytics={analytics} />} />
           <Route path="/outlet" element={<Outlet />} />
-          <Route path="/buscar" element={<Buscar />} />
+          <Route path="/buscar" element={<Buscar analytics={analytics} />} />
           <Route path="/proyectos" element={<Proyectos />} />
           <Route path="/proyectos/:categoria/:slug" element={<ProyectoDetalle />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/empresa" element={<Empresa />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/presupuesto" element={<MiPresupuesto />} />
-          <Route path="/presupuesto/solicitar" element={<SolicitarPresupuesto quoteSender={quoteSender} />} />
+          <Route path="/presupuesto/solicitar" element={<SolicitarPresupuesto quoteSender={quoteSender} analytics={analytics} />} />
           <Route path="/disena-tu-luminaria" element={<DisenaTuLuminaria quoteSender={quoteSender} />} />
           <Route path="/legal/:slug" element={<Legal />} />
         </Route>
@@ -87,7 +89,7 @@ export default function App({ backendEnabled, telemetry, documentStorage, quoteS
           path="/admin"
           element={
             <AdminRoute backendEnabled={backendEnabled}>
-              <AdminPanel telemetry={telemetry} documentStorage={documentStorage} />
+              <AdminPanel telemetry={telemetry} analytics={analytics} documentStorage={documentStorage} />
             </AdminRoute>
           }
         />
@@ -97,4 +99,9 @@ export default function App({ backendEnabled, telemetry, documentStorage, quoteS
       </Routes>
     </BrowserRouter>
   )
+}
+
+function AnalyticsPageViews({ analytics }) {
+  useAnalyticsPageView(analytics)
+  return null
 }

@@ -151,7 +151,34 @@ export default function DisenaTuLuminaria({ quoteSender }) {
       const data = new FormData()
       data.append('subject', `Solicitud · Diseña tu luminaria — ${form.nombre.trim()}`)
       data.append('from_name', form.nombre.trim())
+      data.append('email', form.email.trim())
       data.append('website', honey)
+      data.append(
+        'message',
+        [
+          'SOLICITUD DE DISEÑO DE LUMINARIA',
+          '',
+          `Nombre: ${form.nombre.trim()}`,
+          `Empresa: ${form.empresa.trim() || 'No indicada'}`,
+          `Email: ${form.email.trim()}`,
+          `Teléfono: ${form.telefono.trim() || 'No indicado'}`,
+          '',
+          'ESPECIFICACIONES',
+          `Medidas: ${form.medidas.trim()}`,
+          `Potencia: ${form.potencia.trim()}`,
+          `Temperatura de color: ${form.temp === 'Otra' ? `Otra: ${form.tempOtra.trim() || 'sin especificar'}` : form.temp}`,
+          `CRI: ${form.cri}`,
+          `Acabado: ${form.acabado.trim() || 'Sin especificar'}`,
+          `Óptica: ${form.opticaNoSe ? 'No lo sé' : form.optica.trim() || 'Sin especificar'}`,
+          `Control: ${form.control === 'Otro' ? `Otro: ${form.controlOtra.trim() || 'sin especificar'}` : form.control || 'Sin especificar'}`,
+          `Integración: ${form.integracion === 'Otra' ? `Otra: ${form.integracionOtra.trim() || 'sin especificar'}` : form.integracion}`,
+          '',
+          'IDEA / DESCRIPCIÓN DEL PROYECTO',
+          form.idea.trim(),
+          '',
+          `Adjuntos: ${archivos.length ? `${archivos.length} archivo(s)` : 'No'}`,
+        ].join('\n')
+      )
       data.append('Medidas', form.medidas.trim())
       data.append('Potencia', form.potencia.trim())
       data.append(
