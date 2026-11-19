@@ -1366,6 +1366,7 @@ p {
 .product-cct-samples > span { display: flex; justify-content: space-between; color: #555; font-size: .68rem; }
 .product-cct-samples small { font-size: .68rem; white-space: nowrap; }
 .product-cct-table-samples { display: inline-grid; width: 108px; gap: 4px; }
+.product-cct-table-samples strong { font-size: .68rem; font-weight: 600; }
 .product-cct-table-gradient { display: block; width: 108px; height: 8px; border: 1px solid rgba(23, 23, 23, .2); border-radius: 999px; }
 .product-cct-table-samples > span { display: flex; justify-content: space-between; color: #555; font-size: .58rem; }
 .product-cct-table-samples small { font-size: .58rem; white-space: nowrap; }
