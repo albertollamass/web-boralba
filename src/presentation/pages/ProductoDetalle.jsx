@@ -326,7 +326,7 @@ function ProductOptions({ product, analytics, onVariantChange }) {
   const candidates = variantCandidates(product)
   const groups = variantGroups(candidates)
   const cctOnly = isCctOnlyProduct(product)
-  const visibleGroups = groups
+  const visibleGroups = groups.filter((group) => !(cctOnly && group.key.includes('temperatura')))
   const [selected, setSelected] = useState(() => Object.fromEntries(groups.map((group) => [group.key, ''])))
   const [quantity, setQuantity] = useState(1)
   const [quoteAttempted, setQuoteAttempted] = useState(false)
@@ -371,7 +371,7 @@ function ProductTechnicalInfo({ type, value, selectedVariant }) {
    if (type === 'led-strip') {
       const temperatureOptions = optionList(value.temperatures).length ? optionList(value.temperatures) : codes.map((row) => row.temperature)
       const temperatures = [...new Set(temperatureOptions.map(rgbOptionName).filter(Boolean))]
-      const cctTemperatures = temperatures.filter((temperature) => !isRgbValue(temperature)).map((temperature) => Number(temperature.match(/\d{3,4}/)?.[0] || 0)).filter(Boolean)
+      const cctTemperatures = [...new Set(temperatureOptions.filter((temperature) => !isRgbValue(temperature)).flatMap((temperature) => clean(optionName(temperature)).match(/\d{3,4}/g)?.map(Number) || []))].sort((a, b) => a - b)
       const cctOnly = value.cct === true
       const cctMin = Math.min(...cctTemperatures)
       const cctMax = Math.max(...cctTemperatures)
