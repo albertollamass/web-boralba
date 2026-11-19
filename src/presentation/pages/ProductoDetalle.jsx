@@ -77,7 +77,7 @@ const cctHex = (kelvin, min, max) => {
 }
 const isCctOnlyProduct = (product) => {
   const temperatures = optionList(product?.technicalInfo?.temperatures)
-  return temperatures.filter((temperature) => !isRgbValue(temperature)).length >= 2 && !temperatures.some(isRgbValue)
+  return Boolean(product?.technicalInfo?.cct) || (temperatures.some((temperature) => /\bcct\b/i.test(optionName(temperature))) && temperatures.filter((temperature) => !isRgbValue(temperature)).length >= 2 && !temperatures.some(isRgbValue))
 }
 const isRgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen)?|v(?:erde)?|b(?:lue)?|azul)$/i.test(clean(value))
 const isRgbValue = (value) => clean(value).toUpperCase() === 'RGB' || isRgbChannel(value) || /\brgb\b/i.test(clean(value))

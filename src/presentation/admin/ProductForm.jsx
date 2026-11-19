@@ -45,7 +45,6 @@ const cctColor = (value) => {
   return ''
 }
 const temperatureSwatch = (color) => color ? <span className="product-temperature-swatch" style={{ backgroundColor: color }} aria-hidden="true" /> : null
-const cctSwatch = (items) => <span className="product-cct-swatch" aria-label="Temperaturas CCT configuradas">{items.slice(0, 3).map((item, index) => <i key={index} style={{ backgroundColor: item.color || cctColor(item.name) || '#fff' }} />)}</span>
 const hasRgbData = (value, codes = []) => {
   const temperatures = [...(Array.isArray(value) ? value : []), ...codes.map((code) => code.temperature)].map(optionName)
   return temperatures.some((temperature) => temperature.toUpperCase() === 'RGB') || new Set(temperatures.filter(isRgbChannel).map((temperature) => temperature.toLowerCase())).size > 1
@@ -425,8 +424,9 @@ function TechnicalEditor({ type, value, onChange }) {
   </>
 
   return <>
-    <h3>Información técnica de la tira LED</h3>
-    <p className="admin-help">Define las opciones disponibles y después vincula cada código con su temperatura y protección IP.</p>
+     <h3>Información técnica de la tira LED</h3>
+     <p className="admin-help">Define las opciones disponibles y después vincula cada código con su temperatura y protección IP.</p>
+     <label className="check"><input type="checkbox" checked={Boolean(value.cct)} onChange={(event) => onChange({ ...value, cct: event.target.checked })} /> Producto CCT: mostrar rango continuo de temperatura</label>
       <h4>Temperaturas de color</h4>
      <TemperatureOptionEditor items={value.temperatures} onChange={(temperatures) => onChange({ ...value, temperatures })} />
      <h4>Dimensiones disponibles</h4>
@@ -469,13 +469,11 @@ function OptionEditor({ items, placeholder, onChange }) {
 function TemperatureOptionEditor({ items, onChange }) {
   const update = (index, field, nextValue) => onChange(items.map((item, i) => i === index ? { ...item, [field]: nextValue } : item))
   const isHex = (color) => /^#[0-9a-f]{6}$/i.test(color)
-  const cctItems = items.filter((item) => !isRgbTemperature(item.name) && /\d{3,4}/.test(item.name)).sort((a, b) => Number(a.name.match(/\d{3,4}/)?.[0] || 0) - Number(b.name.match(/\d{3,4}/)?.[0] || 0))
   const addCct = () => {
     const presets = [{ name: '2700 K', color: '#ffb36b' }, { name: '4000 K', color: '#fff1d6' }, { name: '6000 K', color: '#dbe9ff' }]
     onChange([...items, ...presets.filter((preset) => !items.some((item) => item.name === preset.name))])
   }
-  const cctGradient = cctItems.length >= 2 ? `linear-gradient(90deg, ${cctItems.map((item) => item.color || cctColor(item.name)).join(', ')})` : ''
-  return <div className="technical-editor-list"><p className="admin-help">CCT usa un rango continuo. Añade al menos dos temperaturas en Kelvin; el selector público interpolará el degradado entre ellas.</p>{cctItems.length >= 2 && <div className="admin-cct-preview"><strong>Vista previa CCT</strong><span className="admin-cct-gradient" style={{ background: cctGradient }} /><small>{cctItems[0].name} · {cctItems[cctItems.length - 1].name}</small></div>}{items.filter((item) => !isRgbTemperature(item.name)).length >= 3 && <div className="admin-help">Vista conjunta CCT: {cctSwatch(items.filter((item) => !isRgbTemperature(item.name)))}</div>}{items.map((item, index) => <div className="technical-editor-row technical-option-row" key={index}><input value={item.name} onChange={(event) => update(index, 'name', normalizeAdminTemperature(event.target.value))} placeholder="Ej. 3000 K, RGB o RGB + 3000 K" />{isRgbTemperature(item.name) ? <span className="product-option-swatches"><span className="product-rgb-swatch" aria-hidden="true"><i /><i /><i /></span>{item.name.toUpperCase() !== 'RGB' && temperatureSwatch(item.color || cctColor(item.name))}</span> : <span className="technical-color-preview" style={{ backgroundColor: item.color || cctColor(item.name) || 'transparent' }} aria-label={item.color ? `Color ${item.color}` : 'Color automático según temperatura'} />}<input className="technical-color-picker" type="color" value={isHex(item.color) ? item.color : '#ffffff'} onChange={(event) => update(index, 'color', event.target.value)} aria-label="Elegir color" /><input type="text" value={item.color} onChange={(event) => update(index, 'color', event.target.value)} placeholder="Color CSS o hexadecimal" /><button type="button" className="btn btn-danger btn-sm" onClick={() => onChange(items.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => onChange([...items, { name: '', color: '' }])}>+ Añadir temperatura</button><button type="button" className="btn btn-ghost btn-sm" onClick={addCct}>+ Crear rango CCT 2700 / 4000 / 6000 K</button></div>
+  return <div className="technical-editor-list"><p className="admin-help">Marca “Producto CCT” arriba para mostrar el rango continuo. En productos normales, cada temperatura conserva su círculo y color independiente.</p>{items.map((item, index) => <div className="technical-editor-row technical-option-row" key={index}><input value={item.name} onChange={(event) => update(index, 'name', normalizeAdminTemperature(event.target.value))} placeholder="Ej. 3000 K, RGB o RGB + 3000 K" />{isRgbTemperature(item.name) ? <span className="product-option-swatches"><span className="product-rgb-swatch" aria-hidden="true"><i /><i /><i /></span>{item.name.toUpperCase() !== 'RGB' && temperatureSwatch(item.color || cctColor(item.name))}</span> : <span className="technical-color-preview" style={{ backgroundColor: item.color || cctColor(item.name) || 'transparent' }} aria-label={item.color ? `Color ${item.color}` : 'Color automático según temperatura'} />}<input className="technical-color-picker" type="color" value={isHex(item.color) ? item.color : '#ffffff'} onChange={(event) => update(index, 'color', event.target.value)} aria-label="Elegir color" /><input type="text" value={item.color} onChange={(event) => update(index, 'color', event.target.value)} placeholder="Color CSS o hexadecimal" /><button type="button" className="btn btn-danger btn-sm" onClick={() => onChange(items.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => onChange([...items, { name: '', color: '' }])}>+ Añadir temperatura</button><button type="button" className="btn btn-ghost btn-sm" onClick={addCct}>+ Crear rango CCT 2700 / 4000 / 6000 K</button></div>
 }
 
 function Repeater({ items, children, onMove, onReorder, onRemove, itemClass = '' }) {
