@@ -326,7 +326,7 @@ function ProductOptions({ product, analytics, onVariantChange }) {
   const candidates = variantCandidates(product)
   const groups = variantGroups(candidates)
   const cctOnly = isCctOnlyProduct(product)
-  const visibleGroups = groups.filter((group) => !(cctOnly && group.key.includes('temperatura')))
+  const visibleGroups = groups
   const [selected, setSelected] = useState(() => Object.fromEntries(groups.map((group) => [group.key, ''])))
   const [quantity, setQuantity] = useState(1)
   const [quoteAttempted, setQuoteAttempted] = useState(false)
