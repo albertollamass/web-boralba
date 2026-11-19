@@ -75,8 +75,10 @@ const cctHex = (kelvin, min, max) => {
   const ratio = Math.max(0, Math.min(1, (kelvin - min) / Math.max(1, max - min)))
   return `#${start.map((channel, index) => Math.round(channel + (end[index] - channel) * ratio).toString(16).padStart(2, '0')).join('')}`
 }
+const hasCombinedCctValue = (temperatures) => optionList(temperatures).some((temperature) => /\bcct\b/i.test(optionName(temperature)) && (optionName(temperature).match(/\d{3,4}/g) || []).length >= 2)
 const isCctOnlyProduct = (product) => {
-  return product?.technicalInfo?.cct === true
+  const info = product?.technicalInfo || {}
+  return info.cct === true || hasCombinedCctValue([...(info.temperatures || []), ...(info.codes || []).map((code) => code.temperature || code.cct)])
 }
 const isRgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen)?|v(?:erde)?|b(?:lue)?|azul)$/i.test(clean(value))
 const isRgbValue = (value) => clean(value).toUpperCase() === 'RGB' || isRgbChannel(value) || /\brgb\b/i.test(clean(value))
@@ -372,7 +374,7 @@ function ProductTechnicalInfo({ type, value, selectedVariant }) {
       const temperatureOptions = optionList(value.temperatures).length ? optionList(value.temperatures) : codes.map((row) => row.temperature)
       const temperatures = [...new Set(temperatureOptions.map(rgbOptionName).filter(Boolean))]
       const cctTemperatures = [...new Set(temperatureOptions.filter((temperature) => !isRgbValue(temperature)).flatMap((temperature) => clean(optionName(temperature)).match(/\d{3,4}/g)?.map(Number) || []))].sort((a, b) => a - b)
-      const cctOnly = value.cct === true
+      const cctOnly = value.cct === true || hasCombinedCctValue([...(value.temperatures || []), ...codes.map((code) => code.temperature || code.cct)])
       const cctMin = Math.min(...cctTemperatures)
       const cctMax = Math.max(...cctTemperatures)
       const protectionOptions = optionList(value.protections).length ? optionList(value.protections) : codes.map((row) => row.ip)
