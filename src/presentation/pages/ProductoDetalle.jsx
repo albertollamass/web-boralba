@@ -372,7 +372,7 @@ function ProductTechnicalInfo({ type, value, selectedVariant }) {
       const temperatureOptions = optionList(value.temperatures).length ? optionList(value.temperatures) : codes.map((row) => row.temperature)
       const temperatures = [...new Set(temperatureOptions.map(rgbOptionName).filter(Boolean))]
       const cctTemperatures = temperatures.filter((temperature) => !isRgbValue(temperature)).map((temperature) => Number(temperature.match(/\d{3,4}/)?.[0] || 0)).filter(Boolean)
-      const cctOnly = cctTemperatures.length >= 2 && !temperatures.some(isRgbValue)
+      const cctOnly = value.cct === true
       const cctMin = Math.min(...cctTemperatures)
       const cctMax = Math.max(...cctTemperatures)
       const protectionOptions = optionList(value.protections).length ? optionList(value.protections) : codes.map((row) => row.ip)
