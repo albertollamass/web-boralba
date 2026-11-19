@@ -97,7 +97,7 @@ const technicalCode = (row = {}) => ({
   ...row,
   code: row.code || '',
   power: row.power || '',
-  temperature: row.temperature || '',
+  temperature: row.temperature || row.cct || '',
   cri: row.cri || '',
   luminousFlux: row.luminousFlux || '',
   voltage: row.voltage || '',
@@ -417,14 +417,14 @@ function TechnicalEditor({ type, value, onChange }) {
     {renderRows('profileDimensions', [['label', 'Medida'], ['value', 'Valor']], 'dimensión')}
   </>
 
-  if (type !== 'led-strip') return <>
+  if (!['led-strip', 'neon-flex'].includes(type)) return <>
     <h3>Datos específicos</h3>
     <p className="admin-help">Añade los valores propios de {productTypeLabels[type] || 'este producto'}.</p>
     {renderRows('general', [['label', 'Característica'], ['value', 'Valor']], 'dato técnico')}
   </>
 
   return <>
-     <h3>Información técnica de la tira LED</h3>
+     <h3>Información técnica de {type === 'neon-flex' ? 'neón flexible' : 'la tira LED'}</h3>
      <p className="admin-help">Define las opciones disponibles y después vincula cada código con su temperatura y protección IP.</p>
      <label className="check"><input type="checkbox" checked={Boolean(value.cct)} onChange={(event) => onChange({ ...value, cct: event.target.checked })} /> Producto CCT: mostrar rango continuo de temperatura</label>
       <h4>Temperaturas de color</h4>
@@ -445,15 +445,15 @@ function CodeEditor({ value, onChange, type, finishes = [], dimensions = [], tem
     downlight: [['code', 'Referencia'], ['power', 'Potencia'], ['luminousFlux', 'Flujo luminoso'], ['dimensions', 'Dimensiones'], ['cct', 'Temperatura de color'], ['cri', 'CRI'], ['beamAngle', 'Ángulo de apertura'], ['ip', 'IP']],
     driver: [['code', 'Referencia'], ['power', 'Potencia'], ['voltage', 'Tensión'], ['current', 'Intensidad'], ['dimming', 'Regulación'], ['ip', 'IP']],
     watertight: [['code', 'Referencia'], ['power', 'Potencia'], ['luminousFlux', 'Flujo luminoso'], ['length', 'Longitud'], ['cct', 'Temperatura de color'], ['ip', 'IP'], ['ik', 'IK']],
-    'neon-flex': [['code', 'Referencia'], ['power', 'Potencia'], ['cct', 'Temperatura de color'], ['dimensions', 'Dimensiones'], ['ip', 'IP']],
+     'neon-flex': [['code', 'Referencia'], ['power', 'Potencia'], ['cct', 'Temperatura de color'], ['dimensions', 'Dimensiones'], ['ip', 'IP']],
     generic: [['code', 'Referencia'], ['power', 'Potencia'], ['voltage', 'Tensión'], ['dimensions', 'Dimensiones'], ['ip', 'IP']],
   }
   const fields = fieldSets[type] || fieldSets.generic
-  const update = (index, field, nextValue) => onChange(value.map((row, i) => i === index ? { ...row, [field]: nextValue } : row))
+  const update = (index, field, nextValue) => onChange(value.map((row, i) => i === index ? { ...row, [field]: nextValue, ...(type === 'neon-flex' && field === 'cct' ? { temperature: nextValue } : {}) } : row))
    const temperatureOptions = [...new Set([...temperatures.map(optionName), ...value.map((row) => row.temperature)].filter(Boolean))]
    const protectionOptions = [...new Set([...protections.map(optionName), ...value.map((row) => row.ip)].filter(Boolean))]
    const dimensionOptions = [...new Set([...dimensions.map((dimension) => [dimension.label, dimension.value].filter(Boolean).join(' · ')), ...value.map((row) => row.dimensions)].filter(Boolean))]
-   const inputFor = (row, index, [field, label]) => (type === 'profile' && field !== 'code') || (type === 'led-strip' && ['temperature', 'dimensions', 'ip'].includes(field)) ? <select key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)}><option value="">{label}</option>{(type === 'profile' ? (field === 'finish' ? [...new Set([...finishes.map((finish) => finish.name), ...value.map((item) => item.finish)])].filter(Boolean) : [...new Set([...dimensions.map((dimension) => [dimension.label, dimension.value].filter(Boolean).join(' · ')), ...value.map((item) => item.dimensions)])].filter(Boolean)) : field === 'temperature' ? temperatureOptions : field === 'dimensions' ? dimensionOptions : protectionOptions).map((option) => <option key={option} value={option}>{option}</option>)}</select> : <input key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)} placeholder={label} />
+    const inputFor = (row, index, [field, label]) => (type === 'profile' && field !== 'code') || (type === 'led-strip' && ['temperature', 'dimensions', 'ip'].includes(field)) || (type === 'neon-flex' && ['cct', 'ip'].includes(field)) ? <select key={field} value={row[field] || (field === 'cct' ? row.temperature : '')} onChange={(event) => update(index, field, event.target.value)}><option value="">{label}</option>{(type === 'profile' ? (field === 'finish' ? [...new Set([...finishes.map((finish) => finish.name), ...value.map((item) => item.finish)])].filter(Boolean) : [...new Set([...dimensions.map((dimension) => [dimension.label, dimension.value].filter(Boolean).join(' · ')), ...value.map((item) => item.dimensions)])].filter(Boolean)) : field === 'temperature' || field === 'cct' ? temperatureOptions : field === 'dimensions' ? dimensionOptions : protectionOptions).map((option) => <option key={option} value={option}>{option}</option>)}</select> : <input key={field} value={row[field]} onChange={(event) => update(index, field, event.target.value)} placeholder={label} />
   return <div className="technical-code-editor"><div className="technical-editor-list">{value.map((row, index) => <div className="technical-code-row" key={index}>{fields.map((field) => inputFor(row, index, field))}<button type="button" className="btn btn-danger btn-sm" onClick={() => onChange(value.filter((_, i) => i !== index))}>Eliminar</button></div>)}<button type="button" className="btn btn-ghost btn-sm" onClick={() => onChange([...value, technicalCode()])}>+ Añadir código</button></div></div>
 }
 

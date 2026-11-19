@@ -35,7 +35,7 @@ export function variantCandidates(product) {
   const variants = Array.isArray(product?.variants) ? product.variants : []
   const isRgb = productHasRgb(product)
   const candidates = [
-    ...codes.map((code) => ({ ...code, temperature: normalizeTemperature(code.temperature, isRgb), reference: clean(code.code || code.reference || code.ref), rows: Object.entries(fieldLabels).map(([key, label]) => ({ label, value: key === 'temperature' ? normalizeTemperature(code[key], isRgb) : clean(code[key]) })).filter((row) => row.value) })),
+    ...codes.map((code) => ({ ...code, temperature: normalizeTemperature(code.temperature || code.cct, isRgb), reference: clean(code.code || code.reference || code.ref), rows: Object.entries(fieldLabels).map(([key, label]) => ({ label, value: key === 'temperature' ? normalizeTemperature(code[key] || code.cct, isRgb) : clean(code[key]) })).filter((row) => row.value) })),
     ...variants.map((variant) => ({ ...variant, reference: clean(variant.reference || variant.ref || variant.code), rows: rowsFromVariant(variant).map((row) => ({ ...row, value: labelKey(row.label).includes('temperatura') ? normalizeTemperature(row.value, isRgb) : row.value })) })),
   ].filter((variant) => variant.reference)
   return candidates.filter((variant, index, values) => values.findIndex((candidate) => candidate.reference === variant.reference) === index)

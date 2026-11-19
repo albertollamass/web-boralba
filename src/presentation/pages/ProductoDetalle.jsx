@@ -39,10 +39,10 @@ const technicalFamily = (product, trail = []) => {
   const technicalInfo = product.technicalInfo || {}
   if (categoryText.includes('perfil') || (technicalInfo.profileFinishes || []).length > 0) return 'profile'
   if ((categoryText.includes('tira') && !categoryText.includes('neon') && !categoryText.includes('neón')) || (technicalInfo.ledBasic || []).length > 0 || (technicalInfo.ledDimensions || []).length > 0 || (technicalInfo.codes || []).some((code) => code.temperature || code.ip || code.power)) return 'led-strip'
-  return technicalInfo.type || ''
+  return technicalInfo.type === 'neon-flex' ? 'led-strip' : technicalInfo.type || ''
 }
 const technicalRows = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && (row.label || row.value))
-const technicalCodes = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && Object.values(row).some(Boolean))
+const technicalCodes = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row && Object.values(row).some(Boolean)).map((row) => row.temperature || !row.cct ? row : { ...row, temperature: row.cct })
 const clean = (value) => String(value == null ? '' : value).trim()
 const presentationBenefitText = (value) => String(value || '').replace(/^\s*[-–—]\s+/, '')
 const familyFromText = (text) => {
