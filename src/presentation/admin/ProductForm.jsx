@@ -32,7 +32,6 @@ const commaText = (value) => (Array.isArray(value) ? value.join(', ') : value ||
 const dataUrl = (value) => typeof value === 'string' && value.startsWith('data:')
 const uniqueValues = (values) => [...new Set(values.map((value) => String(value || '').trim()).filter(Boolean))]
 const optionName = (option) => typeof option === 'string' ? option.trim() : String(option?.name || option?.label || option?.value || '').trim()
-const isRgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen)?|v(?:erde)?|b(?:lue)?|azul)$/i.test(String(value || '').trim())
 const isRgbTemperature = (value) => String(value || '').trim().toUpperCase() === 'RGB' || /\brgb\b/i.test(String(value || ''))
 const normalizeAdminTemperature = (value) => String(value || '').trim().replace(/\brgb\b/ig, 'RGB')
 const cctColor = (value) => {
@@ -47,7 +46,7 @@ const cctColor = (value) => {
 const temperatureSwatch = (color) => color ? <span className="product-temperature-swatch" style={{ backgroundColor: color }} aria-hidden="true" /> : null
 const hasRgbData = (value, codes = []) => {
   const temperatures = [...(Array.isArray(value) ? value : []), ...codes.map((code) => code.temperature)].map(optionName)
-  return temperatures.some((temperature) => temperature.toUpperCase() === 'RGB') || new Set(temperatures.filter(isRgbChannel).map((temperature) => temperature.toLowerCase())).size > 1
+  return temperatures.some((temperature) => /\brgb\b/i.test(temperature))
 }
 const normalizeRgbTemperature = (value, isRgb) => isRgb && isRgbTemperature(value) ? 'RGB' : String(value || '').trim()
 const normalizeTemperatureOptions = (value, isRgb = false) => (Array.isArray(value) ? value : []).map((option) => ({ name: normalizeRgbTemperature(optionName(option), isRgb), color: option?.color || '' })).filter((option) => option.name).filter((option, index, options) => options.findIndex((item) => item.name === option.name) === index)

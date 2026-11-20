@@ -9,17 +9,15 @@ const fieldLabels = {
   dimensions: 'Dimensiones',
 }
 
-const rgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen|reen)?|v(?:erde)?|b(?:lue|lue)?|azul)$/i.test(clean(value))
 const productHasRgb = (product) => {
   const info = product?.technicalInfo || {}
   const text = [product?.name, product?.category, ...(product?.categories || []), info.temperatures, ...(info.codes || []).map((code) => code.temperature)].flat().join(' ')
-  return /\brgb\b/i.test(text) || new Set(text.split(/[;,\s]+/).filter(rgbChannel).map((channel) => channel.toLowerCase())).size >= 2
+  return /\brgb\b/i.test(text)
 }
 
 const normalizeTemperature = (value, isRgb) => {
   const normalized = clean(value)
   if (!isRgb || !normalized) return normalized
-  if (rgbChannel(normalized)) return 'RGB'
   return normalized.replace(/\brgb\b/ig, 'RGB')
 }
 
