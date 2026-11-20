@@ -16093,6 +16093,150 @@ textarea {
   }
 }
 
+/* Composición definitiva de "Completa la solución". */
+.product-page .solution-section {
+  box-sizing: border-box;
+  padding: 36px !important;
+  background: #f7f7f5 !important;
+}
+.product-page .solution-section .section-head { margin: 0 0 26px; }
+.product-page .solution-section .solution-list {
+  display: grid !important;
+  width: 100%;
+  max-width: none !important;
+  align-items: stretch;
+  gap: 32px 28px !important;
+  border: 0 !important;
+}
+.product-page .solution-section .solution-list.solution-count-1 { grid-template-columns: 1fr !important; }
+.product-page .solution-section .solution-list.solution-count-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+.product-page .solution-section .solution-list.solution-count-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.product-page .solution-section .solution-list.solution-count-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+.product-page .solution-section .solution-item {
+  display: grid !important;
+  grid-template-rows: 150px minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0 !important;
+  gap: 18px;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.product-page .solution-section .solution-count-1 .solution-item {
+  grid-template-columns: 190px minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  align-items: center;
+  gap: 26px;
+}
+.product-page .solution-section .solution-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+}
+.product-page .solution-section .solution-item img {
+  display: block;
+  width: 100%;
+  height: 150px !important;
+  margin: 0 !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: transparent !important;
+}
+.product-page .solution-section .solution-count-1 .solution-item img { height: 170px !important; }
+.product-page .solution-section .solution-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  min-height: 0;
+}
+.product-page .solution-section .solution-function { margin-bottom: 8px; }
+.product-page .solution-section .solution-copy h3 {
+  max-width: 100%;
+  margin: 0 0 6px !important;
+  overflow-wrap: anywhere;
+}
+.product-page .solution-section .solution-copy p { overflow-wrap: anywhere; }
+.product-page .solution-section .solution-copy > a {
+  margin-top: auto;
+  color: #c02824 !important;
+  font-size: .76rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.product-page .solution-section .solution-options { margin-top: 14px; }
+.product-page .solution-section .solution-option-group button {
+  min-height: 34px;
+  padding: 6px 9px;
+}
+.product-page .solution-section .solution-quote-action {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+  min-height: 34px;
+  margin-top: 14px;
+}
+.product-page .solution-section .solution-add-button {
+  min-height: 34px;
+  padding: 7px 12px;
+  border-color: #171717;
+  border: 0;
+  background: #171717;
+  color: #fff;
+  font-size: .7rem;
+  white-space: nowrap;
+}
+.product-page .solution-section .solution-add-button:hover:not(:disabled) { background: #333; color: #fff; }
+.product-page .solution-section .solution-quantity-label { display: flex; align-items: center; gap: 6px; color: #777; font-size: .58rem; letter-spacing: .06em; line-height: 1; text-transform: uppercase; }
+.product-page .solution-section .solution-quantity-stepper { display: grid; grid-template-columns: 25px 38px 25px; width: 90px; height: 34px; border: 1px solid #d5d5d2; background: #fff; }
+.product-page .solution-section .solution-quantity-stepper button { display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: #333; cursor: pointer; font: inherit; font-size: .9rem; line-height: 1; }
+.product-page .solution-section .solution-quantity-stepper button:hover { background: #f1f1ef; }
+.product-page .solution-section .solution-quantity-stepper output { display: grid; place-items: center; min-width: 0; border-inline: 1px solid #e4e4e1; color: #171717; font-size: .72rem; font-variant-numeric: tabular-nums; }
+.product-page .solution-section .solution-added { color: #5f7467; }
+@media (max-width: 1000px) {
+  .product-page .solution-section .solution-list.solution-count-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 700px) {
+  .product-page .solution-section {
+    padding: 18px 16px !important;
+  }
+  .product-page .solution-section .section-head { margin-bottom: 20px; }
+  .product-page .solution-section .solution-list,
+  .product-page .solution-section .solution-list.solution-count-1,
+  .product-page .solution-section .solution-list.solution-count-2,
+  .product-page .solution-section .solution-list.solution-count-3,
+  .product-page .solution-section .solution-list.solution-count-4 {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+  .product-page .solution-section .solution-item,
+  .product-page .solution-section .solution-count-1 .solution-item {
+    grid-template-columns: 94px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: start;
+    gap: 14px;
+  }
+  .product-page .solution-section .solution-item img,
+  .product-page .solution-section .solution-count-1 .solution-item img { height: 112px !important; }
+  .product-page .solution-section .solution-copy > a { margin-top: 4px; }
+  .product-page .solution-section .solution-quote-action { flex-wrap: wrap; gap: 12px; max-width: 100%; }
+  .product-page .solution-section .solution-add-button { flex: 1 1 150px; min-width: 0; white-space: normal; }
+}
+@media (max-width: 360px) {
+  .product-page .solution-section { padding-inline: 16px !important; }
+  .product-page .solution-section .solution-item,
+  .product-page .solution-section .solution-count-1 .solution-item { grid-template-columns: 82px minmax(0, 1fr); gap: 11px; }
+  .product-page .solution-section .solution-item img,
+  .product-page .solution-section .solution-count-1 .solution-item img { height: 96px !important; }
+  .product-page .solution-section .solution-quote-action { align-items: stretch; flex-direction: column; }
+  .product-page .solution-section .solution-quote-action label { justify-content: space-between; }
+  .product-page .solution-section .solution-add-button { width: 100%; flex-basis: auto; }
+}
+
 /* Ajuste final del selector de producto. */
 .product-page .product-info .product-options { margin: 0 0 20px; }
 .product-page .product-info .product-options h2 { margin-bottom: 14px !important; font-size: .72rem; letter-spacing: .16em; font-weight: 600; }
