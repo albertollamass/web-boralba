@@ -80,11 +80,9 @@ const isCctOnlyProduct = (product) => {
   const info = product?.technicalInfo || {}
   return info.cct === true || hasCombinedCctValue([...(info.temperatures || []), ...(info.codes || []).map((code) => code.temperature || code.cct)])
 }
-const isRgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen)?|v(?:erde)?|b(?:lue)?|azul)$/i.test(clean(value))
-const isRgbValue = (value) => clean(value).toUpperCase() === 'RGB' || isRgbChannel(value) || /\brgb\b/i.test(clean(value))
+const isRgbValue = (value) => clean(value).toUpperCase() === 'RGB' || /\brgb\b/i.test(clean(value))
 const rgbOptionName = (value) => {
   const normalized = optionName(value)
-  if (isRgbChannel(normalized)) return 'RGB'
   return normalized.replace(/\brgb\b/ig, 'RGB')
 }
 const RgbSwatch = () => <span className="product-rgb-swatch" aria-hidden="true"><i /><i /><i /></span>

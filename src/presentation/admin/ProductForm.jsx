@@ -33,8 +33,8 @@ const dataUrl = (value) => typeof value === 'string' && value.startsWith('data:'
 const uniqueValues = (values) => [...new Set(values.map((value) => String(value || '').trim()).filter(Boolean))]
 const optionName = (option) => typeof option === 'string' ? option.trim() : String(option?.name || option?.label || option?.value || '').trim()
 const isRgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen)?|v(?:erde)?|b(?:lue)?|azul)$/i.test(String(value || '').trim())
-const isRgbTemperature = (value) => String(value || '').trim().toUpperCase() === 'RGB' || isRgbChannel(value) || /\brgb\b/i.test(String(value || ''))
-const normalizeAdminTemperature = (value) => isRgbChannel(value) ? 'RGB' : String(value || '').trim().replace(/\brgb\b/ig, 'RGB')
+const isRgbTemperature = (value) => String(value || '').trim().toUpperCase() === 'RGB' || /\brgb\b/i.test(String(value || ''))
+const normalizeAdminTemperature = (value) => String(value || '').trim().replace(/\brgb\b/ig, 'RGB')
 const cctColor = (value) => {
   const normalized = String(value || '').toLowerCase()
   const kelvin = Number(normalized.match(/\d{3,4}/)?.[0] || 0)

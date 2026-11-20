@@ -13,7 +13,7 @@ const rgbChannel = (value) => /^(?:r(?:ed|ojo)?|g(?:reen|reen)?|v(?:erde)?|b(?:l
 const productHasRgb = (product) => {
   const info = product?.technicalInfo || {}
   const text = [product?.name, product?.category, ...(product?.categories || []), info.temperatures, ...(info.codes || []).map((code) => code.temperature)].flat().join(' ')
-  return /\brgb\b/i.test(text) || text.split(/[;,\s]+/).filter(Boolean).some(rgbChannel)
+  return /\brgb\b/i.test(text) || new Set(text.split(/[;,\s]+/).filter(rgbChannel).map((channel) => channel.toLowerCase())).size >= 2
 }
 
 const normalizeTemperature = (value, isRgb) => {
