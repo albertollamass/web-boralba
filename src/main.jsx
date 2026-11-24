@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './presentation/styles/index.css'
+import './presentation/styles/projects-audit.css'
 import App from './App.jsx'
 import { ProductsProvider } from './application/catalog/ProductsContext.jsx'
 import { CategoriesProvider } from './application/catalog/CategoriesContext.jsx'

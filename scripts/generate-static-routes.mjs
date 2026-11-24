@@ -37,6 +37,19 @@ const publicRoutes = new Set([
 ])
 
 const firestoreValue = (value) => value?.stringValue ?? value?.booleanValue ?? value?.integerValue ?? value?.doubleValue
+const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds))
+
+async function fetchFirestorePage(collection, params) {
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collection}?${params}`
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const response = await fetch(url)
+    if (response.ok) return response.json()
+    const retryable = response.status === 429 || response.status >= 500
+    if (!retryable || attempt === 3) throw new Error(`Firestore respondió HTTP ${response.status}`)
+    await wait(500 * 2 ** attempt)
+  }
+  throw new Error('No se pudo consultar Firestore')
+}
 
 async function publicCategoryRoutes() {
   if (!projectId || !apiKey) return []
@@ -46,9 +59,7 @@ async function publicCategoryRoutes() {
   do {
     const params = new URLSearchParams({ key: apiKey, pageSize: '1000' })
     if (pageToken) params.set('pageToken', pageToken)
-    const response = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/categories?${params}`)
-    if (!response.ok) throw new Error(`Firestore respondió HTTP ${response.status}`)
-    const payload = await response.json()
+    const payload = await fetchFirestorePage('categories', params)
     for (const document of payload.documents || []) {
       const id = document.name?.split('/').pop()
       const slug = firestoreValue(document.fields?.slug) || id

@@ -1,0 +1,70 @@
+.proy-filters {
+  justify-content: flex-start;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.proy-filters::-webkit-scrollbar { display: none; }
+
+.pil-caro-slide {
+  padding: 0;
+  border: 0;
+  background: #f7f7f7;
+  cursor: zoom-in;
+}
+
+.pil-lightbox {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.pil-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: rgba(0, 0, 0, 0.88);
+  cursor: default;
+}
+.pil-lightbox-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: min(1100px, 100%);
+  height: min(86vh, 800px);
+}
+.pil-lightbox-content img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.pil-lightbox-close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  color: #fff;
+  background: #171717;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+.pil-lightbox-nav {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .proy-filters { margin-inline: -16px; padding-inline: 16px; }
+}
