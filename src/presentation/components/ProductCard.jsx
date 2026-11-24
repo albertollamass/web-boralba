@@ -7,7 +7,14 @@ export default function ProductCard({ product, variant = '' }) {
     <div className={`card product-card${variant ? ` product-card--${variant}` : ''}`}>
       <div className="card-img">
         <Link to={`/producto/${product.id}`}>
-          <img src={product.image || 'images/placeholder.svg'} alt={product.name} loading="lazy" />
+            <img
+              src={product.image || 'images/placeholder.svg'}
+              srcSet={product.imageSrcSet || undefined}
+              sizes="(max-width: 640px) 92vw, (max-width: 1100px) 45vw, 280px"
+              alt={product.name}
+              loading="lazy"
+              decoding="async"
+            />
         </Link>
       </div>
       <div className="card-body">

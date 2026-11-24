@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCategories } from '../../application/catalog/CategoriesContext'
 
-function buildTree(categories, getChildren, slug) {
+function buildTree(getChildren, slug) {
   return getChildren(slug).map((cat) => ({
     ...cat,
-    children: buildTree(categories, getChildren, cat.slug),
+    children: buildTree(getChildren, cat.slug),
   }))
 }
 
@@ -169,8 +169,8 @@ function MobileNode({ node, depth = 0, onNavigate }) {
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [productosOpen, setProductosOpen] = useState(false)
-  const { categories, getChildren, ROOT } = useCategories()
-  const tree = buildTree(categories, getChildren, ROOT.slug)
+  const { getChildren, ROOT } = useCategories()
+  const tree = buildTree(getChildren, ROOT.slug)
 
   return (
     <>

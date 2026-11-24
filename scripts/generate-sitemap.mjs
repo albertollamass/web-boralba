@@ -48,6 +48,14 @@ const escapeXml = (value) => String(value).replace(/[<>&'"]/g, (character) => ({
   '"': '&quot;',
 }[character]))
 
+const firestoreValue = (value) => value?.stringValue ?? value?.booleanValue ?? value?.integerValue ?? value?.doubleValue
+const slugify = (value) => String(value || '')
+  .toLowerCase()
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
+
 async function publicProductIds() {
   if (!projectId || !apiKey) {
     console.warn('Sitemap: faltan VITE_FIREBASE_PROJECT_ID o VITE_FIREBASE_API_KEY; se omiten productos.')
@@ -67,7 +75,13 @@ async function publicProductIds() {
     const payload = await response.json()
     for (const document of payload.documents || []) {
       const id = document.name?.split('/').pop()
-      if (id) ids.push(id)
+      const fields = document.fields || {}
+      // Los productos marcados como no publicados o no indexables no deben
+      // aparecer en el índice público.
+      if (id && firestoreValue(fields.published) !== false && firestoreValue(fields.noindex) !== true) {
+        const name = firestoreValue(fields.name)
+        ids.push({ id, slug: slugify(name) })
+      }
     }
     pageToken = payload.nextPageToken || ''
   } while (pageToken)
@@ -81,7 +95,7 @@ try {
   console.warn(`Sitemap: no se pudo consultar Firestore (${error.message}); se omiten productos.`)
 }
 
-const routes = [...staticRoutes, ...productIds.map((id) => `/producto/${encodeURIComponent(id)}`)]
+const routes = [...staticRoutes, ...productIds.map(({ id, slug }) => `/producto/${encodeURIComponent(id)}${slug ? `/${encodeURIComponent(slug)}` : ''}`)]
 const urls = routes.map((route) => `  <url><loc>${escapeXml(`${siteUrl}${route}`)}</loc></url>`).join('\n')
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
 

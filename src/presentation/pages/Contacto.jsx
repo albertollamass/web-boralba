@@ -43,9 +43,7 @@ export default function Contacto() {
     telefono: '',
     tipo: '',
     mensaje: selectedRefs ? `Referencias de la solución: ${selectedRefs}\n\n` : '',
-    privacidad: false,
-    cookies: false,
-    legal: false,
+    consentimiento: false,
   })
   const [captcha, setCaptcha] = useState({ num1: 12, num2: 8, answer: '' })
   const [sent, setSent] = useState(false)
@@ -61,7 +59,7 @@ export default function Contacto() {
       alert('La solución de la operación no es correcta.')
       return
     }
-    if (!form.privacidad || !form.cookies || !form.legal) {
+    if (!form.consentimiento) {
       alert('Debes aceptar la política de privacidad, cookies y aviso legal.')
       return
     }
@@ -263,23 +261,11 @@ export default function Contacto() {
                     </div>
                   </div>
                   <label className="check">
-                    <input type="checkbox" checked={form.privacidad} onChange={updateCheck('privacidad')} />
+                    <input type="checkbox" checked={form.consentimiento} onChange={updateCheck('consentimiento')} />
                     <span>
-                      He leído y acepto la{' '}
-                      <Link to="/legal/politica-privacidad">política de privacidad de esta Web.</Link>
-                    </span>
-                  </label>
-                  <label className="check">
-                    <input type="checkbox" checked={form.cookies} onChange={updateCheck('cookies')} />
-                    <span>
-                      He leído y acepto la{' '}
-                      <Link to="/legal/politica-cookies">política de cookies de esta Web.</Link>
-                    </span>
-                  </label>
-                  <label className="check">
-                    <input type="checkbox" checked={form.legal} onChange={updateCheck('legal')} />
-                    <span>
-                      He leído y acepto el <Link to="/legal/aviso-legal">aviso legal de esta Web.</Link>
+                      He leído y acepto la <Link to="/legal/politica-privacidad">política de privacidad</Link>, la{' '}
+                      <Link to="/legal/politica-cookies">política de cookies</Link> y el{' '}
+                      <Link to="/legal/aviso-legal">aviso legal</Link> de esta Web.
                     </span>
                   </label>
                   <div className="captcha-row">

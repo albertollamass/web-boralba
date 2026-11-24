@@ -1,26 +1,29 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import Layout from './presentation/components/Layout'
-import Home from './presentation/pages/Home'
-import Productos from './presentation/pages/Productos'
 import { useCategories } from './application/catalog/CategoriesContext'
-import ProductoDetalle from './presentation/pages/ProductoDetalle'
-import Outlet from './presentation/pages/Outlet'
-import Buscar from './presentation/pages/Buscar'
-import Proyectos from './presentation/pages/Proyectos'
-import ProyectoDetalle from './presentation/pages/ProyectoDetalle'
-import Servicios from './presentation/pages/Servicios'
-import Empresa from './presentation/pages/Empresa'
-import Contacto from './presentation/pages/Contacto'
-import DisenaTuLuminaria from './presentation/pages/DisenaTuLuminaria'
-import Legal from './presentation/pages/Legal'
-import NotFound from './presentation/pages/NotFound'
-import MiPresupuesto from './presentation/pages/MiPresupuesto'
-import SolicitarPresupuesto from './presentation/pages/SolicitarPresupuesto'
-import AdminLogin from './presentation/admin/AdminLogin'
-import AdminPanel from './presentation/admin/AdminPanel'
 import { useAuth } from './application/identity/AuthContext'
 import ScrollToTop from './presentation/components/ScrollToTop'
 import { useAnalyticsPageView } from './application/analytics/useAnalyticsPageView.js'
+
+const Home = lazy(() => import('./presentation/pages/Home'))
+const Productos = lazy(() => import('./presentation/pages/Productos'))
+const ProductoDetalle = lazy(() => import('./presentation/pages/ProductoDetalle'))
+const Outlet = lazy(() => import('./presentation/pages/Outlet'))
+const Buscar = lazy(() => import('./presentation/pages/Buscar'))
+const Proyectos = lazy(() => import('./presentation/pages/Proyectos'))
+const ProyectoDetalle = lazy(() => import('./presentation/pages/ProyectoDetalle'))
+const Servicios = lazy(() => import('./presentation/pages/Servicios'))
+const Empresa = lazy(() => import('./presentation/pages/Empresa'))
+const Contacto = lazy(() => import('./presentation/pages/Contacto'))
+const DisenaTuLuminaria = lazy(() => import('./presentation/pages/DisenaTuLuminaria'))
+const Legal = lazy(() => import('./presentation/pages/Legal'))
+const NotFound = lazy(() => import('./presentation/pages/NotFound'))
+const MiPresupuesto = lazy(() => import('./presentation/pages/MiPresupuesto'))
+const SolicitarPresupuesto = lazy(() => import('./presentation/pages/SolicitarPresupuesto'))
+// La administración queda fuera del bundle público hasta que se visita /admin.
+const AdminLogin = lazy(() => import('./presentation/admin/AdminLogin'))
+const AdminPanel = lazy(() => import('./presentation/admin/AdminPanel'))
 
 const BASENAME = import.meta.env.PROD ? '/web-boralba' : '/'
 
@@ -66,12 +69,14 @@ export default function App({ backendEnabled, telemetry, analytics, documentStor
     <BrowserRouter basename={BASENAME}>
       <ScrollToTop />
       <AnalyticsPageViews analytics={analytics} />
-      <Routes>
+      <Suspense fallback={<PageLoading />}>
+       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/productos" element={<Productos />} />
           <Route path="/categoria/:slug" element={<CategoriaRedirect />} />
-          <Route path="/producto/:id" element={<ProductoDetalle analytics={analytics} />} />
+           <Route path="/producto/:id" element={<ProductoDetalle analytics={analytics} />} />
+           <Route path="/producto/:id/:slug" element={<ProductoDetalle analytics={analytics} />} />
           <Route path="/outlet" element={<Outlet />} />
           <Route path="/buscar" element={<Buscar analytics={analytics} />} />
           <Route path="/proyectos" element={<Proyectos />} />
@@ -96,9 +101,14 @@ export default function App({ backendEnabled, telemetry, analytics, documentStor
         <Route path="*" element={<Layout />}>
           <Route path="*" element={<NotFound />} />
         </Route>
-      </Routes>
+       </Routes>
+      </Suspense>
     </BrowserRouter>
   )
+}
+
+function PageLoading() {
+  return <main className="container section page-loading" aria-live="polite"><p>Cargando contenido...</p></main>
 }
 
 function AnalyticsPageViews({ analytics }) {

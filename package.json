@@ -7,7 +7,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "node scripts/generate-sitemap.mjs && vite build",
     "lint": "oxlint",
     "preview": "vite preview"

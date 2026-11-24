@@ -93,7 +93,7 @@ function ProductTile({ product, label }) {
 }
 
 export default function Productos({ analytics }) {
-  const { products, hydrated } = useProducts()
+  const { products, hydrated, syncStatus, retry } = useProducts()
   const { categories, ROOT, getCategory, getChildren, getBreadcrumb, getCategoryPathLabel, getDescendantSlugs, hydrated: categoriesHydrated } = useCategories()
   const { settings } = useSiteSettings()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -293,7 +293,7 @@ export default function Productos({ analytics }) {
         return name.includes(clean) || path.includes(clean)
       })
       .slice(0, 3)
-  }, [input, categories, ROOT.slug, productsIn, getCategoryPathLabel])
+  }, [input, categories, ROOT.slug, getCategoryPathLabel])
 
   const liveProducts = useMemo(() => {
     const clean = normalizeText(input)
@@ -514,8 +514,10 @@ export default function Productos({ analytics }) {
 
       {/* ============ CUERPO ============ */}
       <div className="container pc-body">
-        {!hydrated ? (
-          <div className="pc-loading">Cargando catálogo…</div>
+        {syncStatus === 'error' ? (
+          <div className="empty-state" role="alert"><h2>No se ha podido cargar el catálogo</h2><p>Comprueba tu conexión e inténtalo de nuevo.</p><button type="button" className="btn btn-primary" onClick={retry}>Reintentar</button></div>
+        ) : !hydrated ? (
+          <div className="pc-loading" aria-live="polite">Cargando catálogo…</div>
         ) : isSearching ? (
           searchView
         ) : (

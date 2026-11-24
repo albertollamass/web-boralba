@@ -70,6 +70,17 @@ a:hover {
   text-decoration: none;
 }
 
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.page-loading {
+  min-height: 40vh;
+  display: grid;
+  place-items: center;
+}
+
 h1,
 h2,
 h3,
@@ -9707,11 +9718,43 @@ body:not(:has(.redesign-home)) .flyout {
   }
   .home-project--main .home-project-media {
     height: auto;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 4 / 3;
   }
   .home-projects-side .home-project-media {
     height: auto;
     aspect-ratio: 4 / 3;
+  }
+  .home-project-media {
+    aspect-ratio: 4 / 3;
+  }
+  .home-project-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .home-project-media::after {
+    background: linear-gradient(to top, rgba(0, 0, 0, .7) 0%, rgba(0, 0, 0, .28) 36%, transparent 70%);
+  }
+  .home-project-foot {
+    right: 16px;
+    bottom: 20px;
+    left: 16px;
+    gap: 5px;
+  }
+  .home-project-name {
+    max-width: 18ch;
+    font-size: clamp(1.25rem, 5.6vw, 1.375rem);
+    font-weight: 600;
+    line-height: 1.15;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, .3);
+    text-wrap: balance;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+  .home-project-type {
+    font-size: .72rem;
+    line-height: 1.3;
   }
   .projects-text .home-eyebrow {
     margin-bottom: 14px;
@@ -10829,6 +10872,13 @@ body:not(:has(.redesign-home)) .flyout {
 }
 @media (max-width: 640px) {
   .proy-grid--filtered { grid-template-columns: 1fr; }
+  .proy-grid--filtered .proy-item-body { gap: 8px; padding-top: 14px; }
+  .proy-grid--filtered .proy-item-body h2 {
+    max-width: 18ch;
+    font-size: clamp(1.3rem, 7vw, 1.65rem);
+    line-height: 1.12;
+    text-wrap: balance;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .proy-grid--filtered { animation: none; }
@@ -12484,10 +12534,10 @@ textarea {
   .topbar { display: none; }
   .bh-logo img { height: 34px; }
 
-  .home .home-hero-copy h1 { font-size: clamp(37px, 9.2vw, 53px); line-height: .98; }
+  .home .home-hero-copy h1 { font-size: clamp(30px, 8.4vw, 36px); line-height: 1.05; }
   .home .home-hero-copy { padding-inline: 20px; }
-  .home-hero-actions { gap: 12px; }
-  .home-hero-actions .home-btn { width: 100%; }
+  .home-hero-actions { gap: 8px; }
+  .home-hero-actions .home-btn { width: 100%; min-height: 44px; height: 44px; padding-inline: 18px; }
   .home-section--products,
   .home-section--projects,
   .home-section--services,
@@ -13743,8 +13793,15 @@ textarea {
 .quote-line-info dl { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; color: var(--boralba-gray); font-size: .78rem; }
 .quote-line-info dl div { display: flex; gap: 5px; }.quote-line-info dt { font-weight: 700; }.quote-line-info dd { margin: 0; }
 .quote-quantity { display: grid; gap: 7px; color: var(--boralba-gray); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
-.quote-quantity input { width: 72px; padding: 9px; border: 1px solid #d8d8d5; background: #fff; }
+.quote-quantity-stepper { display: inline-flex; align-items: center; height: 38px; overflow: hidden; border: 1px solid #d8d8d5; background: #fff; }
+.quote-quantity-stepper button { width: 32px; height: 36px; padding: 0; border: 0; background: #fff; color: #242424; cursor: pointer; font: inherit; font-size: 16px; line-height: 1; }
+.quote-quantity-stepper button:hover { background: #faf7f5; color: var(--boralba-red); }
+.quote-quantity-stepper button:focus-visible { outline: 2px solid rgba(221, 53, 49, .35); outline-offset: -3px; }
+.quote-quantity-stepper output { display: grid; place-items: center; width: 36px; height: 26px; border-right: 1px solid #ededed; border-left: 1px solid #ededed; color: #242424; font-size: 12px; font-variant-numeric: tabular-nums; }
 .quote-remove, .quote-clear, .quote-back { border: 0; background: transparent; color: var(--boralba-gray); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: .78rem; }
+.quote-remove { display: grid; place-items: center; padding: 4px; text-decoration: none; }
+.quote-remove svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; }
+.quote-remove:hover { color: var(--boralba-red); }
 .quote-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; padding-top: 28px; }.quote-actions .btn-primary { margin-left: auto; }
 .quote-empty, .quote-success { padding: 42px 0; border-top: 1px solid #dededb; }.quote-empty h2, .quote-success h2 { margin: 0 0 10px; }.quote-empty p, .quote-success p { color: var(--boralba-gray); margin-bottom: 24px; }
 .quote-request-page .quote-back { display: inline-block; margin-bottom: 38px; }.quote-request-form { max-width: 800px; }.quote-review { margin-bottom: 38px; padding: 20px 0; border-block: 1px solid #dededb; }.quote-review h2 { margin: 0 0 16px; font-size: 1rem; }.quote-review div { display: grid; gap: 4px; padding: 10px 0; border-top: 1px solid #eee; }.quote-review span { color: var(--boralba-gray); font-size: .82rem; }
@@ -15585,6 +15642,187 @@ textarea {
   .product-page .product-technical-led .product-technical-codes {
     margin-top: 28px !important;
   }
+}
+
+/* ================================================================
+   Auditoría responsive final
+   Un único contrato para contenido variable, tabletas y móviles.
+   ================================================================ */
+
+/* Las columnas deben poder encogerse antes de que el texto fuerce el viewport. */
+:where(.grid, .contacto-info-grid, .contacto-form-grid, .products-browser,
+  .products-grid, .product-detail, .product-lower-row, .technical-layout,
+  .services-detail-layout, .technology-grid, .emp-hero-grid, .emp-article-grid,
+  .emp-history-grid, .emp-partner, .proy-grid, .proy-categorias-grid,
+  .admin-form-grid, .admin-repeater-fields, .quote-line, .quote-form-grid) > * {
+  min-width: 0;
+}
+
+:where(.product-page, .products-redesign, .pc-page, .proyectos-redesign,
+  .servicios-redesign, .empresa-editorial, .contacto-page, .disena-page,
+  .admin-layout) img {
+  max-width: 100%;
+}
+
+:where(.product-page, .products-redesign, .pc-page, .proyectos-redesign,
+  .servicios-redesign, .empresa-editorial, .contacto-page, .disena-page,
+  .admin-layout) :where(h1, h2, h3, h4, p, a, button, td, th, dt, dd, span) {
+  overflow-wrap: anywhere;
+}
+
+/* Header: mantiene logo, acciones y menú equilibrados entre 768 y 1024 px. */
+@media (max-width: 1024px) {
+  .bh-inner { gap: 12px; }
+  .bh-actions { gap: 6px; }
+  .bh-quote-link { min-width: 40px; min-height: 44px; justify-content: center; }
+  .bh-search-btn { min-width: 44px; min-height: 44px; }
+  .bh-burger { flex: 0 0 44px; }
+}
+
+/* Catálogo: dos columnas hasta tablet y una sola cuando el contenido lo pide. */
+@media (max-width: 900px) {
+  .products-redesign .products-grid,
+  .pc-product-grid,
+  .pc-featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .products-redesign .products-browser { gap: 28px; }
+  .products-redesign .products-families .coverflow { height: clamp(320px, 48vw, 480px); }
+
+  .catalog-heading,
+  .pc-sec-head,
+  .pc-products-head { align-items: flex-start; }
+  .catalog-intro { max-width: 38ch; }
+}
+
+@media (max-width: 680px) {
+  .products-redesign .container { width: 100%; padding-inline: 20px; }
+  .products-redesign .products-grid,
+  .pc-product-grid,
+  .pc-featured-grid,
+  .catalog-product-grid,
+  .subcategory-product-grid { grid-template-columns: 1fr; }
+
+  .products-redesign .products-intro-copy h1,
+  .catalog-heading h1,
+  .pc-hero h1 { max-width: 100%; font-size: clamp(2.2rem, 11vw, 3.5rem); }
+  .products-mode-nav { gap: 22px; overflow-x: auto; scrollbar-width: none; }
+  .products-mode-nav::-webkit-scrollbar { display: none; }
+  .products-mode-nav a { flex: 0 0 auto; }
+  .products-families .coverflow-card { width: min(68vw, 290px); }
+  .products-redesign .products-search { min-height: 56px; padding: 15px 16px; }
+
+  .catalog-filterbar { padding-inline: 20px; }
+  .catalog-filterbar.is-open { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .catalog-filter select { min-height: 44px; }
+}
+
+/* Ficha de producto: la tablet pasa a una lectura vertical antes de quedar estrecha. */
+@media (max-width: 900px) {
+  .product-page > .product-container { width: calc(100% - 48px) !important; }
+  .product-page > .product-container > .product-detail {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .product-page .product-gallery,
+  .product-page .product-info { width: min(100%, 760px); }
+  .product-page .product-info h1 { max-width: 100%; }
+  .product-page .technical-specifications .technical-layout { grid-template-columns: 1fr; gap: 28px; }
+  .product-page .technical-specifications .technical-drawing { justify-self: start; max-width: 360px; }
+  .product-page .technical-specifications .technical-drawing img { max-width: 100%; }
+}
+
+@media (max-width: 700px) {
+  .product-page > .product-container { width: calc(100% - 32px) !important; }
+  .product-page .product-gallery .carousel { aspect-ratio: 1 / .92; }
+  .product-page .product-info h1 { font-size: clamp(1.8rem, 8vw, 2.35rem); }
+  .product-page .product-highlights-band .product-highlights-list { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .product-page .product-highlights-band .product-highlight-band-item { min-width: 0; }
+  .product-page .product-actions { align-items: stretch; }
+  .product-page .product-actions .btn,
+  .product-page .product-actions .datasheet-link { width: 100%; }
+  .product-page .solution-section { padding-inline: 20px !important; }
+  .product-page .technical-specifications .technical-drawing { justify-self: center; max-width: 280px; }
+}
+
+@media (max-width: 360px) {
+  .product-page > .product-container { width: calc(100% - 24px) !important; }
+  .product-page .product-highlights-band .product-highlights-list { column-gap: 14px !important; }
+  .product-page .option-group > div { gap: 6px; }
+  .product-page .option-group button { padding-inline: 9px; }
+}
+
+/* Soluciones y formularios: cada acción ocupa el ancho disponible, sin columnas huérfanas. */
+@media (max-width: 900px) {
+  .solution-list,
+  .product-page .solution-section .solution-list,
+  .product-page .accessories-list { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .quote-line { grid-template-columns: 88px minmax(0, 1fr); gap: 16px; }
+  .quote-line > img { width: 88px; height: 88px; }
+  .quote-quantity, .quote-remove { grid-column: 2; }
+}
+
+@media (max-width: 600px) {
+  .solution-list,
+  .product-page .solution-section .solution-list,
+  .product-page .accessories-list { grid-template-columns: 1fr !important; }
+  .quote-line { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; }
+  .quote-line > img { width: 64px; height: 64px; }
+  .quote-line-info dl { display: grid; gap: 5px; }
+  .quote-actions { align-items: stretch; }
+  .quote-actions .btn { width: 100%; justify-content: center; }
+  .quote-form-grid { gap: 18px; }
+}
+
+/* Admin: formularios complejos pasan a una columna y los repetidores no desbordan. */
+@media (max-width: 900px) {
+  .admin-form-grid.two,
+  .admin-form-grid.three,
+  .admin-repeater-fields,
+  .technical-editor-row,
+  .technical-code-row,
+  .admin-variant-grid { grid-template-columns: 1fr; }
+  .admin-repeater-row { flex-wrap: wrap; }
+  .admin-repeater-fields { width: 100%; }
+  .repeater-actions { width: 100%; margin-left: 0; }
+  .admin-table { min-width: 760px; }
+}
+
+@media (max-width: 600px) {
+  .admin-layout > .container { padding-inline: 16px !important; }
+  .admin-bar .container { align-items: flex-start; padding-inline: 16px; }
+  .admin-bar .container > div { min-width: 0; }
+  .admin-tabs { gap: 6px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .admin-tabs button { flex: 0 0 auto; min-height: 44px; padding-inline: 14px; }
+  .admin-form-intro h2 { font-size: 1.8rem; }
+  .admin-check-row { flex-direction: column; gap: 8px; }
+  .admin-pdf-row > * { max-width: 100%; }
+}
+
+/* Páginas editoriales: ritmo y medios proporcionados en móvil, sin alturas forzadas. */
+@media (max-width: 760px) {
+  .proy-hero, .servicios-hero, .contacto-hero { min-height: 0; }
+  .proy-categorias-grid, .proy-grid, .technology-grid { grid-template-columns: 1fr; }
+  .proy-filters, .servicios-nav { gap: 20px; padding-bottom: 10px; }
+  .contacto-hero-copy { max-width: none; gap: 18px; }
+  .contacto-info-grid { row-gap: 40px; }
+  .contacto-ubicacion-head { align-items: flex-start; }
+  .contacto-ubicacion-media img { height: auto; aspect-ratio: 4 / 3; }
+  .emp-wrap { padding-inline: 20px; }
+  .emp-area-media { width: 100%; margin-left: 0; }
+  .emp-data div { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .emp-data dd { text-align: left; }
+}
+
+/* Footer: no deja bloques estrechos ni enlaces imposibles de pulsar. */
+@media (max-width: 760px) {
+  .footer-minimal .footer-grid { gap: 36px; }
+  .footer-minimal .footer-bottom { align-items: flex-start; }
+  .footer-minimal .footer-bottom .legal { gap: 10px 14px; }
+  .footer-minimal .footer-bottom .legal > * + * { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bh, .bh-mobile, .bh-drop-panel, .product-page *, .products-redesign * { transition-duration: 0.01ms !important; }
 }
 
 /* Ajustes puntuales de dibujo, dimensiones y referencias. */

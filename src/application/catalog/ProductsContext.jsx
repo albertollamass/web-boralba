@@ -13,6 +13,7 @@ export function ProductsProvider({ children, repository, telemetry }) {
   const [products, setProducts] = useState([])
   const [hydrated, setHydrated] = useState(false)
   const [syncStatus, setSyncStatus] = useState('loading')
+  const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -42,7 +43,13 @@ export function ProductsProvider({ children, repository, telemetry }) {
     return () => {
       cancelled = true
     }
-  }, [repository, telemetry])
+  }, [repository, telemetry, reloadToken])
+
+  const retry = () => {
+    setHydrated(false)
+    setSyncStatus('loading')
+    setReloadToken((token) => token + 1)
+  }
 
   const addProduct = (product) => {
     const newProduct = {
@@ -107,6 +114,7 @@ export function ProductsProvider({ children, repository, telemetry }) {
     getProduct,
     hydrated,
     syncStatus,
+    retry,
     cloudEnabled: repository.isConfigured(),
   }
 

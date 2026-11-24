@@ -12,6 +12,7 @@ import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import { resolveTechnicalKey } from '../../domain/catalog/technicalFeatures'
 import { useQuote } from '../../application/quote/QuoteContext'
 import { variantCandidates, variantGroups, variantLabelRows, variantValue } from '../../domain/catalog/quoteVariants'
+import { generateSlug } from '../../domain/catalog/slug'
 
 const isDataUrl = (value) => typeof value === 'string' && value.startsWith('data:')
 const itemText = (item) => typeof item === 'string' || typeof item === 'number' ? String(item).trim() : item && typeof item === 'object' ? String(item.text ?? item.title ?? item.name ?? item.label ?? item.application ?? '').trim() : ''
@@ -286,13 +287,13 @@ export default function ProductoDetalle({ analytics }) {
     <Seo
       title={`${product.name}${product.ref ? ` ${product.ref}` : ''} — Producto LED`}
       description={product.description || `Ficha técnica de ${product.name}${product.ref ? ` (${product.ref})` : ''}: especificaciones, aplicaciones y soluciones compatibles Boralba Lighting.`}
-      path={`/producto/${product.id}`}
+       path={`/producto/${product.id}/${generateSlug(product.name)}`}
       image={product.image ? `${SITE.url}/${String(product.image).replace(/^\//, '')}` : undefined}
       jsonLd={[
         breadcrumbJsonLd([
           { name: 'Home', url: canonicalFor('/') },
           { name: 'Productos', url: canonicalFor('/productos') },
-          { name: product.name, url: canonicalFor(`/producto/${product.id}`) },
+           { name: product.name, url: canonicalFor(`/producto/${product.id}/${generateSlug(product.name)}`) },
         ]),
         productJsonLd(product),
       ]}
