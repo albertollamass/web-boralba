@@ -25,7 +25,7 @@ const SolicitarPresupuesto = lazy(() => import('./presentation/pages/SolicitarPr
 const AdminLogin = lazy(() => import('./presentation/admin/AdminLogin'))
 const AdminPanel = lazy(() => import('./presentation/admin/AdminPanel'))
 
-const BASENAME = import.meta.env.PROD ? '/web-boralba' : '/'
+const BASENAME = '/'
 
 function AdminRoute({ children, backendEnabled }) {
   const { user, isAdmin, loading } = useAuth()
