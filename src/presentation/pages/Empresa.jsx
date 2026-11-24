@@ -192,21 +192,8 @@ export default function Empresa() {
                   proyectos: asesoramiento, diseño, control y puesta en marcha.
                 </p>
               </Reveal>
-              <Reveal delay={140}>
-                <div className="emp-history-slot">
-                  <span className="emp-history-slot-label">Espacio reservado</span>
-                  <p className="emp-history-slot-text">
-                    Año de fundación e historia real de la empresa. Este bloque se completará con
-                    los datos definitivos de Boralba.
-                  </p>
-                </div>
-              </Reveal>
               <Reveal delay={200}>
                 <dl className="emp-data">
-                  <div>
-                    <dt>Año de fundación</dt>
-                    <dd aria-hidden="true">—</dd>
-                  </div>
                   <div>
                     <dt>Ubicación</dt>
                     <dd>Getafe, Madrid</dd>
@@ -378,9 +365,6 @@ export default function Empresa() {
             <Link to="/contacto" className="emp-cta">
               Hablemos de tu proyecto
             </Link>
-            <p className="emp-outro-note">
-              Respuesta en menos de 24 horas · sin compromiso
-            </p>
           </Reveal>
         </div>
       </section>
