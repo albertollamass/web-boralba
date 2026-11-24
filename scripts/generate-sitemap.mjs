@@ -14,7 +14,7 @@ async function loadLocalEnv() {
 
 await loadLocalEnv()
 
-const siteUrl = (process.env.SITE_URL || 'https://albertollamass.github.io/web-boralba').replace(/\/$/, '')
+const siteUrl = (process.env.SITE_URL || 'https://boralba.es').replace(/\/$/, '')
 const projectId = process.env.VITE_FIREBASE_PROJECT_ID
 const apiKey = process.env.VITE_FIREBASE_API_KEY
 

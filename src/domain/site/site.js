@@ -1,7 +1,7 @@
 export const SITE = {
   name: 'Boralba Lighting',
   legalName: 'BORALBA LIGHTING, S.L.',
-  url: 'https://albertollamass.github.io/web-boralba',
+  url: 'https://boralba.es',
   locale: 'es_ES',
   language: 'es',
   phone: '(34) 91 870 71 13',

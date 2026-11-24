@@ -312,7 +312,7 @@ La web **no necesita redesplegarse** para esto; se hace todo en Supabase y es in
    on conflict (id) do nothing;
    ```
 
-3. Ese usuario ya puede entrar en `https://TU_USUARIO.github.io/web-boralba/#/admin`
+3. Ese usuario ya puede entrar en `https://boralba.es/admin`
    con su email y contraseña.
 
 > Recuerda el tema de la **confirmación de email** (paso 11): si el usuario está
@@ -423,20 +423,18 @@ Abre http://localhost:4173/ para verla.
 ## 18. Publicar la web en internet (GitHub Pages)
 
 Esta web **ya está publicada** en GitHub Pages en
-**https://albertollamass.github.io/web-boralba/** y se actualiza sola con cada `git push`.
+**https://boralba.es/** y se actualiza sola con cada `git push`.
 Estas son las piezas que lo hacen posible (por si hay que replicarlo en otro proyecto).
 
 ### Por qué el proyecto está preparado para GitHub Pages
 
-GitHub Pages sirve la web dentro de una subcarpeta
-(`https://TU_USUARIO.github.io/web-boralba/`). Para que imágenes, estilos y rutas carguen
-bien ahí, el proyecto usa:
+GitHub Pages sirve la web en el dominio personalizado `https://boralba.es/`. Para que
+imágenes, estilos y rutas carguen bien ahí, el proyecto usa:
 
 - **Rutas relativas** en las imágenes (`images/...` en vez de `/images/...`).
-- **`base: './'`** en `vite.config.js`.
-- **HashRouter**: las rutas llevan un `#/` delante (`#/productos`, `#/admin`…). Así GitHub
-  Pages nunca da error 404 al refrescar una página interna, cosa que sí pasa con las rutas
-  normales de React.
+- **`base: '/'`** en `vite.config.js`.
+- **BrowserRouter** con `public/404.html`, que conserva la ruta al refrescar una página
+  interna en GitHub Pages.
 
 ### Requisito: repositorio público
 
@@ -464,7 +462,7 @@ El build necesita saber dónde está Supabase. Están guardadas en el repositori
 ### Activar GitHub Pages (solo una vez)
 
 **Settings → Pages → Source:** elige **GitHub Actions** y guarda. La primera vez que se
-complete un despliegue, la web queda disponible en `https://TU_USUARIO.github.io/web-boralba/`.
+complete un despliegue, la web queda disponible en `https://boralba.es/`.
 
 ### Subir una actualización
 

@@ -24,7 +24,7 @@ con los productos guardados en la nube (**Supabase**).
 
 ## Web publicada
 
-Desplegada automáticamente en **GitHub Pages**: https://albertollamass.github.io/web-boralba/
+Desplegada automáticamente en **GitHub Pages**: https://boralba.es/
 
 - Cada `git push` a `main` compila y publica solo (GitHub Actions).
 - Los **productos** se leen en vivo de Supabase: los cambios del panel se ven al recargar,

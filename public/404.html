@@ -6,14 +6,10 @@
     <script>
       ;(function () {
         try {
-          var base = '/web-boralba'
           var path = window.location.pathname
-          if (path.indexOf(base) === 0) {
-            path = path.slice(base.length) || '/'
-          }
-          window.location.replace(base + '/?spa=' + encodeURIComponent(path + window.location.search))
+          window.location.replace('/?spa=' + encodeURIComponent(path + window.location.search + window.location.hash))
         } catch (e) {
-          window.location.replace('/web-boralba/')
+          window.location.replace('/')
         }
       })()
     </script>

@@ -59,7 +59,7 @@ export default function Buscar() {
             autoFocus
           />
           {query && (
-            <button className="search-clear" onClick={() => setQuery('')} aria-label="Borrar búsqueda">
+            <button className="search-clear" onClick={() => { setQuery(''); setSearchParams({}) }} aria-label="Borrar búsqueda">
               ✕
             </button>
           )}
