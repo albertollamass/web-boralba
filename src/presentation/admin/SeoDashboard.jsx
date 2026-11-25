@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useProducts } from '../../application/catalog/ProductsContext'
 import { useCategories } from '../../application/catalog/CategoriesContext'
-import { connectSearchConsole, disconnectSearchConsole, fetchSearchConsoleReport, inspectSearchConsoleUrl, isSearchConsoleConnected, searchConsoleConfig } from '../../infrastructure/seo/searchConsoleClient.js'
+import { useAuth } from '../../application/identity/AuthContext'
+import { canResumeSearchConsole, connectSearchConsole, disconnectSearchConsole, fetchSearchConsoleReport, inspectSearchConsoleUrl, isSearchConsoleConnected, searchConsoleConfig } from '../../infrastructure/seo/searchConsoleClient.js'
 
 const EMPTY = null
 const periodOptions = [['7d', 'Últimos 7 días'], ['28d', 'Últimos 28 días'], ['90d', 'Últimos 90 días'], ['6m', 'Últimos 6 meses'], ['12m', 'Últimos 12 meses'], ['custom', 'Fechas personalizadas']]
@@ -12,17 +13,19 @@ const percent = (value) => value == null ? '—' : `${format(value * 100, 2)}%`
 export default function SeoDashboard() {
   const { products } = useProducts()
   const { getCategoryPathLabel } = useCategories()
+  const { user } = useAuth()
   const [period, setPeriod] = useState('28d')
   const [dates, setDates] = useState({ startDate: '', endDate: '' })
   const [report, setReport] = useState(EMPTY)
   const [connected, setConnected] = useState(isSearchConsoleConnected())
-  const [status, setStatus] = useState(searchConsoleConfig.isConfigured ? 'disconnected' : 'not-configured')
+  const [status, setStatus] = useState(searchConsoleConfig.isConfigured ? (isSearchConsoleConnected() ? 'connected' : 'disconnected') : 'not-configured')
   const [error, setError] = useState('')
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState('clicks')
   const [auditFilter, setAuditFilter] = useState('all')
   const [inspection, setInspection] = useState(null)
   const [inspectionStatus, setInspectionStatus] = useState('idle')
+  const resumeAttempted = useRef(false)
 
   const load = async (force = false) => {
     if (!connected && !force) {
@@ -44,16 +47,33 @@ export default function SeoDashboard() {
 
   useEffect(() => { if (connected) load() }, [period, connected])
 
-  const connect = async () => {
+  useEffect(() => {
+    if (resumeAttempted.current || connected || !searchConsoleConfig.isConfigured || !canResumeSearchConsole()) return
+    resumeAttempted.current = true
+    let cancelled = false
+    setStatus('reconnecting')
+    connectSearchConsole({ loginHint: user?.email }).then(() => {
+      if (!cancelled) setConnected(true)
+    }).catch((resumeError) => {
+      if (cancelled) return
+      const needsConsent = resumeError.code === 'interaction_required' || resumeError.code === 'consent_required'
+      setStatus(needsConsent ? 'requires-consent' : 'disconnected')
+      if (needsConsent) setError('La autorización sigue concedida, pero Google necesita una interacción para renovarla.')
+    })
+    return () => { cancelled = true }
+  }, [connected, user?.email])
+
+  const connect = async (forceConsent = false) => {
     setStatus('authorizing')
     setError('')
     try {
-      await connectSearchConsole()
+      await connectSearchConsole({ loginHint: user?.email, forceConsent })
       setConnected(true)
       await load(true)
     } catch (connectError) {
-      setStatus('error')
-      setError(connectError.message)
+      const needsConsent = connectError.code === 'interaction_required' || connectError.code === 'consent_required'
+      setStatus(needsConsent ? 'requires-consent' : 'error')
+      setError(needsConsent ? 'Google necesita confirmar de nuevo el permiso de lectura para Search Console.' : connectError.message)
     }
   }
 
@@ -126,7 +146,7 @@ export default function SeoDashboard() {
   </section>
 }
 
-function ConnectionStatus({ status, error, lastSync, onConnect, onDisconnect }) { const labels = { loading: 'Sincronizando...', authorizing: 'Esperando autorización de Google...', connected: 'Conectado con Google Search Console', disconnected: 'Cuenta de Google no conectada', 'not-configured': 'OAuth no configurado', unauthenticated: 'Sesión no válida', error: 'No se pudo sincronizar' }; return <div className={`seo-connection seo-connection--${status}`}><span className="seo-dot" /> <strong>{labels[status]}</strong>{error && <span>{error}</span>}{['disconnected', 'error', 'unauthenticated'].includes(status) && <button className="btn btn-primary btn-sm" onClick={onConnect}>{status === 'disconnected' ? 'Conectar con Google Search Console' : 'Volver a conectar'}</button>}{status === 'connected' && <button className="btn btn-ghost btn-sm" onClick={onDisconnect}>Desconectar</button>}{status === 'not-configured' && <span>Configura VITE_GOOGLE_OAUTH_CLIENT_ID para autorizar la cuenta.</span>}{lastSync && <span>Última respuesta: {new Date(lastSync).toLocaleString('es-ES')}</span>}</div> }
+function ConnectionStatus({ status, error, lastSync, onConnect, onDisconnect }) { const labels = { loading: 'Sincronizando...', reconnecting: 'Restaurando conexión...', authorizing: 'Esperando autorización de Google...', connected: 'Conectado con Google Search Console', disconnected: 'Cuenta de Google no conectada', 'requires-consent': 'Es necesaria una autorización', 'not-configured': 'OAuth no configurado', unauthenticated: 'Sesión no válida', error: 'No se pudo sincronizar' }; return <div className={`seo-connection seo-connection--${status}`}><span className="seo-dot" /> <strong>{labels[status]}</strong>{error && <span>{error}</span>}{['disconnected', 'error', 'unauthenticated', 'requires-consent'].includes(status) && <button className="btn btn-primary btn-sm" onClick={() => onConnect(status === 'requires-consent')}>{status === 'requires-consent' ? 'Autorizar acceso de Google' : status === 'disconnected' ? 'Conectar con Google Search Console' : 'Volver a conectar'}</button>}{status === 'connected' && <button className="btn btn-ghost btn-sm" onClick={onDisconnect}>Desconectar</button>}{status === 'not-configured' && <span>Configura VITE_GOOGLE_OAUTH_CLIENT_ID para autorizar la cuenta.</span>}{lastSync && <span>Última respuesta: {new Date(lastSync).toLocaleString('es-ES')}</span>}</div> }
 function Panel({ title, note, action, children }) { return <section className="seo-panel"><div className="seo-panel-heading"><div><h3>{title}</h3>{note && <p>{note}</p>}</div>{action}</div>{children}</section> }
 function Chart({ data, metric, label }) { if (!data?.length) return <div className="seo-chart"><strong>{label}</strong><p className="seo-empty">Sin datos</p></div>; const max = Math.max(...data.map((point) => Number(point[metric] ?? 0)), 1); return <div className="seo-chart" role="img" aria-label={`Evolución de ${label}`}><strong>{label}</strong><div className="seo-chart-bars">{data.map((point) => <div className="seo-chart-point" style={{ height: `${Math.max(4, (Number(point[metric] ?? 0) / max) * 100)}%` }} title={`${point.date}: ${point[metric] ?? '—'}`} key={point.date} />)}</div><div className="seo-chart-labels"><span>{data[0].date}</span><span>{data[data.length - 1].date}</span></div></div> }
 function DataTable({ rows }) { if (!rows.length) return <p className="seo-empty">No hay consultas disponibles para este periodo.</p>; return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Palabra clave</th><th>Clics</th><th>Impresiones</th><th>CTR</th><th>Posición</th><th>Variación</th><th>URL</th></tr></thead><tbody>{rows.map((row) => <tr key={`${row.query}-${row.url}`}><td><strong>{row.query}</strong></td><td>{format(row.clicks)}</td><td>{format(row.impressions)}</td><td>{percent(row.ctr)}</td><td>{format(row.position, 1)}</td><td>{row.variation == null ? '—' : format(row.variation, 1)}</td><td>{row.url ? <a href={row.url} target="_blank" rel="noreferrer">Ver ↗</a> : '—'}</td></tr>)}</tbody></table></div> }

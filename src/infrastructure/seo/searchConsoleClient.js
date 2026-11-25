@@ -9,6 +9,7 @@ const cache = new Map()
 let gisPromise
 let accessToken = null
 let tokenExpiresAt = 0
+let resumeBlocked = false
 
 export const searchConsoleConfig = {
   clientId: CLIENT_ID,
@@ -34,16 +35,19 @@ function loadGoogleIdentityServices() {
   return gisPromise
 }
 
-export async function connectSearchConsole() {
+export async function connectSearchConsole({ loginHint, forceConsent = false } = {}) {
   if (!CLIENT_ID) throw new Error('Falta configurar VITE_GOOGLE_OAUTH_CLIENT_ID')
   const google = await loadGoogleIdentityServices()
+  resumeBlocked = false
   return new Promise((resolve, reject) => {
     const tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: READONLY_SCOPE,
       callback: (response) => {
         if (response.error || !response.access_token) {
-          reject(new Error(response.error_description || 'Google no concedió acceso a Search Console'))
+          const error = new Error(response.error_description || 'Google no concedió acceso a Search Console')
+          error.code = response.error
+          reject(error)
           return
         }
         accessToken = response.access_token
@@ -52,7 +56,7 @@ export async function connectSearchConsole() {
       },
       error_callback: (error) => reject(new Error(error?.message || 'Se canceló la autorización de Google')),
     })
-    tokenClient.requestAccessToken({ prompt: accessToken ? '' : 'consent' })
+    tokenClient.requestAccessToken({ prompt: forceConsent ? 'consent' : '', login_hint: loginHint })
   })
 }
 
@@ -65,6 +69,11 @@ export function disconnectSearchConsole() {
   accessToken = null
   tokenExpiresAt = 0
   cache.clear()
+  resumeBlocked = true
+}
+
+export function canResumeSearchConsole() {
+  return !resumeBlocked
 }
 
 function requireToken() {
