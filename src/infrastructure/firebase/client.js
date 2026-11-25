@@ -37,4 +37,5 @@ export const COLLECTIONS = {
   ADMINS: 'admins', // id = uid de Firebase Auth, { role }
   LOGS: 'logs',
   USAGE: 'usage', // un documento por día: `usage/YYYY-MM-DD`
+  SEO_DRAFTS: 'seo_drafts', // borradores SEO privados del panel de administración
 }

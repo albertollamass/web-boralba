@@ -3,6 +3,7 @@ import { useCategories } from '../../application/catalog/CategoriesContext'
 import { useProducts } from '../../application/catalog/ProductsContext'
 import Seo from '../components/Seo'
 import { canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
+import { seoFields } from '../../domain/site/seo.js'
 
 function CategoryProductCard({ product, categoryName }) {
   return (
@@ -39,13 +40,15 @@ export default function Categoria() {
       : assignedCategories.some((assignedCategory) => categorySlugs.has(assignedCategory))
   })
   const subCats = isFamily ? children : getLeafCategories().filter((item) => item.slug !== slug)
+  const categorySeo = seoFields(category)
 
   return (
     <>
       <Seo
         title={`${category.name} — Iluminación LED`}
         description={category.tagline || category.description || `Productos LED de ${category.name}: soluciones profesionales Boralba para tu proyecto de iluminación.`}
-        path={`/categoria/${category.slug}`}
+         path={`/categoria/${category.slug}`}
+         seo={categorySeo}
         jsonLd={breadcrumbJsonLd([
           { name: 'Home', url: canonicalFor('/') },
           { name: 'Productos', url: canonicalFor('/productos') },
@@ -58,9 +61,10 @@ export default function Categoria() {
             <Link to="/">Home</Link><span>/</span><Link to="/productos">Productos</Link>
             {trail.map((item) => <span key={item.slug}><span>/</span><Link to={`/categoria/${item.slug}`}>{item.name}</Link></span>)}
           </div>
-          <h1>{category.name}</h1>
-          {category.tagline && <p>{category.tagline}</p>}
-          {category.description && <p>{category.description}</p>}
+           <h1>{categorySeo.h1 || category.name}</h1>
+           {category.tagline && <p>{category.tagline}</p>}
+           {category.description && <p>{category.description}</p>}
+           {categorySeo.content && <p>{categorySeo.content}</p>}
         </div>
       </div>
 

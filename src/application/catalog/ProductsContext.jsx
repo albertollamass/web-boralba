@@ -70,7 +70,7 @@ export function ProductsProvider({ children, repository, telemetry }) {
   const updateProduct = (id, updates) => {
     const merged = { ...updates, id }
     setProducts((prev) => prev.map((p) => (p.id === id ? merged : p)))
-    repository
+    return repository
       .saveProduct(merged)
       .then(() => setSyncStatus('cloud'))
       .catch((error) => {

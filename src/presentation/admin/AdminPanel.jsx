@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { DAILY_READ_LIMIT, READ_ALERT_AT, useDailyReads } from '../../application/telemetry/usage'
 import { useProducts } from '../../application/catalog/ProductsContext'
 import { useCategories } from '../../application/catalog/CategoriesContext'
@@ -47,6 +47,16 @@ const emptyProduct = () => ({
   outlet: false,
 })
 
+function firstSeoIssueField(product) {
+  if (!product) return ''
+  if (product.image && !product.imageAlt) return 'imageAlt'
+  const galleryIndex = (product.gallery || []).findIndex((image) => image?.src && !image.alt && !image.decorative && image.category !== 'Decorativa')
+  if (galleryIndex >= 0) return `galleryAlt-${galleryIndex}`
+  if (!product.seo?.title) return 'title'
+  if (!product.seo?.description) return 'description'
+  return ''
+}
+
 export default function AdminPanel({ telemetry, documentStorage }) {
   const { products, addProduct, updateProduct, deleteProduct, resetProducts, syncStatus, cloudEnabled } =
     useProducts()
@@ -59,8 +69,33 @@ export default function AdminPanel({ telemetry, documentStorage }) {
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState('')
   const [catForm, setCatForm] = useState({ open: false, editing: null })
+  const [searchParams, setSearchParams] = useSearchParams()
+  const requestedField = searchParams.get('campo') || ''
+  const returnView = searchParams.get('volver') || 'products'
+  const editProductId = searchParams.get('editar')
+  const editProduct = products.find((item) => item.id === editProductId)
+  const inferredField = requestedField || firstSeoIssueField(editProduct)
+  const focusField = inferredField.startsWith('gallery-') ? `galleryAlt-${inferredField.slice(8)}` : inferredField
+  const seoTargetId = searchParams.get('seoEditar')
+  const automaticSeoTarget = editProductId && !requestedField && inferredField && ['title', 'description'].includes(inferredField) ? { id: editProductId, field: inferredField } : null
+  const automaticSeoTargetId = automaticSeoTarget?.id || ''
+  const seoTarget = seoTargetId ? { id: seoTargetId, field: searchParams.get('seoCampo') || 'title' } : automaticSeoTarget
   // Cuota diaria de la base de datos: muestra el consumo para anticiparse al corte.
   const dailyReads = useDailyReads(telemetry)
+
+  useEffect(() => {
+    if (seoTargetId || automaticSeoTargetId) {
+      setView('seo')
+      return
+    }
+    const productId = editProductId
+    if (!productId || !products.length) return
+    const product = products.find((item) => item.id === productId)
+    if (!product) return
+    setEditing(product)
+    setCreating(false)
+    setView('products')
+  }, [products, searchParams, seoTargetId, automaticSeoTargetId, editProductId])
 
   if (!user) return <Navigate to="/admin/login" replace />
   if (!isAdmin) return <Navigate to="/" replace />
@@ -85,7 +120,8 @@ export default function AdminPanel({ telemetry, documentStorage }) {
     }
     setEditing(null)
     setCreating(false)
-    setView('products')
+    setView(returnView)
+    setSearchParams({}, { replace: true })
   }
 
   const openNewCategory = () => setCatForm({ open: true, editing: null })
@@ -126,7 +162,7 @@ export default function AdminPanel({ telemetry, documentStorage }) {
           <button type="button" data-analytics-tab="ga4" className={view === 'analytics' ? 'active' : ''} onClick={() => setView('analytics')}>Analítica web</button>
         </div>
 
-         {view === 'seo' ? <SeoDashboard /> : view === 'analytics' ? <AnalyticsDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
+          {view === 'seo' ? <SeoDashboard target={seoTarget} /> : view === 'analytics' ? <AnalyticsDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
           catForm.open ? (
             <CategoryForm
               initial={catForm.editing}
@@ -143,11 +179,14 @@ export default function AdminPanel({ telemetry, documentStorage }) {
               <ProductForm
               initial={editing || emptyProduct()}
               allProducts={products}
-              documentStorage={documentStorage}
+               documentStorage={documentStorage}
+               focusField={focusField}
               onSubmit={handleSubmit}
               onCancel={() => {
                 setEditing(null)
-                setCreating(false)
+                 setCreating(false)
+                 setView(returnView)
+                 setSearchParams({}, { replace: true })
               }}
             />
           </div>

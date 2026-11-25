@@ -13,6 +13,7 @@ import { resolveTechnicalKey } from '../../domain/catalog/technicalFeatures'
 import { useQuote } from '../../application/quote/QuoteContext'
 import { variantCandidates, variantGroups, variantLabelRows, variantValue } from '../../domain/catalog/quoteVariants'
 import { generateSlug } from '../../domain/catalog/slug'
+import { seoFields } from '../../domain/site/seo.js'
 
 const isDataUrl = (value) => typeof value === 'string' && value.startsWith('data:')
 const itemText = (item) => typeof item === 'string' || typeof item === 'number' ? String(item).trim() : item && typeof item === 'object' ? String(item.text ?? item.title ?? item.name ?? item.label ?? item.application ?? '').trim() : ''
@@ -212,8 +213,9 @@ export default function ProductoDetalle({ analytics }) {
   if (!product) return <Navigate to="/productos" replace />
 
   const category = getCategory(product.category)
+  const productSeo = seoFields(product)
   const categoryTrail = getBreadcrumb(product.category) || []
-  const gallery = [...new Map([product.image, ...(Array.isArray(product.gallery) ? product.gallery : csv(product.gallery))].map((image) => [imageSrc(image), imageSrc(image)])).values()].filter(Boolean)
+  const gallery = [...new Map([product.image, ...(Array.isArray(product.gallery) ? product.gallery : csv(product.gallery))].map((image) => [imageSrc(image), { src: imageSrc(image), alt: typeof image === 'object' ? image.alt || '' : image === product.image ? product.imageAlt || '' : '' }])).values()].filter((image) => image.src)
   const apps = contentItems(product.applications)
   const benefits = contentItems(product.advantages, true)
   const longDescription = list(product.longDescription)
@@ -288,7 +290,8 @@ export default function ProductoDetalle({ analytics }) {
       title={`${product.name}${product.ref ? ` ${product.ref}` : ''} — Producto LED`}
       description={product.description || `Ficha técnica de ${product.name}${product.ref ? ` (${product.ref})` : ''}: especificaciones, aplicaciones y soluciones compatibles Boralba Lighting.`}
        path={`/producto/${product.id}/${generateSlug(product.name)}`}
-      image={product.image ? `${SITE.url}/${String(product.image).replace(/^\//, '')}` : undefined}
+       image={product.image ? `${SITE.url}/${String(product.image).replace(/^\//, '')}` : undefined}
+       seo={productSeo}
       jsonLd={[
         breadcrumbJsonLd([
           { name: 'Home', url: canonicalFor('/') },

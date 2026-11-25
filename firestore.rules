@@ -81,5 +81,11 @@ service cloud.firestore {
         && request.resource.data.writes >= resource.data.writes;
       allow delete: if false;
     }
+
+    // Los borradores SEO no se sirven al público. Solo un administrador puede
+    // leerlos o modificarlos desde el panel.
+    match /seo_drafts/{draftId} {
+      allow read, write: if isAdmin();
+    }
   }
 }

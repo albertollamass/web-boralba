@@ -27,7 +27,6 @@ const staticRoutes = [
   '/empresa',
   '/disena-tu-luminaria',
   '/contacto',
-  '/outlet',
   '/proyectos/soluciones-especiales/obra-panel-led-flexible',
   '/proyectos/viviendas/chalet-en-pozuelo-de-alarcon',
   '/proyectos/exterior-y-fachadas/torreon-consuegra-fachadas',

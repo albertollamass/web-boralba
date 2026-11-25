@@ -1,13 +1,13 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './presentation/components/Layout'
-import { useCategories } from './application/catalog/CategoriesContext'
 import { useAuth } from './application/identity/AuthContext'
 import ScrollToTop from './presentation/components/ScrollToTop'
 import { useAnalyticsPageView } from './application/analytics/useAnalyticsPageView.js'
 
 const Home = lazy(() => import('./presentation/pages/Home'))
 const Productos = lazy(() => import('./presentation/pages/Productos'))
+const Categoria = lazy(() => import('./presentation/pages/Categoria'))
 const ProductoDetalle = lazy(() => import('./presentation/pages/ProductoDetalle'))
 const Outlet = lazy(() => import('./presentation/pages/Outlet'))
 const Buscar = lazy(() => import('./presentation/pages/Buscar'))
@@ -41,29 +41,6 @@ function AdminRoute({ children, backendEnabled }) {
   return children
 }
 
-/* Las antiguas páginas de categoría redirigen al explorador de Productos para
-   mantener toda la navegación por familia y subcategoría dentro de una sola página. */
-function CategoriaRedirect() {
-  const { slug } = useParams()
-  const { getCategory, ROOT, getChildren } = useCategories()
-
-  const category = getCategory(slug)
-  if (!category) return <Navigate to="/productos" replace />
-
-  const parent = getCategory(category.parent)
-  const isFamily =
-    category.slug !== ROOT.slug &&
-    (category.parent === ROOT.slug ||
-      (!!parent && parent.parent === ROOT.slug && getChildren(category.slug).length > 0))
-
-  return (
-    <Navigate
-      to={{ pathname: '/productos', search: isFamily ? `?g=${category.slug}` : `?c=${category.slug}` }}
-      replace
-    />
-  )
-}
-
 export default function App({ backendEnabled, telemetry, analytics, documentStorage, quoteSender }) {
   return (
     <BrowserRouter basename={BASENAME}>
@@ -74,7 +51,7 @@ export default function App({ backendEnabled, telemetry, analytics, documentStor
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
            <Route path="/productos" element={<Productos analytics={analytics} />} />
-          <Route path="/categoria/:slug" element={<CategoriaRedirect />} />
+           <Route path="/categoria/:slug" element={<Categoria />} />
            <Route path="/producto/:id" element={<ProductoDetalle analytics={analytics} />} />
            <Route path="/producto/:id/:slug" element={<ProductoDetalle analytics={analytics} />} />
           <Route path="/outlet" element={<Outlet />} />

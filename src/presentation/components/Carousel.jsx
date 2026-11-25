@@ -3,13 +3,15 @@ import { useState } from 'react'
 export default function Carousel({ images, alt, onImageClick }) {
   const [index, setIndex] = useState(0)
   const total = images.length
+  const source = (image) => typeof image === 'string' ? image : image?.src || ''
+  const imageAlt = (image) => typeof image === 'string' ? alt : image?.alt || alt
 
   if (total <= 1) {
     return (
       <div className="carousel-shell"><div className="carousel">
         <div className="carousel-track" style={{ transform: 'translateX(0%)' }}>
-            <button type="button" className="carousel-image-button" onClick={(event) => onImageClick?.(images[0], event)} aria-label="Ampliar imagen del producto">
-            <img src={images[0]} alt={alt} loading="eager" fetchPriority="high" decoding="async" sizes="(max-width: 768px) 100vw, 50vw" />
+            <button type="button" className="carousel-image-button" onClick={(event) => onImageClick?.(source(images[0]), event)} aria-label="Ampliar imagen del producto">
+            <img src={source(images[0])} alt={imageAlt(images[0])} loading="eager" fetchPriority="high" decoding="async" sizes="(max-width: 768px) 100vw, 50vw" />
           </button>
         </div>
       </div></div>
@@ -27,8 +29,8 @@ export default function Carousel({ images, alt, onImageClick }) {
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {images.map((img, j) => (
-            <button type="button" className="carousel-image-button" key={j} onClick={(event) => onImageClick?.(img, event)} aria-label={`Ampliar imagen ${j + 1}`}>
-              <img src={img} alt={alt} loading={j === 0 ? 'eager' : 'lazy'} fetchPriority={j === 0 ? 'high' : 'auto'} decoding="async" sizes="(max-width: 768px) 100vw, 50vw" />
+              <button type="button" className="carousel-image-button" key={j} onClick={(event) => onImageClick?.(source(img), event)} aria-label={`Ampliar imagen ${j + 1}`}>
+              <img src={source(img)} alt={imageAlt(img)} loading={j === 0 ? 'eager' : 'lazy'} fetchPriority={j === 0 ? 'high' : 'auto'} decoding="async" sizes="(max-width: 768px) 100vw, 50vw" />
             </button>
           ))}
         </div>
@@ -65,6 +67,6 @@ export default function Carousel({ images, alt, onImageClick }) {
       <div className="carousel-count">
         {index + 1} / {total}
       </div>
-      </div><div className="gallery-thumbs">{images.map((img, j) => <button type="button" key={j} className={`thumb${j === index ? ' active' : ''}`} onClick={() => setIndex(j)} aria-label={`Seleccionar imagen ${j + 1}`}><img src={img} alt="" /></button>)}</div></div>
+      </div><div className="gallery-thumbs">{images.map((img, j) => <button type="button" key={j} className={`thumb${j === index ? ' active' : ''}`} onClick={() => setIndex(j)} aria-label={`Seleccionar imagen ${j + 1}`}><img src={source(img)} alt="" /></button>)}</div></div>
   )
 }
