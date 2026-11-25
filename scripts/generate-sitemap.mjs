@@ -117,9 +117,11 @@ try {
   const retired = [...previousSet].filter((route) => !currentSet.has(route)).length
   console.log(`Sitemap catálogo: ${added} productos nuevos, ${retired} retirados.`)
 } catch (error) {
-  productRoutes = [...previousSitemap.matchAll(/<loc>([^<]*\/producto\/[^<]+)<\/loc>/g)]
-    .map((match) => new URL(match[1]).pathname)
-  console.warn(`Sitemap: no se pudo consultar Firestore (${error.message}); se conservan ${productRoutes.length} rutas de producto previas.`)
+  // No publicar una copia posiblemente obsoleta: un 429 no debe convertir el
+  // sitemap en un catálogo incompleto sin que el build lo deje claro.
+  console.error(`Sitemap: no se pudo consultar Firestore (${error.message}). Se cancela la generación.`)
+  process.exitCode = 1
+  throw error
 }
 
 const routes = [...staticRoutes, ...productRoutes]

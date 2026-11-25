@@ -8,6 +8,7 @@ import { readCache, writeCache } from '../cache/indexedDbCache.js'
 
 const CACHE_KEY = 'categories'
 const CACHE_TTL_MS = 30 * 60 * 1000 // 30 min
+let categoriesRequest = null
 
 async function fetchRemoteCategories() {
   let lastError
@@ -44,9 +45,14 @@ export const firestoreCategoryRepository = {
   async listCategories() {
     const cached = await readCache(CACHE_KEY, CACHE_TTL_MS)
     if (cached) return { items: cached, source: 'cache' }
-    const items = await fetchRemoteCategories()
-    writeCache(CACHE_KEY, items)
-    return { items, source: 'cloud' }
+    if (categoriesRequest) return categoriesRequest
+    categoriesRequest = fetchRemoteCategories()
+      .then(async (items) => {
+        await writeCache(CACHE_KEY, items)
+        return { items, source: 'cloud' }
+      })
+      .finally(() => { categoriesRequest = null })
+    return categoriesRequest
   },
 
   async saveCategory(category) {

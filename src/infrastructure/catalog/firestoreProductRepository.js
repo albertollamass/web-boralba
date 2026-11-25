@@ -8,6 +8,7 @@ import { readCache, writeCache } from '../cache/indexedDbCache.js'
 
 const CACHE_KEY = 'products'
 const CACHE_TTL_MS = 30 * 60 * 1000 // 30 min
+let productsRequest = null
 
 function sortByRecent(products) {
   // Orden: los más recientes primero (por updatedAt/createdAt si existen).
@@ -40,11 +41,16 @@ export const firestoreProductRepository = {
   async listProducts() {
     const cached = await readCache(CACHE_KEY, CACHE_TTL_MS)
     if (cached) return { items: cached, source: 'cache' }
-    const snap = await getDocs(collection(db, COLLECTIONS.PRODUCTS))
-    const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    sortByRecent(items)
-    writeCache(CACHE_KEY, items)
-    return { items, source: 'cloud' }
+    if (productsRequest) return productsRequest
+    productsRequest = getDocs(collection(db, COLLECTIONS.PRODUCTS))
+      .then(async (snap) => {
+        const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        sortByRecent(items)
+        await writeCache(CACHE_KEY, items)
+        return { items, source: 'cloud' }
+      })
+      .finally(() => { productsRequest = null })
+    return productsRequest
   },
 
   async saveProduct(product) {

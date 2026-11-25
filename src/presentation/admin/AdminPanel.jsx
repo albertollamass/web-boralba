@@ -9,6 +9,8 @@ import { generateSlug } from '../../domain/catalog/slug'
 import { fileToDataUrl } from '../utils/images'
 import ProductForm from './ProductForm'
 import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
+import SeoDashboard from './SeoDashboard'
+import { disconnectSearchConsole } from '../../infrastructure/seo/searchConsoleClient.js'
 
 const emptyProduct = () => ({
   name: '',
@@ -100,7 +102,7 @@ export default function AdminPanel({ telemetry, documentStorage }) {
             <span style={{ opacity: 0.8, fontSize: '0.85rem' }}>Panel de administración</span>
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-            <button className="btn btn-ghost btn-sm" onClick={signOut}>
+             <button className="btn btn-ghost btn-sm" onClick={() => { disconnectSearchConsole(); signOut() }}>
               Salir
             </button>
           </div>
@@ -119,9 +121,10 @@ export default function AdminPanel({ telemetry, documentStorage }) {
             Categorías
           </button>
           <button className={view === 'configuracion' ? 'active' : ''} onClick={() => setView('configuracion')}>Configuración general</button>
+          <button className={view === 'seo' ? 'active' : ''} onClick={() => setView('seo')}>SEO y posicionamiento</button>
         </div>
 
-        {view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
+        {view === 'seo' ? <SeoDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
           catForm.open ? (
             <CategoryForm
               initial={catForm.editing}
