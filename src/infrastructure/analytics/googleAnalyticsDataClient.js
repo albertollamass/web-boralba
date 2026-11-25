@@ -2,7 +2,7 @@ const CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 const PROPERTY_ID = import.meta.env.VITE_GA_PROPERTY_ID || '565830142'
 const SCOPE = 'https://www.googleapis.com/auth/analytics.readonly'
 const GIS_URL = 'https://accounts.google.com/gsi/client'
-const API_ROOT = `https://analyticsdata.googleapis.com/v1beta/properties/${PROPERTY_ID}:runReport`
+const API_ROOT = `https://analyticsdata.googleapis.com/v1beta/properties/${PROPERTY_ID}`
 
 let gisPromise
 let accessToken = null
@@ -51,9 +51,9 @@ export function disconnectAnalytics() {
   accessToken = null; tokenExpiresAt = 0; resumeBlocked = true
 }
 
-async function request(body) {
+async function request(method, body) {
   if (!isAnalyticsConnected()) throw new Error('La autorización de Analytics ha caducado. Vuelve a conectar la cuenta.')
-  const response = await fetch(API_ROOT, { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  const response = await fetch(`${API_ROOT}:${method}`, { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   if (response.status === 401) { accessToken = null; tokenExpiresAt = 0; throw new Error('La autorización de Analytics ha caducado. Vuelve a conectar la cuenta.') }
   if (!response.ok) { const detail = await response.text().catch(() => ''); throw new Error(`Analytics respondió HTTP ${response.status}${detail ? `: ${detail.slice(0, 180)}` : ''}`) }
   return response.json()
@@ -64,17 +64,33 @@ const dimension = (name) => ({ name })
 const value = (row, index) => row?.metricValues?.[index]?.value == null ? 0 : Number(row.metricValues[index].value)
 const text = (row, index) => row?.dimensionValues?.[index]?.value || '(sin datos)'
 
-async function report({ startDate, endDate, dimensions, metrics, limit = 100 }) {
-  const data = await request({ dateRanges: [{ startDate, endDate }], dimensions: dimensions.map(dimension), metrics: metrics.map(metric), limit: String(limit), keepEmptyRows: true })
-  return (data.rows || []).map((row) => ({ dimensions: dimensions.map((_, index) => text(row, index)), metrics: metrics.map((_, index) => value(row, index)) }))
+async function checkCompatibility({ dimensions, metrics }) {
+  const data = await request('checkCompatibility', { dimensions: dimensions.map(dimension), metrics: metrics.map(metric) })
+  const incompatibleDimensions = (data.dimensionCompatibilities || []).filter((item) => item.compatibility !== 'COMPATIBLE').map((item) => item.dimensionMetadata?.apiName || 'dimensión')
+  const incompatibleMetrics = (data.metricCompatibilities || []).filter((item) => item.compatibility !== 'COMPATIBLE').map((item) => item.metricMetadata?.apiName || 'métrica')
+  if (incompatibleDimensions.length || incompatibleMetrics.length) {
+    const fields = [...incompatibleDimensions.map((item) => `dimensión ${item}`), ...incompatibleMetrics.map((item) => `métrica ${item}`)]
+    throw new Error(`Combinación no compatible según checkCompatibility: ${fields.join(', ')}`)
+  }
+}
+
+async function report({ startDate, endDate, dimensions, metrics, limit = 100, dimensionFilter }) {
+  try {
+    await checkCompatibility({ dimensions, metrics })
+    const data = await request('runReport', { dateRanges: [{ startDate, endDate }], dimensions: dimensions.map(dimension), metrics: metrics.map(metric), limit: String(limit), keepEmptyRows: true, ...(dimensionFilter ? { dimensionFilter } : {}) })
+    return { rows: (data.rows || []).map((row) => ({ dimensions: dimensions.map((_, index) => text(row, index)), metrics: metrics.map((_, index) => value(row, index)) })), error: null }
+  } catch (error) {
+    return { rows: [], error: error instanceof Error ? error.message : 'No se pudo consultar este apartado.' }
+  }
 }
 
 export async function fetchAnalyticsReport({ startDate, endDate }) {
-  const [totals, timeline, products, categories, searches, sources, geography, devices, landing, events] = await Promise.all([
+  const viewItemFilter = { filter: { fieldName: 'eventName', stringFilter: { matchType: 'EXACT', value: 'view_item' } } }
+  const results = await Promise.all([
     report({ startDate, endDate, metrics: ['activeUsers', 'newUsers', 'sessions', 'averageSessionDuration', 'screenPageViews', 'eventCount'], dimensions: ['date'], limit: 1000 }),
     report({ startDate, endDate, metrics: ['activeUsers', 'sessions'], dimensions: ['date'], limit: 1000 }),
-    report({ startDate, endDate, metrics: ['itemViews', 'eventCount'], dimensions: ['itemName'], limit: 25 }),
-    report({ startDate, endDate, metrics: ['itemViews'], dimensions: ['itemCategory'], limit: 25 }),
+    report({ startDate, endDate, metrics: ['eventCount'], dimensions: ['itemName'], limit: 25, dimensionFilter: viewItemFilter }),
+    report({ startDate, endDate, metrics: ['eventCount'], dimensions: ['itemCategory'], limit: 25, dimensionFilter: viewItemFilter }),
     report({ startDate, endDate, metrics: ['eventCount'], dimensions: ['searchTerm'], limit: 25 }),
     report({ startDate, endDate, metrics: ['activeUsers', 'sessions'], dimensions: ['sessionDefaultChannelGroup'], limit: 15 }),
     report({ startDate, endDate, metrics: ['activeUsers', 'sessions'], dimensions: ['country', 'city'], limit: 25 }),
@@ -82,8 +98,23 @@ export async function fetchAnalyticsReport({ startDate, endDate }) {
     report({ startDate, endDate, metrics: ['sessions', 'activeUsers'], dimensions: ['landingPagePlusQueryString'], limit: 25 }),
     report({ startDate, endDate, metrics: ['eventCount'], dimensions: ['eventName'], limit: 100 }),
   ])
-  const total = totals.reduce((result, row) => { result.activeUsers += row.metrics[0]; result.newUsers += row.metrics[1]; result.sessions += row.metrics[2]; result.engagement += row.metrics[3] * row.metrics[2]; result.views += row.metrics[4]; result.events += row.metrics[5]; return result }, { activeUsers: 0, newUsers: 0, sessions: 0, engagement: 0, views: 0, events: 0 })
-  const eventMap = Object.fromEntries(events.map((row) => [row.dimensions[0], row.metrics[0]]))
-  return {
-     status: 'ready', data: { total: { ...total, recurringUsers: Math.max(0, total.activeUsers - total.newUsers), averageSessionDuration: total.sessions ? total.engagement / total.sessions : 0 }, timeline: timeline.map((r) => ({ date: r.dimensions[0], activeUsers: r.metrics[0], sessions: r.metrics[1] })), products: products.map((r) => ({ name: r.dimensions[0], views: r.metrics[0], events: r.metrics[1] })), categories: categories.map((r) => ({ name: r.dimensions[0], views: r.metrics[0] })), searches: searches.map((r) => ({ term: r.dimensions[0], searches: r.metrics[0] })), sources: sources.map((r) => ({ name: r.dimensions[0], users: r.metrics[0], sessions: r.metrics[1] })), geography: geography.map((r) => ({ country: r.dimensions[0], city: r.dimensions[1], users: r.metrics[0], sessions: r.metrics[1] })), devices: devices.map((r) => ({ name: r.dimensions[0], users: r.metrics[0], sessions: r.metrics[1] })), landing: landing.map((r) => ({ page: r.dimensions[0], sessions: r.metrics[0], users: r.metrics[1] })), funnel: { addToQuote: eventMap.add_to_quote || 0, started: eventMap.quote_request_start || 0, sent: eventMap.quote_request_success || 0, contactSent: eventMap.contact_form_success || 0, removed: eventMap.remove_from_quote || 0 }, events: eventMap } }
+  const names = ['totals', 'timeline', 'products', 'categories', 'searches', 'sources', 'geography', 'devices', 'landing', 'events']
+  const rows = results.map((result) => result.rows)
+  const errors = Object.fromEntries(names.map((name, index) => [name, results[index].error]).filter(([, error]) => error))
+  const total = errors.totals ? null : rows[0].reduce((result, row) => { result.activeUsers += row.metrics[0]; result.newUsers += row.metrics[1]; result.sessions += row.metrics[2]; result.engagement += row.metrics[3] * row.metrics[2]; result.views += row.metrics[4]; result.events += row.metrics[5]; return result }, { activeUsers: 0, newUsers: 0, sessions: 0, engagement: 0, views: 0, events: 0 })
+  const eventMap = Object.fromEntries(rows[9].map((row) => [row.dimensions[0], row.metrics[0]]))
+  return { status: 'ready', data: {
+    total: total ? { ...total, recurringUsers: Math.max(0, total.activeUsers - total.newUsers), averageSessionDuration: total.sessions ? total.engagement / total.sessions : 0 } : null,
+    errors,
+    timeline: rows[1].map((row) => ({ date: row.dimensions[0], activeUsers: row.metrics[0], sessions: row.metrics[1] })),
+    products: rows[2].map((row) => ({ name: row.dimensions[0], views: row.metrics[0], events: row.metrics[0] })),
+    categories: rows[3].map((row) => ({ name: row.dimensions[0], views: row.metrics[0] })),
+    searches: rows[4].map((row) => ({ term: row.dimensions[0], searches: row.metrics[0] })),
+    sources: rows[5].map((row) => ({ name: row.dimensions[0], users: row.metrics[0], sessions: row.metrics[1] })),
+    geography: rows[6].map((row) => ({ country: row.dimensions[0], city: row.dimensions[1], users: row.metrics[0], sessions: row.metrics[1] })),
+    devices: rows[7].map((row) => ({ name: row.dimensions[0], users: row.metrics[0], sessions: row.metrics[1] })),
+    landing: rows[8].map((row) => ({ page: row.dimensions[0], sessions: row.metrics[0], users: row.metrics[1] })),
+    funnel: { addToQuote: eventMap.add_to_quote || 0, started: eventMap.quote_request_start || 0, sent: eventMap.quote_request_success || 0, contactSent: eventMap.contact_form_success || 0, removed: eventMap.remove_from_quote || 0 },
+    events: eventMap,
+  } }
 }

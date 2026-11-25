@@ -25,6 +25,7 @@
 .analytics-state, .analytics-empty { padding: 28px 16px; color: var(--color-text-muted); display: grid; gap: 6px; }
 .analytics-state strong { color: var(--color-primary); }
 .analytics-note, .analytics-recommendations { color: var(--color-text-muted); font-size: .86rem; line-height: 1.55; }
+.analytics-error { margin: 0; padding: 10px 12px; border-left: 3px solid #b7791f; background: #fff8e8; color: #6e4d13; font-size: .82rem; line-height: 1.45; overflow-wrap: anywhere; }
 .footer-cookie-settings { border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; padding: 0; }
 @media (max-width: 1000px) { .analytics-kpis { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 680px) { .analytics-grid { grid-template-columns: 1fr; } .analytics-kpis { grid-template-columns: repeat(2, 1fr); } .analytics-actions { width: 100%; } .analytics-actions label { flex: 1; } }
