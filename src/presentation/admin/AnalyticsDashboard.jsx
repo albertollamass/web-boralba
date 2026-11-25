@@ -51,7 +51,7 @@ export default function AnalyticsDashboard() {
     </>}
   </AnalyticsShell>
 }
-function AnalyticsShell({ children }) { return <section className="analytics-dashboard">{children}</section> }
+function AnalyticsShell({ children }) { return <section id="admin-analytics-panel" data-analytics-version="ga4" className="analytics-dashboard">{children}</section> }
 function State({ title, text }) { return <div className="analytics-state"><strong>{title}</strong><span>{text}</span></div> }
 function BlockTitle({ title }) { return <div className="analytics-block-title"><h3>{title}</h3><span title="La información se explica con palabras sencillas">ⓘ</span></div> }
 function Panel({ title, children }) { return <article className="analytics-panel"><BlockTitle title={title} />{children}</article> }
