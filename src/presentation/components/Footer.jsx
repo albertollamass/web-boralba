@@ -43,6 +43,7 @@ export default function Footer() {
             <Link to="/legal/politica-privacidad">Política de privacidad</Link>
             <span aria-hidden="true">·</span>
             <Link to="/legal/politica-cookies">Cookies</Link>
+            <button className="footer-cookie-settings" type="button" onClick={() => window.dispatchEvent(new Event('boralba-open-cookie-preferences'))}>Preferencias</button>
             <span aria-hidden="true">·</span>
             <Link to="/legal/aviso-legal">Aviso legal</Link>
           </span>

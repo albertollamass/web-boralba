@@ -20,7 +20,7 @@ export default function SolicitarPresupuesto({ quoteSender, analytics }) {
     if (Number(captcha) !== CAPTCHA.num1 + CAPTCHA.num2) { setError('La solución de la operación no es correcta.'); return }
     if (!form.privacidad || !form.cookies || !form.legal) { setError('Debes aceptar la política de privacidad, cookies y aviso legal.'); return }
     if (!quoteSender?.isConfigured) { setError('El formulario aún no está configurado para el envío. Inténtalo más tarde.'); return }
-    setStatus('sending'); setError('')
+     setStatus('sending'); setError(''); analytics?.track('quote_request_start', { items_count: items.length })
     const products = items.map((item, index) => [`${index + 1}. ${item.name}`, `Referencia: ${item.reference}`, `Variantes: ${(item.variantRows || []).map((row) => `${row.label}: ${row.value}`).join(' · ') || 'Sin variantes'}`, `Cantidad: ${item.quantity}${item.unit ? ` ${item.unit}` : ''}`].join('\n')).join('\n\n')
     const data = new FormData()
     data.append('subject', `Solicitud de presupuesto · ${form.nombre.trim()}`)

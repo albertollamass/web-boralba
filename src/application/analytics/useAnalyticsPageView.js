@@ -6,10 +6,10 @@ export function useAnalyticsPageView(analytics) {
   const lastPath = useRef('')
   useEffect(() => {
     if (!analytics || location.pathname.startsWith('/admin')) return
-    const path = `${location.pathname}${location.search}`
+    const path = location.pathname
     if (lastPath.current === path) return
     lastPath.current = path
-    const referrer = document.referrer || undefined
+    const referrer = document.referrer ? new URL(document.referrer).pathname : undefined
     const referrerHost = referrer ? new URL(referrer).hostname : undefined
     const aiHosts = ['chat.openai.com', 'chatgpt.com', 'gemini.google.com', 'perplexity.ai', 'claude.ai']
     const searchHosts = ['google.', 'bing.com', 'duckduckgo.com', 'yahoo.']
@@ -20,6 +20,6 @@ export function useAnalyticsPageView(analytics) {
         : referrerHost
           ? 'referral'
           : 'direct'
-    analytics.track('page_view', { page_location: window.location.href, page_path: path, page_referrer: referrer, source_category: sourceCategory })
+    analytics.track('page_view', { page_location: `${window.location.origin}${path}`, page_path: path, page_referrer: referrer, source_category: sourceCategory })
   }, [analytics, location.pathname, location.search])
 }

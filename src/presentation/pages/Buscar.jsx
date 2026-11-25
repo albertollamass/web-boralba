@@ -6,12 +6,13 @@ import ProductCard from '../components/ProductCard'
 import Seo from '../components/Seo'
 import { searchProducts } from '../../domain/search/search'
 
-export default function Buscar() {
+export default function Buscar({ analytics }) {
   const { products } = useProducts()
   const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') || '')
 
   const results = useMemo(() => searchProducts(products, query), [products, query])
+  const trackSearch = (value, count) => analytics?.track('search', { search_term: value.trim().slice(0, 80), results_count: count })
   const hasQuery = query.trim().length > 0
 
   return (
@@ -54,7 +55,7 @@ export default function Buscar() {
           <input
             type="text"
             value={query}
-             onChange={(e) => { setQuery(e.target.value); setSearchParams(e.target.value ? { q: e.target.value } : {}) }}
+              onChange={(e) => { const value = e.target.value; setQuery(value); setSearchParams(value ? { q: value } : {}); if (value.trim().length > 1) trackSearch(value, searchProducts(products, value).length) }}
             placeholder="Introduce descripción, código o potencia (ej: 50W, DL-15W, panel led…)"
             autoFocus
           />

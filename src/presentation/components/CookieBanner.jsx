@@ -7,6 +7,9 @@ export default function CookieBanner() {
     if (!localStorage.getItem('boralba_cookies_accepted')) {
       setVisible(true)
     }
+    const open = () => setVisible(true)
+    window.addEventListener('boralba-open-cookie-preferences', open)
+    return () => window.removeEventListener('boralba-open-cookie-preferences', open)
   }, [])
 
   const acceptAll = () => {
@@ -54,9 +57,10 @@ export default function CookieBanner() {
           <button className="btn btn-primary btn-sm" onClick={acceptAll}>
             Aceptar todas
           </button>
-          <button className="btn btn-outline btn-sm" onClick={rejectAll}>
+         <button className="btn btn-outline btn-sm" onClick={rejectAll}>
             Rechazar todas
           </button>
+          <button className="btn btn-ghost btn-sm" onClick={rejectAll}>Solo necesarias</button>
         </div>
       </div>
     </div>

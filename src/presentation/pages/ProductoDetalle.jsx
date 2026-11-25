@@ -178,7 +178,7 @@ export default function ProductoDetalle({ analytics }) {
 
   useEffect(() => {
     if (!hydrated || !product) return
-    analytics?.track('view_item', { item_id: product.id, item_name: product.name, item_reference: product.ref || undefined, item_category: product.category || undefined })
+    analytics?.track('view_item', { item_id: product.id, item_name: product.name, item_reference: product.ref || undefined, item_category: product.category || undefined, items: [{ item_id: product.id, item_name: product.name, item_category: product.category || undefined }] })
   }, [analytics, hydrated, product])
 
   const closeLightbox = () => setZoomImage(null)
@@ -265,7 +265,7 @@ export default function ProductoDetalle({ analytics }) {
   const addToQuote = () => {
     if (!selectedReference) return
     addItem({ id: `${product.id}|${selectedReference}`, productId: product.id, name: product.name, image: product.image, reference: selectedReference, variantRows: variantLabelRows(selectedVariant), unit: product.unit || '', quantity })
-    analytics?.track('add_to_quote', { item_id: product.id, item_name: product.name, item_reference: selectedReference, quantity })
+    analytics?.track('add_to_quote', { item_id: product.id, item_name: product.name, item_reference: selectedReference, quantity, items: [{ item_id: product.id, item_name: product.name, quantity }] })
     setAdded(true)
     window.setTimeout(() => setAdded(false), 3500)
   }
@@ -280,7 +280,7 @@ export default function ProductoDetalle({ analytics }) {
      {tab.id === 'ventajas' && <div className="content-card-grid product-benefits-grid">{benefits.map((item, i) => <article className={`content-card benefit-card product-benefit-item${item.description ? ' product-benefit-item--detailed' : ''}`} key={i}>{item.icon ? <img className="product-benefit-icon" src={item.icon} alt="" /> : <span className="benefit-check product-benefit-icon">✓</span>}<div className="product-benefit-text"><h3>{presentationBenefitText(item.title)}</h3>{item.description && <p>{presentationBenefitText(item.description)}</p>}</div></article>)}</div>}
         {tab.id === 'datos' && <div className="product-technical-content"><section className="technical-specifications"><h3 className="technical-spec-heading">Especificaciones técnicas</h3><div className="technical-layout"><div className="specifications-table">{specs.length > 0 && <TechnicalSpecTable specs={specs} />}</div>{product.showTechnicalDrawing && product.technicalDrawing && <figure className="technical-drawing"><img src={product.technicalDrawing} alt={`Dibujo técnico de ${product.name}`} role="button" tabIndex={0} onClick={(event) => openLightbox(product.technicalDrawing, event)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') openLightbox(product.technicalDrawing, event) }} /><figcaption>Ampliar dibujo técnico</figcaption></figure>}</div>{product.technicalNotice && <aside className="technical-notice">{product.technicalNotice}</aside>}</section>{hasTechnicalInfo && <ProductTechnicalInfo type={technicalType} value={technicalInfo} selectedVariant={selectedVariant} />}</div>}
        {tab.id === 'accesorios' && <div className="product-accessories-tab">{included.length > 0 && <section className="product-accessories-tab-included"><h3>Incluido con el producto</h3><div>{included.map((item, index) => { const presentation = includedPresentation(item); return <span key={index}>{presentation.quantity} × {presentation.name}</span> })}</div></section>}{accessories.length > 0 && <section className="product-accessories-tab-compatible"><h3>Accesorios compatibles</h3><p>Elementos disponibles por separado para completar la instalación.</p><div>{accessories.map((item, index) => { const reference = item.reference || item.product?.ref; const image = imageSrc(item.image); return <article key={`${item.name}-${reference || ''}-${index}`}><div className="product-accessory-primary">{image && <img src={image} alt="" loading="lazy" />}<h4>{accessoryDisplayName(item.name)}</h4></div>{reference && <span>Ref. {reference}</span>}</article> })}</div></section>}</div>}
-     {tab.id === 'descargas' && <div className="documents-list">{documents.map((document, i) => <a className="document-item" key={i} href={isDataUrl(document.file) ? undefined : fileUrl(document.file)} download={!isDataUrl(document.file) ? undefined : document.name} onClick={isDataUrl(document.file) ? (event) => { event.preventDefault(); openPdfDataUrl(document.file) } : undefined}><span className="document-icon">↓</span><span><strong>{document.name}</strong><small>{document.type || 'Documento'}</small></span><b>Descargar</b></a>)}</div>}
+     {tab.id === 'descargas' && <div className="documents-list">{documents.map((document, i) => <a className="document-item" key={i} href={isDataUrl(document.file) ? undefined : fileUrl(document.file)} download={!isDataUrl(document.file) ? undefined : document.name} onClick={(event) => { analytics?.track('file_download', { file_name: document.name, item_id: product.id }); if (isDataUrl(document.file)) { event.preventDefault(); openPdfDataUrl(document.file) } }}><span className="document-icon">↓</span><span><strong>{document.name}</strong><small>{document.type || 'Documento'}</small></span><b>Descargar</b></a>)}</div>}
   </div>
 
    return <>

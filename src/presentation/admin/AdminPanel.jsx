@@ -11,6 +11,7 @@ import ProductForm from './ProductForm'
 import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import SeoDashboard from './SeoDashboard'
 import { disconnectSearchConsole } from '../../infrastructure/seo/searchConsoleClient.js'
+import AnalyticsDashboard from './AnalyticsDashboard.jsx'
 
 const emptyProduct = () => ({
   name: '',
@@ -122,9 +123,10 @@ export default function AdminPanel({ telemetry, documentStorage }) {
           </button>
           <button className={view === 'configuracion' ? 'active' : ''} onClick={() => setView('configuracion')}>Configuración general</button>
           <button className={view === 'seo' ? 'active' : ''} onClick={() => setView('seo')}>SEO y posicionamiento</button>
+          <button className={view === 'analytics' ? 'active' : ''} onClick={() => setView('analytics')}>Analítica web</button>
         </div>
 
-        {view === 'seo' ? <SeoDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
+         {view === 'seo' ? <SeoDashboard /> : view === 'analytics' ? <AnalyticsDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
           catForm.open ? (
             <CategoryForm
               initial={catForm.editing}

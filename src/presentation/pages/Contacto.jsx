@@ -33,7 +33,7 @@ const icons = {
   ),
 }
 
-export default function Contacto() {
+export default function Contacto({ analytics }) {
   const { settings } = useSiteSettings()
   const [searchParams] = useSearchParams()
   const selectedRefs = searchParams.get('productos') || ''
@@ -117,6 +117,7 @@ export default function Contacto() {
       }
 
       setSent(true)
+      analytics?.track('contact_form_success')
     } catch (error) {
       setErrorMsg(
         error instanceof Error

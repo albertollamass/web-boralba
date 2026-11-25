@@ -73,7 +73,7 @@ export default function App({ backendEnabled, telemetry, analytics, documentStor
        <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/productos" element={<Productos />} />
+           <Route path="/productos" element={<Productos analytics={analytics} />} />
           <Route path="/categoria/:slug" element={<CategoriaRedirect />} />
            <Route path="/producto/:id" element={<ProductoDetalle analytics={analytics} />} />
            <Route path="/producto/:id/:slug" element={<ProductoDetalle analytics={analytics} />} />
@@ -83,8 +83,8 @@ export default function App({ backendEnabled, telemetry, analytics, documentStor
           <Route path="/proyectos/:categoria/:slug" element={<ProyectoDetalle />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/empresa" element={<Empresa />} />
-          <Route path="/contacto" element={<Contacto />} />
-          <Route path="/presupuesto" element={<MiPresupuesto />} />
+           <Route path="/contacto" element={<Contacto analytics={analytics} />} />
+           <Route path="/presupuesto" element={<MiPresupuesto analytics={analytics} />} />
           <Route path="/presupuesto/solicitar" element={<SolicitarPresupuesto quoteSender={quoteSender} analytics={analytics} />} />
           <Route path="/disena-tu-luminaria" element={<DisenaTuLuminaria quoteSender={quoteSender} />} />
           <Route path="/legal/:slug" element={<Legal />} />
