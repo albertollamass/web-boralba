@@ -3,6 +3,7 @@ const PROPERTY = 'https://boralba.es/'
 const READONLY_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly'
 const GIS_URL = 'https://accounts.google.com/gsi/client'
 const API_ROOT = 'https://searchconsole.googleapis.com/webmasters/v3'
+const INSPECTION_API_ROOT = 'https://searchconsole.googleapis.com/v1'
 const cache = new Map()
 
 let gisPromise
@@ -71,8 +72,8 @@ function requireToken() {
   return accessToken
 }
 
-async function request(path, options = {}) {
-  const response = await fetch(`${API_ROOT}${path}`, {
+async function request(path, options = {}, base = API_ROOT) {
+  const response = await fetch(`${base}${path}`, {
     ...options,
     headers: { Authorization: `Bearer ${requireToken()}`, 'Content-Type': 'application/json', ...(options.headers || {}) },
   })
@@ -119,6 +120,7 @@ async function performance(range) {
 }
 
 function aggregate(rows = []) {
+  if (!rows.length) return { summary: { clicks: null, impressions: null, ctr: null, position: null }, queries: [], pages: [], timeline: [] }
   const summary = rows.reduce((result, row) => ({
     clicks: result.clicks + Number(row.clicks || 0),
     impressions: result.impressions + Number(row.impressions || 0),
@@ -155,7 +157,38 @@ async function sitemap() {
   const data = await request(`/sites/${sitePath}/sitemaps`)
   const item = (data.sitemap || []).find((entry) => entry.path === `${PROPERTY}sitemap.xml`) || data.sitemap?.[0]
   if (!item) return null
-  return { status: item.isPending ? 'Pendiente' : item.errors ? 'Con errores' : 'Correcto', submitted: item.contents?.reduce((total, content) => total + Number(content.submitted || 0), 0) || null, errors: item.errors ?? null, submittedAt: item.submitted, lastRead: item.lastDownloaded }
+  const errors = item.errors == null ? null : Number(item.errors)
+  const warnings = item.warnings == null ? null : Number(item.warnings)
+  const submitted = item.contents == null ? null : item.contents.reduce((total, content) => total + Number(content.submitted || 0), 0)
+  const status = item.isPending
+    ? 'Pendiente de procesamiento'
+    : errors == null
+      ? 'Sin estado disponible'
+      : errors > 0
+        ? 'Con errores'
+        : 'Correcto'
+  return { status, submitted, errors, warnings, submittedAt: item.submitted, lastRead: item.lastDownloaded }
+}
+
+export async function inspectSearchConsoleUrl(url) {
+  if (!url || !url.startsWith(PROPERTY)) throw new Error('La URL debe pertenecer a https://boralba.es/')
+  const payload = await request('/urlInspection/index:inspect', {
+    method: 'POST',
+    body: JSON.stringify({ inspectionUrl: url, siteUrl: PROPERTY }),
+  }, INSPECTION_API_ROOT)
+  const result = payload.inspectionResult || {}
+  const indexStatus = result.indexStatusResult || {}
+  return {
+    url,
+    verdict: indexStatus.verdict || null,
+    coverageState: indexStatus.coverageState || null,
+    indexingState: indexStatus.indexingState || null,
+    pageFetchState: indexStatus.pageFetchState || null,
+    lastCrawlTime: indexStatus.lastCrawlTime || null,
+    robotsTxtState: indexStatus.robotsTxtState || null,
+    googleCanonical: indexStatus.googleCanonical || null,
+    userCanonical: indexStatus.userCanonical || null,
+  }
 }
 
 export async function fetchSearchConsoleReport({ period, startDate, endDate }) {
