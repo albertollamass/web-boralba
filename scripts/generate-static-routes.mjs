@@ -144,6 +144,15 @@ const routeMetadata = (route) => {
       noindex: Boolean(seo.noindex || category.noindex),
     }
   }
+  const projectMatch = route.match(/^\/proyectos\/[^/]+\/([^/]+)/)
+  if (projectMatch) {
+    const slug = decodeURIComponent(projectMatch[1])
+    return {
+      title: `${humanize(slug)} — Proyecto de iluminación`,
+      description: projectDescriptions[slug] || 'Proyecto de iluminación profesional desarrollado por Boralba Lighting.',
+      noindex: false,
+    }
+  }
   const metadataRoute = route === '/' ? '/' : route.replace(/\/+$/, '')
   const pages = {
     '/': ['Boralba Lighting | Iluminación LED profesional', 'Soluciones profesionales de iluminación LED para arquitectura, interiorismo, retail y espacios públicos.'],
@@ -186,10 +195,75 @@ function renderStaticHead(html, route) {
     .replace('</head>', `${tags.join('\n    ')}\n  </head>`)
 }
 
+const humanize = (value) => String(value || '')
+  .replace(/[-_]+/g, ' ')
+  .replace(/\b\w/g, (character) => character.toUpperCase())
+
+const projectDescriptions = {
+  'obra-panel-led-flexible': 'Aplicación de paneles LED flexibles integrados en la arquitectura para crear superficies luminosas continuas y homogéneas.',
+  'chalet-en-pozuelo-de-alarcon': 'Proyecto de iluminación para una vivienda unifamiliar, con ambientes cálidos y funcionales integrados en la arquitectura interior.',
+  'torreon-consuegra-fachadas': 'Iluminación exterior de la Torre de Consuegra para realzar su arquitectura y presencia durante la noche.',
+  'hotel-rural-torre-de-consuegra': 'Iluminación interior de un hotel rural situado junto a la Torre de Consuegra, con una luz cálida y acogedora.',
+  'tunel-calle-damas': 'Intervención de iluminación en un paso urbano para convertir el recorrido en un espacio reconocible y atractivo.',
+  'hospital-gregorio-maranon': 'Solución de iluminación para un espacio asistencial, diseñada para ofrecer confort visual y una atmósfera serena.',
+  'centro-de-pilates': 'Iluminación de un espacio de bienestar con luz confortable y una integración limpia en la arquitectura.',
+  'gimnasio-madrid': 'Proyecto de iluminación para un gimnasio, con soluciones eficientes adaptadas al uso deportivo del espacio.',
+  'centro-cultural-antonio-lopez': 'Iluminación de un equipamiento cultural donde la identidad luminosa forma parte de la imagen pública del espacio.',
+  'centro-comercial-madrid-sur': 'Iluminación de un gran espacio comercial para acompañar el recorrido y reforzar la presencia de las marcas.',
+  'hotel-jc-santo-domingo': 'Iluminación de las zonas comunes de un hotel para aportar calidez y carácter a la recepción y los espacios de paso.',
+  'hotel-jc-santo-domingo-exteriores': 'Iluminación exterior de un hotel para destacar la volumetría de la fachada y señalizar el acceso.',
+  'centro-cultural-antonio-lopez-exteriores': 'Iluminación exterior de un centro cultural para destacar su fachada y presencia urbana durante la noche.',
+}
+
+function renderStaticContent(route) {
+  const normalizedRoute = route.replace(/\/+$/, '') || '/'
+  const productMatch = normalizedRoute.match(/^\/producto\/([^/]+)/)
+  if (productMatch) {
+    const product = products.find((item) => item.id === decodeURIComponent(productMatch[1]))
+    if (!product) return ''
+    const description = product.description || product.seo?.description || `Ficha técnica de ${product.name || 'producto'} con especificaciones y soluciones profesionales de iluminación LED.`
+    return `<main><h1>${escapeHtml(product.name || 'Producto LED')}</h1><p>${escapeHtml(description)}</p>${product.ref ? `<p>Referencia: ${escapeHtml(product.ref)}</p>` : ''}<p>Consulta las especificaciones, aplicaciones y documentación técnica de este producto Boralba Lighting.</p><p><a href="/productos/">Volver al catálogo de productos LED</a></p></main>`
+  }
+
+  const categoryMatch = normalizedRoute.match(/^\/categoria\/([^/]+)/)
+  if (categoryMatch) {
+    const category = categories.find((item) => item.slug === decodeURIComponent(categoryMatch[1]))
+    if (!category) return ''
+    const categoryProducts = products.filter((product) => [product.category, ...(product.categories || [])].includes(category.slug)).slice(0, 30)
+    const productLinks = categoryProducts.map((product) => `<li><a href="/producto/${encodeURIComponent(product.id)}/">${escapeHtml(product.name || product.id)}</a></li>`).join('')
+    return `<main><h1>${escapeHtml(category.name || 'Categoría de iluminación LED')}</h1>${category.tagline ? `<p>${escapeHtml(category.tagline)}</p>` : ''}${category.description ? `<p>${escapeHtml(category.description)}</p>` : ''}<h2>Productos de ${escapeHtml(category.name || 'esta categoría')}</h2>${productLinks ? `<ul>${productLinks}</ul>` : '<p>Consulta las soluciones LED disponibles en esta categoría.</p>'}<p><a href="/productos/">Ver todo el catálogo LED</a></p></main>`
+  }
+
+  const projectMatch = normalizedRoute.match(/^\/proyectos\/[^/]+\/([^/]+)$/)
+  if (projectMatch) {
+    const slug = decodeURIComponent(projectMatch[1])
+    return `<main><h1>${escapeHtml(humanize(slug))}</h1><p>${escapeHtml(projectDescriptions[slug] || 'Proyecto de iluminación profesional desarrollado por Boralba Lighting.')}</p><p>Boralba Lighting diseña y suministra soluciones LED para proyectos de arquitectura, interiorismo y espacios públicos.</p><p><a href="/proyectos/">Ver proyectos de iluminación</a></p></main>`
+  }
+
+  const pages = {
+    '/': ['Boralba Lighting | Iluminación LED profesional', 'Soluciones profesionales de iluminación LED para arquitectura, interiorismo, retail y espacios públicos.'],
+    '/productos': ['Productos de iluminación LED profesional', 'Catálogo de tiras LED, perfiles, paneles y otras soluciones de iluminación profesional para proyectos.'],
+    '/proyectos': ['Proyectos de iluminación LED', 'Proyectos de iluminación arquitectónica, comercial, residencial y técnica realizados por Boralba Lighting.'],
+    '/servicios': ['Servicios de iluminación LED', 'Asesoramiento, diseño, suministro y puesta en marcha de soluciones profesionales de iluminación para cada proyecto.'],
+    '/empresa': ['Empresa de iluminación Boralba Lighting', 'Boralba Lighting desarrolla soluciones de iluminación LED profesional para arquitectura, interiorismo, retail y espacios públicos.'],
+    '/contacto': ['Contacto | Boralba Lighting', 'Contacta con Boralba Lighting para recibir asesoramiento sobre tu proyecto de iluminación LED.'],
+    '/disena-tu-luminaria': ['Diseña tu luminaria', 'Cuéntanos tu proyecto y diseñaremos una solución de iluminación a medida.'],
+  }
+  const page = pages[normalizedRoute]
+  if (!page) return ''
+  return `<main><h1>${escapeHtml(page[0])}</h1><p>${escapeHtml(page[1])}</p><nav aria-label="Contenido principal"><a href="/productos/">Productos LED</a><a href="/servicios/">Servicios de iluminación</a><a href="/proyectos/">Proyectos de iluminación</a><a href="/contacto/">Contacto</a></nav></main>`
+}
+
+function renderStaticHtml(html, route) {
+  const content = renderStaticContent(route)
+  if (!content) return html
+  return html.replace(/<noscript>[\s\S]*?<\/noscript>/i, `<noscript>${content}</noscript>`)
+}
+
 for (const route of publicRoutes) {
   const segments = route.split('/').filter(Boolean).map((segment) => decodeURIComponent(segment))
   await mkdir(join('dist', ...segments), { recursive: true })
-  await writeFile(join('dist', ...segments, 'index.html'), renderStaticHead(shell, route))
+  await writeFile(join('dist', ...segments, 'index.html'), renderStaticHtml(renderStaticHead(shell, route), route))
 }
 
 console.log(`Rutas estáticas generadas: ${publicRoutes.size}`)
