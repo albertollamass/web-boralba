@@ -1,5 +1,7 @@
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
-const PROPERTY = 'https://boralba.es/'
+const SITE_URL = 'https://boralba.es/'
+const PROPERTY = SITE_URL // propiedad de prefijo de URL (la que usaba el panel)
+const DOMAIN_PROPERTY = 'sc-domain:boralba.es' // propiedad de dominio (la que verifica el usuario)
 const READONLY_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly'
 const GIS_URL = 'https://accounts.google.com/gsi/client'
 const API_ROOT = 'https://searchconsole.googleapis.com/webmasters/v3'
@@ -10,6 +12,9 @@ let gisPromise
 let accessToken = null
 let tokenExpiresAt = 0
 let resumeBlocked = false
+// Google trata las dos propiedades como sitios distintos: si la cuenta no
+// tiene acceso a una, se usa la otra sin obligar al usuario a cambiar nada.
+let activeProperty = PROPERTY
 
 export const searchConsoleConfig = {
   clientId: CLIENT_ID,
@@ -69,6 +74,7 @@ export function disconnectSearchConsole() {
   accessToken = null
   tokenExpiresAt = 0
   cache.clear()
+  activeProperty = PROPERTY
   resumeBlocked = true
 }
 
@@ -93,12 +99,13 @@ async function request(path, options = {}, base = API_ROOT) {
   }
   if (!response.ok) {
     const detail = await response.text().catch(() => '')
-    throw new Error(`Search Console respondió HTTP ${response.status}${detail ? `: ${detail.slice(0, 180)}` : ''}`)
+    const error = new Error(`Search Console respondió HTTP ${response.status}${detail ? `: ${detail.slice(0, 180)}` : ''}`)
+    error.status = response.status
+    throw error
   }
   return response.json()
 }
 
-const sitePath = encodeURIComponent(PROPERTY)
 const daysBetween = (period) => period === '7d' ? 7 : period === '90d' ? 90 : period === '6m' ? 183 : period === '12m' ? 365 : 28
 const isoDate = (date) => date.toISOString().slice(0, 10)
 function rangeFor(period, startDate, endDate, previous = false) {
@@ -121,8 +128,8 @@ function rangeFor(period, startDate, endDate, previous = false) {
   return { startDate: isoDate(start), endDate: isoDate(end) }
 }
 
-async function performance(range) {
-  return request(`/sites/${sitePath}/searchAnalytics/query`, {
+async function performance(range, site = activeProperty) {
+  return request(`/sites/${encodeURIComponent(site)}/searchAnalytics/query`, {
     method: 'POST',
     body: JSON.stringify({ ...range, dimensions: ['date', 'query', 'page'], rowLimit: 25000, dataState: 'final' }),
   })
@@ -162,9 +169,9 @@ function toRow(item, type) {
   return { ...(type === 'date' ? { date: item.key } : type === 'query' ? { query: item.key, url: item.url } : { url: item.key }), clicks: item.clicks, impressions: item.impressions, ctr: item.impressions ? item.clicks / item.impressions : null, position: item.impressions ? item.positionTotal / item.impressions : null }
 }
 
-async function sitemap() {
-  const data = await request(`/sites/${sitePath}/sitemaps`)
-  const item = (data.sitemap || []).find((entry) => entry.path === `${PROPERTY}sitemap.xml`) || data.sitemap?.[0]
+async function sitemap(site = activeProperty) {
+  const data = await request(`/sites/${encodeURIComponent(site)}/sitemaps`)
+  const item = (data.sitemap || []).find((entry) => entry.path === `${SITE_URL}sitemap.xml`) || data.sitemap?.[0]
   if (!item) return null
   const errors = item.errors == null ? null : Number(item.errors)
   const warnings = item.warnings == null ? null : Number(item.warnings)
@@ -179,12 +186,27 @@ async function sitemap() {
   return { status, submitted, errors, warnings, submittedAt: item.submitted, lastRead: item.lastDownloaded }
 }
 
+// Un mismo usuario puede tener acceso solo a la propiedad de prefijo o solo
+// a la de dominio. Si la activa devuelve 403, probamos la otra una sola vez
+// y recordamos cuál funciona para el resto de la sesión.
+async function withWorkingProperty(run) {
+  try {
+    return await run(activeProperty)
+  } catch (error) {
+    if (error.status !== 403) throw error
+    const fallback = activeProperty === PROPERTY ? DOMAIN_PROPERTY : PROPERTY
+    const result = await run(fallback)
+    activeProperty = fallback
+    return result
+  }
+}
+
 export async function inspectSearchConsoleUrl(url) {
-  if (!url || !url.startsWith(PROPERTY)) throw new Error('La URL debe pertenecer a https://boralba.es/')
-  const payload = await request('/urlInspection/index:inspect', {
+  if (!url || !url.startsWith(SITE_URL)) throw new Error('La URL debe pertenecer a https://boralba.es/')
+  const payload = await withWorkingProperty((site) => request('/urlInspection/index:inspect', {
     method: 'POST',
-    body: JSON.stringify({ inspectionUrl: url, siteUrl: PROPERTY }),
-  }, INSPECTION_API_ROOT)
+    body: JSON.stringify({ inspectionUrl: url, siteUrl: site }),
+  }, INSPECTION_API_ROOT))
   const result = payload.inspectionResult || {}
   const indexStatus = result.indexStatusResult || {}
   return {
@@ -203,17 +225,21 @@ export async function inspectSearchConsoleUrl(url) {
 export async function fetchSearchConsoleReport({ period, startDate, endDate }) {
   if (!CLIENT_ID) return { status: 'not-configured', data: null }
   requireToken()
-  const key = `${period}:${startDate || ''}:${endDate || ''}`
+  const key = `${activeProperty}:${period}:${startDate || ''}:${endDate || ''}`
   const cached = cache.get(key)
   if (cached && cached.expiresAt > Date.now()) return { status: 'connected', data: cached.data }
   const currentRange = rangeFor(period, startDate, endDate)
   const previousRange = rangeFor(period, startDate, endDate, true)
-  const [current, previous, sitemapData] = await Promise.all([performance(currentRange), performance(previousRange), sitemap()])
+  const [current, previous, sitemapData] = await withWorkingProperty((site) => Promise.all([
+    performance(currentRange, site),
+    performance(previousRange, site),
+    sitemap(site),
+  ]))
   const currentData = aggregate(current.rows)
   const previousData = aggregate(previous.rows)
   const previousQueries = new Map(previousData.queries.map((row) => [row.query, row]))
   currentData.queries = currentData.queries.map((row) => ({ ...row, variation: row.position == null || previousQueries.get(row.query)?.position == null ? null : row.position - previousQueries.get(row.query).position }))
   const data = { ...currentData, previous: previousData.summary, lastSync: new Date().toISOString(), sitemap: sitemapData, inspection: null, recommendations: [] }
-  cache.set(key, { data, expiresAt: Date.now() + 5 * 60 * 1000 })
+  cache.set(`${activeProperty}:${period}:${startDate || ''}:${endDate || ''}`, { data, expiresAt: Date.now() + 5 * 60 * 1000 })
   return { status: 'connected', data }
 }
