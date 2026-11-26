@@ -51,6 +51,7 @@ const escapeXml = (value) => String(value).replace(/[<>&'"]/g, (character) => ({
 }[character]))
 
 const firestoreValue = (value) => value?.stringValue ?? value?.booleanValue ?? value?.integerValue ?? value?.doubleValue
+const firestoreDate = (value) => value?.timestampValue || null
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds))
 
 async function fetchFirestorePage(collection, params) {
@@ -92,9 +93,9 @@ async function publicProductIds() {
       const fields = document.fields || {}
       // Los productos marcados como no publicados o no indexables no deben
       // aparecer en el índice público.
-      if (id && firestoreValue(fields.published) !== false && firestoreValue(fields.noindex) !== true) {
+       if (id && firestoreValue(fields.published) !== false && firestoreValue(fields.noindex) !== true) {
         const name = firestoreValue(fields.name)
-        ids.push({ id, slug: slugify(name) })
+        ids.push({ id, slug: slugify(name), lastmod: document.updateTime || firestoreDate(fields.updatedAt) })
       }
     }
     pageToken = payload.nextPageToken || ''
@@ -102,15 +103,40 @@ async function publicProductIds() {
   return ids
 }
 
+async function publicCategories() {
+  if (!projectId || !apiKey) return []
+  const categories = []
+  let pageToken = ''
+  do {
+    const params = new URLSearchParams({ key: apiKey, pageSize: '1000' })
+    if (pageToken) params.set('pageToken', pageToken)
+    const payload = await fetchFirestorePage('categories', params)
+    for (const document of payload.documents || []) {
+      const fields = document.fields || {}
+      const slug = firestoreValue(fields.slug) || document.name?.split('/').pop()
+      if (slug && firestoreValue(fields.published) !== false && firestoreValue(fields.noindex) !== true) {
+        categories.push({ slug, lastmod: document.updateTime || firestoreDate(fields.updatedAt) })
+      }
+    }
+    pageToken = payload.nextPageToken || ''
+  } while (pageToken)
+  return categories
+}
+
 let productRoutes = []
+let categoryRoutes = []
+let productRecords = []
+let categoryRecords = []
 try {
-  const productIds = await publicProductIds()
+  productRecords = await publicProductIds()
+  categoryRecords = await publicCategories()
   const previousProductRoutes = [...previousSitemap.matchAll(/<loc>([^<]*\/producto\/[^<]+)<\/loc>/g)]
-  if (productIds.length === 0 && previousProductRoutes.length > 0) {
+  if (productRecords.length === 0 && previousProductRoutes.length > 0) {
     throw new Error('Firestore devolvió un catálogo de productos vacío')
   }
-  productRoutes = productIds.map(({ id, slug }) => `/producto/${encodeURIComponent(id)}${slug ? `/${encodeURIComponent(slug)}` : ''}`)
-  const previousSet = new Set(previousProductRoutes.map((match) => new URL(match[1]).pathname))
+  productRoutes = productRecords.map(({ id, slug }) => `/producto/${encodeURIComponent(id)}${slug ? `/${encodeURIComponent(slug)}` : ''}`)
+  categoryRoutes = categoryRecords.map(({ slug }) => `/categoria/${encodeURIComponent(slug)}`)
+  const previousSet = new Set(previousProductRoutes.map((match) => new URL(match[1]).pathname.replace(/\/+$/, '')))
   const currentSet = new Set(productRoutes)
   const added = productRoutes.filter((route) => !previousSet.has(route)).length
   const retired = [...previousSet].filter((route) => !currentSet.has(route)).length
@@ -123,9 +149,17 @@ try {
   throw error
 }
 
-const routes = [...staticRoutes, ...productRoutes]
-const urls = routes.map((route) => `  <url><loc>${escapeXml(`${siteUrl}${route}`)}</loc></url>`).join('\n')
+const routes = [...staticRoutes.map((route) => ({ route })), ...categoryRoutes.map((route) => ({ route })), ...productRoutes.map((route) => ({ route }))]
+const lastmodByRoute = new Map([
+  ...productRoutes.map((route, index) => [route, productRecords[index]?.lastmod]),
+  ...categoryRoutes.map((route, index) => [route, categoryRecords[index]?.lastmod]),
+])
+const publicUrl = (route) => route === '/' ? `${siteUrl}/` : `${siteUrl}${route}/`
+const urls = routes.map(({ route }) => {
+  const lastmod = lastmodByRoute.get(route)
+  return `  <url><loc>${escapeXml(publicUrl(route))}</loc>${lastmod ? `<lastmod>${escapeXml(lastmod)}</lastmod>` : ''}</url>`
+}).join('\n')
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
 
 await writeFile('public/sitemap.xml', sitemap)
-console.log(`Sitemap generado: ${routes.length} URLs (${productRoutes.length} productos).`)
+console.log(`Sitemap generado: ${routes.length} URLs (${productRoutes.length} productos, ${categoryRoutes.length} categorías).`)

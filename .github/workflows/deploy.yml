@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    # Firestore is the source of truth for the catalog. This keeps GitHub
+    # Pages synchronized without exposing a GitHub token in the admin app.
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:

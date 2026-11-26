@@ -8,6 +8,7 @@ import SeoEditor from './SeoEditor'
 import { seoDraftRepository } from '../../infrastructure/seo/seoDraftRepository.js'
 import { canResumeSearchConsole, connectSearchConsole, disconnectSearchConsole, fetchSearchConsoleReport, inspectSearchConsoleUrl, isSearchConsoleConnected, searchConsoleConfig } from '../../infrastructure/seo/searchConsoleClient.js'
 import { seoFields } from '../../domain/site/seo.js'
+import { generateSlug } from '../../domain/catalog/slug.js'
 
 const EMPTY = null
 const periodOptions = [['7d', 'Últimos 7 días'], ['28d', 'Últimos 28 días'], ['90d', 'Últimos 90 días'], ['6m', 'Últimos 6 meses'], ['12m', 'Últimos 12 meses'], ['custom', 'Fechas personalizadas']]
@@ -41,6 +42,7 @@ export default function SeoDashboard({ target = null }) {
   const [auditPriority, setAuditPriority] = useState('all')
   const [auditResolution, setAuditResolution] = useState('all')
   const [inspection, setInspection] = useState(null)
+  const [productInspections, setProductInspections] = useState({})
   const [inspectionStatus, setInspectionStatus] = useState('idle')
   const [section, setSection] = useState(target ? 'optimizacion' : 'resumen')
   const [drafts, setDrafts] = useState([])
@@ -107,7 +109,9 @@ export default function SeoDashboard({ target = null }) {
   const inspect = async (url) => {
     setInspectionStatus('loading')
     try {
-      setInspection(await inspectSearchConsoleUrl(url))
+       const result = await inspectSearchConsoleUrl(url)
+       setInspection(result)
+       setProductInspections((current) => ({ ...current, [url]: result }))
       setInspectionStatus('ready')
     } catch (inspectionError) {
       setInspection({ error: inspectionError.message })
@@ -201,7 +205,8 @@ export default function SeoDashboard({ target = null }) {
       <div className="seo-table-tools"><input placeholder="Buscar consulta..." value={query} onChange={(event) => setQuery(event.target.value)} /><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="clicks">Ordenar por clics</option><option value="impressions">Ordenar por impresiones</option><option value="position">Ordenar por posición</option></select></div>
       <DataTable rows={queries} /></Panel>
     <Panel title="Posicionamiento de productos" note="La relación se hace con las URLs devueltas por Search Console; no se asignan métricas por aproximación."><ProductTable products={products} rows={report?.pages || []} getCategoryPathLabel={getCategoryPathLabel} /></Panel>
-    <Panel title="Control de indexación" note="Recuentos de inspecciones individuales. No representan el informe global de cobertura de Google."><Inspection inspection={inspection} onInspect={inspect} status={inspectionStatus} /></Panel>
+     <Panel title="Estado SEO por producto" note="Publicado y accesible no significa indexado. Solo mostramos como indexado lo que devuelve la inspección individual de Search Console."><ProductIndexationTable products={products} inspections={productInspections} onInspect={inspect} inspectionStatus={inspectionStatus} /></Panel>
+     <Panel title="Control de indexación" note="Recuentos de inspecciones individuales. No representan el informe global de cobertura de Google."><Inspection inspection={inspection} onInspect={inspect} status={inspectionStatus} /></Panel>
       <Panel title="Auditoría SEO interna" note="Resuelve las incidencias aquí. Guardar crea un borrador; publicar actualiza el producto; verificar vuelve a comprobar los datos."><AuditFilters auditFilter={auditFilter} setAuditFilter={setAuditFilter} auditFamily={auditFamily} setAuditFamily={setAuditFamily} auditSubfamily={auditSubfamily} setAuditSubfamily={setAuditSubfamily} auditPriority={auditPriority} setAuditPriority={setAuditPriority} auditResolution={auditResolution} setAuditResolution={setAuditResolution} families={auditFamilies} subfamilies={auditSubfamilies} /><ActiveAuditSection audit={audit} updateProduct={updateProduct} /></Panel>
     <Recommendations report={report} />
     </>}
@@ -212,6 +217,18 @@ function ConnectionStatus({ status, error, lastSync, onConnect, onDisconnect }) 
 function Panel({ title, note, action, children }) { return <section className="seo-panel"><div className="seo-panel-heading"><div><h3>{title}</h3>{note && <p>{note}</p>}</div>{action}</div>{children}</section> }
 function Chart({ data, metric, label }) { if (!data?.length) return <div className="seo-chart"><strong>{label}</strong><p className="seo-empty">Sin datos</p></div>; const max = Math.max(...data.map((point) => Number(point[metric] ?? 0)), 1); return <div className="seo-chart" role="img" aria-label={`Evolución de ${label}`}><strong>{label}</strong><div className="seo-chart-bars">{data.map((point) => <div className="seo-chart-point" style={{ height: `${Math.max(4, (Number(point[metric] ?? 0) / max) * 100)}%` }} title={`${point.date}: ${point[metric] ?? '—'}`} key={point.date} />)}</div><div className="seo-chart-labels"><span>{data[0].date}</span><span>{data[data.length - 1].date}</span></div></div> }
 function DataTable({ rows }) { if (!rows.length) return <p className="seo-empty">No hay consultas disponibles para este periodo.</p>; return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Palabra clave</th><th>Clics</th><th>Impresiones</th><th>CTR</th><th>Posición</th><th>Variación</th><th>URL</th></tr></thead><tbody>{rows.map((row) => <tr key={`${row.query}-${row.url}`}><td><strong>{row.query}</strong></td><td>{format(row.clicks)}</td><td>{format(row.impressions)}</td><td>{percent(row.ctr)}</td><td>{format(row.position, 1)}</td><td>{row.variation == null ? '—' : format(row.variation, 1)}</td><td>{row.url ? <a href={row.url} target="_blank" rel="noreferrer">Ver ↗</a> : '—'}</td></tr>)}</tbody></table></div> }
+function ProductIndexationTable({ products, inspections, onInspect, inspectionStatus }) {
+  if (!products.length) return <p className="seo-empty">No hay productos cargados desde Firebase.</p>
+  return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Producto</th><th>Publicación</th><th>Google</th><th>Indexación</th><th>Incidencias</th><th>Acción</th></tr></thead><tbody>{products.map((product) => {
+    const seo = seoFields(product)
+    const url = `https://boralba.es/producto/${encodeURIComponent(product.id)}/${encodeURIComponent(generateSlug(product.name))}`
+    const inspection = inspections[url]
+    const issues = [!seo.title && 'Título SEO', !seo.description && 'Metadescripción', product.image && !product.imageAlt && 'Texto alternativo'].filter(Boolean)
+    const indexError = inspection && inspection.verdict && inspection.verdict !== 'PASS'
+    return <tr key={product.id}><td><strong>{product.name || product.id}</strong><small>{product.ref || url}</small></td><td><Status value={product.published === false ? 'No publicado' : 'Publicado correctamente'} tone={product.published === false ? 'error' : 'ok'} /></td><td><Status value={product.published === false || seo.noindex ? 'No disponible' : 'Disponible para Google'} tone={product.published === false || seo.noindex ? 'error' : 'ok'} /></td><td><Status value={inspection?.verdict === 'PASS' ? 'Indexado según Search Console' : 'Pendiente de indexación'} tone={inspection?.verdict === 'PASS' ? 'ok' : 'pending'} /></td><td>{issues.length || indexError ? <span className="seo-inline-error">{indexError ? inspection.coverageState || 'Error de Search Console' : issues.join(', ')}</span> : '—'}</td><td><button className="btn btn-outline btn-sm" onClick={() => onInspect(url)} disabled={inspectionStatus === 'loading'}>Comprobar URL</button></td></tr>
+  })}</tbody></table></div>
+}
+function Status({ value, tone }) { return <span className={`seo-status seo-status--${tone}`}>{value}</span> }
 function ProductTable({ products, rows, getCategoryPathLabel }) { const byUrl = new Map(rows.map((row) => [row.url, row])); const visible = products.map((product) => ({ product, row: rows.find((item) => item.url?.includes(`/producto/${product.id}`)) || byUrl.get(product.publicUrl) })).filter(({ row }) => row); if (!visible.length) return <p className="seo-empty">No hay páginas de producto devueltas por la API en este periodo.</p>; return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Producto</th><th>Referencia</th><th>Familia</th><th>Clics</th><th>Impresiones</th><th>CTR</th><th>Posición</th><th>Indexación</th></tr></thead><tbody>{visible.map(({ product, row }) => <tr key={product.id}><td><div className="seo-product"><img src={product.image || 'images/placeholder.svg'} alt={product.imageAlt || product.name} /><strong>{product.name}</strong></div></td><td>{product.ref || '—'}</td><td>{getCategoryPathLabel(product.category)}</td><td>{format(row.clicks)}</td><td>{format(row.impressions)}</td><td>{percent(row.ctr)}</td><td>{format(row.position, 1)}</td><td>{row.indexingStatus || 'Pendiente de inspección'}</td></tr>)}</tbody></table></div> }
 function Inspection({ inspection, onInspect, status }) { const [url, setUrl] = useState('https://boralba.es/'); return <div className="seo-inspection"><form className="seo-inspection-form" onSubmit={(event) => { event.preventDefault(); onInspect(url) }}><label>Inspeccionar URL<input type="url" value={url} onChange={(event) => setUrl(event.target.value)} /></label><button className="btn btn-primary btn-sm" disabled={status === 'loading'}>{status === 'loading' ? 'Comprobando…' : 'Comprobar URL'}</button></form>{inspection?.error && <p className="seo-inline-error">{inspection.error}</p>}{inspection && !inspection.error && <div className="seo-inspection-result"><strong>{inspection.verdict || 'Sin veredicto'}</strong><span>{inspection.coverageState || 'Estado de cobertura no disponible'}</span><span>Indexación: {inspection.indexingState || '—'}</span><span>Último rastreo: {inspection.lastCrawlTime ? new Date(inspection.lastCrawlTime).toLocaleString('es-ES') : '—'}</span><span>Canónica Google: {inspection.googleCanonical || '—'}</span></div>}<a href="https://search.google.com/search-console?resource_id=https%3A%2F%2Fboralba.es%2F" target="_blank" rel="noreferrer">Abrir informes y solicitar indexación en Search Console ↗</a></div> }
 function Recommendations({ report }) { const recommendations = report?.recommendations || []; return <Panel title="Recomendaciones de mejora" note="Solo se muestran recomendaciones calculadas por el backend a partir de datos reales.">{recommendations.length ? <div className="seo-recommendations">{recommendations.map((item) => <article className={`seo-recommendation seo-recommendation--${item.priority}`} key={`${item.url}-${item.title}`}><span>{item.priority}</span><h4>{item.title}</h4><p>{item.problem}</p><small>{item.url} · Métrica: {item.metric}</small></article>)}</div> : <p className="seo-empty">No hay recomendaciones disponibles sin datos reales suficientes.</p>}</Panel> }

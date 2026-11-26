@@ -18,6 +18,7 @@ await loadLocalEnv()
 const projectId = process.env.VITE_FIREBASE_PROJECT_ID
 const apiKey = process.env.VITE_FIREBASE_API_KEY
 const shell = await readFile('dist/index.html', 'utf8')
+const normalizePublicRoute = (route) => route === '/' ? '/' : `${route.replace(/\/+$/, '')}/`
 const publicRoutes = new Set([
   '/productos',
   '/buscar',
@@ -33,7 +34,7 @@ const publicRoutes = new Set([
   '/legal/politica-cookies',
   '/admin/login',
   '/admin',
-])
+].map(normalizePublicRoute))
 
 const firestoreValue = (value) => value?.stringValue ?? value?.booleanValue ?? value?.integerValue ?? value?.doubleValue
 const firestoreDecode = (value) => {
@@ -67,7 +68,7 @@ async function publicEntities(collection) {
     documents.push(...(payload.documents || []).map((document) => ({
       id: document.name?.split('/').pop(),
       ...(Object.fromEntries(Object.entries(document.fields || {}).map(([key, value]) => [key, firestoreDecode(value)]))),
-    })))
+    })).filter((item) => item.published !== false && item.noindex !== true))
     pageToken = payload.nextPageToken || ''
   } while (pageToken)
   return documents
@@ -85,7 +86,8 @@ async function publicCategoryRoutes() {
     for (const document of payload.documents || []) {
       const id = document.name?.split('/').pop()
       const slug = firestoreValue(document.fields?.slug) || id
-      if (slug) routes.push(`/categoria/${encodeURIComponent(slug)}`)
+      const fields = document.fields || {}
+      if (slug && firestoreValue(fields.published) !== false && firestoreValue(fields.noindex) !== true) routes.push(`/categoria/${encodeURIComponent(slug)}`)
     }
     pageToken = payload.nextPageToken || ''
   } while (pageToken)
@@ -95,11 +97,11 @@ async function publicCategoryRoutes() {
 const sitemap = await readFile('public/sitemap.xml', 'utf8')
 for (const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
   const route = new URL(match[1]).pathname
-  if (route !== '/') publicRoutes.add(route)
+  if (route !== '/') publicRoutes.add(normalizePublicRoute(route))
 }
 
 try {
-  for (const route of await publicCategoryRoutes()) publicRoutes.add(route)
+  for (const route of await publicCategoryRoutes()) publicRoutes.add(normalizePublicRoute(route))
 } catch (error) {
   console.warn(`Rutas estáticas: no se pudieron consultar categorías (${error.message}).`)
 }
@@ -142,6 +144,7 @@ const routeMetadata = (route) => {
       noindex: Boolean(seo.noindex || category.noindex),
     }
   }
+  const metadataRoute = route === '/' ? '/' : route.replace(/\/+$/, '')
   const pages = {
     '/': ['Boralba Lighting | Iluminación LED profesional', 'Soluciones profesionales de iluminación LED para arquitectura, interiorismo, retail y espacios públicos.'],
     '/productos': ['Productos de iluminación LED profesional', 'Catálogo de soluciones LED profesionales de Boralba Lighting.'],
@@ -151,14 +154,14 @@ const routeMetadata = (route) => {
     '/contacto': ['Contacto | Boralba Lighting', 'Contacta con Boralba Lighting para recibir asesoramiento sobre tu proyecto de iluminación.'],
     '/disena-tu-luminaria': ['Diseña tu luminaria', 'Cuéntanos tu proyecto y diseñaremos una solución de iluminación a medida.'],
   }
-  const [title, description] = pages[route] || []
+  const [title, description] = pages[metadataRoute] || []
   return title ? { title, description, noindex: false } : null
 }
 
 function renderStaticHead(html, route) {
   const metadata = routeMetadata(route)
   if (!metadata) return html
-  const canonical = `${process.env.SITE_URL || 'https://boralba.es'}${route === '/' ? '/' : route}`
+  const canonical = `${process.env.SITE_URL || 'https://boralba.es'}${route === '/' ? '/' : route.endsWith('/') ? route : `${route}/`}`
   const tags = [
     `<title>${escapeHtml(metadata.title)}</title>`,
     `<meta name="description" content="${escapeHtml(metadata.description)}">`,

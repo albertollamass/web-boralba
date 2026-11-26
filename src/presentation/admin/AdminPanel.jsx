@@ -83,6 +83,7 @@ export default function AdminPanel({ telemetry, documentStorage }) {
   const seoTarget = seoTargetId ? { id: seoTargetId, field: searchParams.get('seoCampo') || 'title' } : automaticSeoTarget
   // Cuota diaria de la base de datos: muestra el consumo para anticiparse al corte.
   const dailyReads = useDailyReads(telemetry)
+  const deployment = useDeploymentHealth()
 
   useEffect(() => {
     const requestedView = searchParams.get('vista')
@@ -150,6 +151,7 @@ export default function AdminPanel({ telemetry, documentStorage }) {
       </div>
 
       <div className="container" style={{ padding: '28px 20px' }}>
+        <DeploymentHealthBanner deployment={deployment} />
         <div className="admin-tabs">
           <button className={view === 'products' ? 'active' : ''} onClick={() => setView('products')}>
             Productos
@@ -333,6 +335,34 @@ export default function AdminPanel({ telemetry, documentStorage }) {
       </div>
     </div>
   )
+}
+
+function useDeploymentHealth() {
+  const [deployment, setDeployment] = useState({ status: 'loading', data: null })
+  useEffect(() => {
+    let cancelled = false
+    fetch(`${import.meta.env.BASE_URL}deployment-status.json?ts=${Date.now()}`, { cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        return response.json()
+      })
+      .then((data) => { if (!cancelled) setDeployment({ status: 'ok', data, checkedAt: Date.now() }) })
+      .catch(() => { if (!cancelled) setDeployment({ status: 'error', data: null }) })
+    return () => { cancelled = true }
+  }, [])
+  return deployment
+}
+
+function DeploymentHealthBanner({ deployment }) {
+  if (deployment.status === 'loading') return null
+  const lastUpdate = deployment.data?.lastSuccessfulDeployment ? new Date(deployment.data.lastSuccessfulDeployment) : null
+  const stale = !lastUpdate || Number.isNaN(lastUpdate.getTime()) || deployment.checkedAt - lastUpdate.getTime() > 30 * 60 * 1000
+  const failed = deployment.status === 'error' || stale
+  return <div className={`admin-deployment-health${failed ? ' is-warning' : ''}`} role={failed ? 'alert' : 'status'}>
+    <strong>{failed ? '⚠ Publicación automática pendiente o con problemas' : '✓ Publicación automática activa'}</strong>
+    <span>{lastUpdate ? `Última actualización correcta: ${lastUpdate.toLocaleString('es-ES')}` : 'No se ha podido consultar la última actualización correcta.'}</span>
+    {deployment.data?.commit && <small>Build: {deployment.data.commit.slice(0, 7)}</small>}
+  </div>
 }
 
 function SettingsView({ settings, onSave }) {
