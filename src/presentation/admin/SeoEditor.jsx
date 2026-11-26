@@ -57,19 +57,18 @@ export function analyseEntity(type, entity, fields) {
   const category = clean(entity.category)
   const baseDescription = firstSentence(entity.description || entity.tagline, `Información de ${name} en Boralba Lighting.`)
   const title = type === 'product'
-    ? `${name}${entity.ref ? ` ${entity.ref}` : ''} — Producto LED`
+    ? `${name}${entity.ref ? ` · ${entity.ref}` : ''} — Boralba Lighting`
     : `${name} — Boralba Lighting`
-  const description = `${baseDescription} Consulta sus características, aplicaciones y documentación en Boralba Lighting.`
+  const description = baseDescription
   const keyword = clean(`${name}${category ? ` ${category}` : ''}`)
   const secondary = [...new Set([category, entity.ref, ...facts.slice(1, 3)].filter(Boolean))].slice(0, 4)
   const imageAlt = entity.image && !entity.imageAlt ? `${name}${entity.ref ? ` ${entity.ref}` : ''} — imagen del producto` : ''
-  const content = type === 'product' && !fields.content ? facts.slice(0, 4).join('. ') : ''
-  const proposals = [
-    { key: 'title', label: 'Título SEO', current: entity.seo?.title ? fields.title : `(automático) ${fields.title}`, recommended: title, reason: 'Diferencia la ficha y explica qué es sin añadir datos que no estén en el catálogo.', benefit: 'Mejor comprensión del resultado en Google.', priority: entity.seo?.title ? 'low' : 'high' },
-    { key: 'description', label: 'Metadescripción', current: entity.seo?.description ? fields.description : `(automática) ${fields.description}`, recommended: description, reason: 'Resume información que ya existe en la ficha.', benefit: 'Ayuda a decidir si el resultado responde a la búsqueda.', priority: entity.seo?.description ? 'low' : 'high' },
-    { key: 'focusKeyword', label: 'Palabra clave objetivo', current: fields.focusKeyword || '(sin definir)', recommended: keyword, reason: 'Se construye con el nombre y la categoría existentes.', benefit: 'Facilita mantener un objetivo editorial claro.', priority: 'medium' },
-    { key: 'secondaryKeywords', label: 'Palabras secundarias', current: fields.secondaryKeywords || '(sin definir)', recommended: secondary.join(', '), reason: 'Usa referencias y conceptos ya presentes en el producto.', benefit: 'Amplía la cobertura semántica sin crear atributos nuevos.', priority: 'medium' },
-  ]
+  const content = type === 'product' && !fields.content && entity.description ? clean(entity.description) : ''
+  const proposals = []
+  if (!entity.seo?.title) proposals.push({ key: 'title', label: 'Título SEO', current: fields.title || '(sin título específico)', recommended: title, reason: 'Diferencia la ficha y explica qué es sin añadir datos que no estén en el catálogo.', benefit: 'Mejor comprensión del resultado en Google.', priority: 'high' })
+  if (!entity.seo?.description && !entity.seoDescription) proposals.push({ key: 'description', label: 'Metadescripción', current: fields.description || '(sin descripción específica)', recommended: description, reason: 'Resume información que ya existe en la ficha.', benefit: 'Ayuda a decidir si el resultado responde a la búsqueda.', priority: 'high' })
+  if (!fields.focusKeyword) proposals.push({ key: 'focusKeyword', label: 'Palabra clave objetivo', current: '(sin definir)', recommended: keyword, reason: 'Se construye con el nombre y la categoría existentes.', benefit: 'Facilita mantener un objetivo editorial claro.', priority: 'medium' })
+  if (!fields.secondaryKeywords) proposals.push({ key: 'secondaryKeywords', label: 'Palabras secundarias', current: '(sin definir)', recommended: secondary.join(', '), reason: 'Usa referencias y conceptos ya presentes en el producto.', benefit: 'Amplía la cobertura semántica sin crear atributos nuevos.', priority: 'medium' })
   if (content) proposals.push({ key: 'content', label: 'Contenido descriptivo', current: '(sin contenido SEO adicional)', recommended: content, reason: 'Reúne datos descriptivos reales de la ficha.', benefit: 'Aporta contexto útil para usuarios profesionales.', priority: 'medium' })
   if (imageAlt) proposals.push({ key: 'imageAlt', label: 'Texto alternativo', current: '(sin texto alternativo)', recommended: imageAlt, reason: 'Describe la imagen usando el nombre y referencia disponibles.', benefit: 'Mejora accesibilidad y comprensión de imágenes.', priority: 'medium' })
   return proposals
@@ -145,16 +144,18 @@ export default function SeoEditor({ initialType = 'product', initialId = '', foc
     } catch (error) { setMessage(error.message) } finally { setSaving(false) }
   }
   const publish = async () => {
-    if (!selected || !window.confirm('Se publicarán los campos SEO aprobados en la fuente pública. Después será necesario desplegar para actualizar el HTML estático. ¿Continuar?')) return
+    if (!selected || !draft) { setMessage('Primero guarda un borrador revisado antes de publicarlo.'); return }
+    if (!window.confirm('Se publicarán los campos SEO aprobados en la fuente pública. Después será necesario desplegar para actualizar el HTML estático. ¿Continuar?')) return
     setSaving(true); setMessage('')
     try {
       const { imageAlt, ...seoFields } = fields
-      const next = { ...selected.entity, ...(imageAlt ? { imageAlt } : {}), seo: { ...(selected.entity.seo || {}), ...seoFields, secondaryKeywords: fields.secondaryKeywords.split(',').map((item) => item.trim()).filter(Boolean) } }
+      const next = { ...selected.entity, imageAlt: imageAlt || '', seo: { ...(selected.entity.seo || {}), ...seoFields, secondaryKeywords: fields.secondaryKeywords.split(',').map((item) => item.trim()).filter(Boolean) } }
       if (type === 'product') await updateProduct(selected.id, next)
       else if (type === 'category') await updateCategory(selected.id, next)
       else throw new Error('Este tipo de contenido se guarda como borrador, pero su publicación requiere modificar su fuente editorial estática.')
       await seoDraftRepository.setStatus(type, selected.id, 'published')
-      setMessage('Cambio publicado en Firestore. El HTML estático se actualizará en el próximo build y despliegue.')
+      setDraft((current) => current ? { ...current, status: 'published' } : current)
+      setMessage('Cambio publicado en Firebase. La ficha pública ya usa estos datos; Google puede tardar en volver a rastrearlos.')
     } catch (error) { setMessage(error.message) } finally { setSaving(false) }
   }
   const generateBatch = () => {

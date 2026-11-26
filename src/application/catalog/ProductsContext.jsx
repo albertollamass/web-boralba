@@ -76,6 +76,7 @@ export function ProductsProvider({ children, repository, telemetry }) {
       .catch((error) => {
         logError('products/update', error, { id })
         setSyncStatus('error')
+        throw error
       })
   }
 
