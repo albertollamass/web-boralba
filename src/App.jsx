@@ -48,8 +48,8 @@ export default function App({ backendEnabled, telemetry, analytics, documentStor
       <AnalyticsPageViews analytics={analytics} />
       <Suspense fallback={<PageLoading />}>
        <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
+        <Route element={<Layout analytics={analytics} />}>
+           <Route path="/" element={<Home analytics={analytics} />} />
            <Route path="/productos" element={<Productos analytics={analytics} />} />
            <Route path="/categoria/:slug" element={<Categoria />} />
            <Route path="/producto/:id" element={<ProductoDetalle analytics={analytics} />} />

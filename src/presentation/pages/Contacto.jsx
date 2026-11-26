@@ -37,6 +37,7 @@ export default function Contacto({ analytics }) {
   const { settings } = useSiteSettings()
   const [searchParams] = useSearchParams()
   const selectedRefs = searchParams.get('productos') || ''
+  const phoneHref = `tel:+${settings.phone.replace(/\D/g, '')}`
   const [form, setForm] = useState({
     nombre: '',
     email: '',
@@ -49,18 +50,32 @@ export default function Contacto({ analytics }) {
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
   const updateCheck = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.checked }))
 
   const submit = async (e) => {
     e.preventDefault()
-    if (parseInt(captcha.answer, 10) !== captcha.num1 + captcha.num2) {
-      alert('La solución de la operación no es correcta.')
-      return
-    }
-    if (!form.consentimiento) {
-      alert('Debes aceptar la política de privacidad, cookies y aviso legal.')
+    if (sending) return
+    if (document.getElementById('website')?.value || document.getElementById('botcheck')?.checked) return
+
+    const errors = {}
+    const name = form.nombre.trim()
+    const email = form.email.trim()
+    const message = form.mensaje.trim()
+    if (!name) errors.nombre = 'Indica tu nombre.'
+    if (!email) errors.email = 'Indica tu correo electrónico.'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Introduce un correo electrónico válido.'
+    if (!message) errors.mensaje = 'Cuéntanos brevemente tu proyecto.'
+    if (!form.consentimiento) errors.consentimiento = 'Debes aceptar la política de privacidad para continuar.'
+    if (parseInt(captcha.answer, 10) !== captcha.num1 + captcha.num2) errors.captcha = 'Resuelve la operación para continuar.'
+
+    setFieldErrors(errors)
+    if (Object.keys(errors).length) {
+      setErrorMsg('Revisa los campos indicados antes de enviar la consulta.')
+      const firstInvalid = Object.keys(errors)[0]
+      document.getElementById(firstInvalid)?.focus()
       return
     }
     if (!ACCESS_KEY) {
@@ -74,28 +89,28 @@ export default function Contacto({ analytics }) {
     try {
       const data = new FormData()
       data.append('access_key', ACCESS_KEY)
-      data.append('subject', `Nueva consulta de contacto — ${form.nombre.trim()}`)
-      data.append('from_name', form.nombre.trim())
-      data.append('replyto', form.email.trim())
+      data.append('subject', `Nueva consulta de contacto — ${name}`)
+      data.append('from_name', name)
+      data.append('replyto', email)
       data.append(
         'message',
         [
           'NUEVA CONSULTA DE CONTACTO',
           '',
-          `Nombre: ${form.nombre.trim()}`,
-          `Email: ${form.email.trim()}`,
+          `Nombre: ${name}`,
+          `Email: ${email}`,
           `Teléfono: ${form.telefono.trim() || 'No indicado'}`,
           `Tipo de consulta: ${form.tipo || 'No indicado'}`,
           '',
           'MENSAJE',
-          form.mensaje.trim() || 'Sin mensaje',
+          message,
         ].join('\n')
       )
-      data.append('Nombre', form.nombre.trim())
-      data.append('email', form.email.trim())
+      data.append('Nombre', name)
+      data.append('email', email)
       data.append('Teléfono', form.telefono.trim() || 'No indicado')
       data.append('Tipo de consulta', form.tipo || 'No indicado')
-      data.append('Mensaje', form.mensaje.trim() || 'Sin mensaje')
+      data.append('Mensaje', message)
       data.append('Acepta privacidad, cookies y aviso legal', 'Sí')
 
       const response = await fetch(ENDPOINT, {
@@ -116,6 +131,7 @@ export default function Contacto({ analytics }) {
         )
       }
 
+      setFieldErrors({})
       setSent(true)
       analytics?.track('contact_form_success')
     } catch (error) {
@@ -188,7 +204,7 @@ export default function Contacto({ analytics }) {
                 <div>
                   <h4>Llámanos</h4>
                   <p>
-                    <a href={`tel:${settings.phone}`}>{settings.phone}</a>
+                     <a href={phoneHref} onClick={() => analytics?.track('click_phone', { location: 'contact_page' })}>{settings.phone}</a>
                   </p>
                 </div>
               </div>
@@ -197,7 +213,7 @@ export default function Contacto({ analytics }) {
                 <div>
                   <h4>Email</h4>
                   <p>
-                    <a href={`mailto:${settings.email}`}>{settings.email}</a>
+                     <a href={`mailto:${settings.email}`} onClick={() => analytics?.track('click_email', { location: 'contact_page' })}>{settings.email}</a>
                   </p>
                 </div>
               </div>
@@ -223,30 +239,37 @@ export default function Contacto({ analytics }) {
 
             <div className="contacto-main" id="contacto-form">
               {sent ? (
-                <div className="form">
-                  <div className="form-success">
+                <div className="form" role="status" aria-live="polite">
+                  <div className="form-success" tabIndex="-1">
                     ¡Gracias por contactar con nosotros! Nos pondremos en contacto contigo lo antes
                     posible para ayudarte con tu proyecto y ofrecerte la mejor solución.
                   </div>
                 </div>
               ) : (
-                <form className="form" onSubmit={submit}>
+                <form className="form" onSubmit={submit} noValidate>
+                  <div className="contacto-honeypot" aria-hidden="true">
+                    <label htmlFor="website">No rellenar este campo</label>
+                    <input id="website" name="website" tabIndex="-1" autoComplete="off" />
+                    <input id="botcheck" name="botcheck" type="checkbox" tabIndex="-1" />
+                  </div>
                   <div className="contacto-form-grid">
                     <div>
-                      <label>Nombre</label>
-                      <input required value={form.nombre} onChange={update('nombre')} />
+                      <label htmlFor="nombre">Nombre <span aria-hidden="true">*</span></label>
+                      <input id="nombre" name="nombre" required maxLength="100" autoComplete="name" value={form.nombre} onChange={update('nombre')} aria-invalid={Boolean(fieldErrors.nombre)} aria-describedby={fieldErrors.nombre ? 'nombre-error' : undefined} />
+                      {fieldErrors.nombre && <p className="form-field-error" id="nombre-error">{fieldErrors.nombre}</p>}
                     </div>
                     <div>
-                      <label>Tu correo electrónico</label>
-                      <input required type="email" value={form.email} onChange={update('email')} />
+                      <label htmlFor="email">Tu correo electrónico <span aria-hidden="true">*</span></label>
+                      <input id="email" name="email" required type="email" maxLength="254" autoComplete="email" value={form.email} onChange={update('email')} aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? 'email-error' : undefined} />
+                      {fieldErrors.email && <p className="form-field-error" id="email-error">{fieldErrors.email}</p>}
                     </div>
                     <div>
-                      <label>Teléfono</label>
-                      <input value={form.telefono} onChange={update('telefono')} />
+                      <label htmlFor="telefono">Teléfono</label>
+                      <input id="telefono" name="telefono" type="tel" inputMode="tel" maxLength="30" autoComplete="tel" value={form.telefono} onChange={update('telefono')} />
                     </div>
                     <div>
-                      <label>Tipo de consulta</label>
-                      <select value={form.tipo} onChange={update('tipo')}>
+                      <label htmlFor="tipo">Tipo de consulta</label>
+                      <select id="tipo" name="tipo" value={form.tipo} onChange={update('tipo')}>
                         <option value="">Selecciona...</option>
                         <option>Asesoramiento</option>
                         <option>Presupuesto</option>
@@ -257,30 +280,40 @@ export default function Contacto({ analytics }) {
                       </select>
                     </div>
                     <div className="span-2">
-                      <label>Mensaje</label>
-                      <textarea value={form.mensaje} onChange={update('mensaje')} />
+                      <label htmlFor="mensaje">Mensaje <span aria-hidden="true">*</span></label>
+                      <textarea id="mensaje" name="mensaje" required maxLength="3000" value={form.mensaje} onChange={update('mensaje')} aria-invalid={Boolean(fieldErrors.mensaje)} aria-describedby={fieldErrors.mensaje ? 'mensaje-error' : undefined} />
+                      {fieldErrors.mensaje && <p className="form-field-error" id="mensaje-error">{fieldErrors.mensaje}</p>}
                     </div>
                   </div>
-                  <label className="check">
-                    <input type="checkbox" checked={form.consentimiento} onChange={updateCheck('consentimiento')} />
+                  <div>
+                    <label className="check" htmlFor="consentimiento">
+                    <input id="consentimiento" name="consentimiento" type="checkbox" required checked={form.consentimiento} onChange={updateCheck('consentimiento')} aria-invalid={Boolean(fieldErrors.consentimiento)} aria-describedby={fieldErrors.consentimiento ? 'consentimiento-error' : undefined} />
                     <span>
                       He leído y acepto la <Link to="/legal/politica-privacidad">política de privacidad</Link>, la{' '}
                       <Link to="/legal/politica-cookies">política de cookies</Link> y el{' '}
                       <Link to="/legal/aviso-legal">aviso legal</Link> de esta Web.
                     </span>
-                  </label>
+                    </label>
+                    {fieldErrors.consentimiento && <p className="form-field-error" id="consentimiento-error">{fieldErrors.consentimiento}</p>}
+                  </div>
                   <div className="captcha-row">
-                    <span className="captcha-label">
+                    <label className="captcha-label" htmlFor="captcha">
                       {captcha.num1} + {captcha.num2} =
-                    </span>
+                    </label>
                     <input
+                      id="captcha"
+                      name="captcha"
                       required
                       className="captcha-input"
                       inputMode="numeric"
+                      maxLength="3"
                       value={captcha.answer}
                       onChange={(e) => setCaptcha((c) => ({ ...c, answer: e.target.value }))}
+                      aria-invalid={Boolean(fieldErrors.captcha)}
+                      aria-describedby={fieldErrors.captcha ? 'captcha-error' : undefined}
                     />
                   </div>
+                  {fieldErrors.captcha && <p className="form-field-error" id="captcha-error">{fieldErrors.captcha}</p>}
                   {errorMsg && <p className="disena-alert" role="alert">{errorMsg}</p>}
                   <button type="submit" className="btn btn-primary" disabled={sending}>
                     {sending ? 'Enviando…' : 'Enviar consulta'}

@@ -12,6 +12,7 @@ import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import SeoDashboard from './SeoDashboard'
 import { disconnectSearchConsole } from '../../infrastructure/seo/searchConsoleClient.js'
 import AnalyticsDashboard from './AnalyticsDashboard.jsx'
+import OptimizationDashboard from './OptimizationDashboard.jsx'
 
 const emptyProduct = () => ({
   name: '',
@@ -63,13 +64,13 @@ export default function AdminPanel({ telemetry, documentStorage }) {
   const categoriesCtx = useCategories()
   const { user, isAdmin, signOut } = useAuth()
   const { settings, updateSettings } = useSiteSettings()
-  const [view, setView] = useState('products')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [view, setView] = useState(() => searchParams.get('vista') || 'products')
   const [editing, setEditing] = useState(null)
   const [creating, setCreating] = useState(false)
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState('')
   const [catForm, setCatForm] = useState({ open: false, editing: null })
-  const [searchParams, setSearchParams] = useSearchParams()
   const requestedField = searchParams.get('campo') || ''
   const returnView = searchParams.get('volver') || 'products'
   const editProductId = searchParams.get('editar')
@@ -84,6 +85,8 @@ export default function AdminPanel({ telemetry, documentStorage }) {
   const dailyReads = useDailyReads(telemetry)
 
   useEffect(() => {
+    const requestedView = searchParams.get('vista')
+    if (requestedView && ['products', 'categorias', 'configuracion', 'seo', 'analytics', 'optimization'].includes(requestedView) && !editProductId && !seoTargetId) setView(requestedView)
     if (seoTargetId || automaticSeoTargetId) {
       setView('seo')
       return
@@ -160,9 +163,10 @@ export default function AdminPanel({ telemetry, documentStorage }) {
           <button className={view === 'configuracion' ? 'active' : ''} onClick={() => setView('configuracion')}>Configuración general</button>
           <button className={view === 'seo' ? 'active' : ''} onClick={() => setView('seo')}>SEO y posicionamiento</button>
           <button type="button" data-analytics-tab="ga4" className={view === 'analytics' ? 'active' : ''} onClick={() => setView('analytics')}>Analítica web</button>
+          <button type="button" className={view === 'optimization' ? 'active' : ''} onClick={() => setView('optimization')}>Asistente de mejora web</button>
         </div>
 
-          {view === 'seo' ? <SeoDashboard target={seoTarget} /> : view === 'analytics' ? <AnalyticsDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
+          {view === 'seo' ? <SeoDashboard target={seoTarget} /> : view === 'analytics' ? <AnalyticsDashboard /> : view === 'optimization' ? <OptimizationDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
           catForm.open ? (
             <CategoryForm
               initial={catForm.editing}

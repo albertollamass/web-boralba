@@ -8,10 +8,37 @@
 .seo-alt-proposal { display: grid; gap: 3px; margin-top: 8px; min-width: 240px; }
 .seo-alt-proposal span { color: var(--color-text-muted); font-size: .75rem; }
 .seo-alt-proposal input { min-height: 34px; border: 1px solid var(--color-surface-2); padding: 6px 8px; font: inherit; }
+.seo-active-audit { display: grid; gap: 14px; }
+.seo-audit-help { display: grid; gap: 4px; }
+.seo-audit-help strong { color: var(--color-text); }
+.seo-audit-help span { line-height: 1.5; }
+.seo-audit-cards { display: grid; gap: 12px; }
+.seo-audit-card { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--color-surface-2); background: #fff; }
+.seo-audit-card > header { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.seo-audit-card > header > div { display: grid; gap: 3px; min-width: 0; }
+.seo-audit-card > header strong { overflow-wrap: anywhere; }
+.seo-audit-card > header small { color: var(--color-text-muted); font-size: .78rem; }
+.seo-audit-select { display: flex; align-items: center; gap: 6px; color: var(--color-text-muted); font-size: .75rem; white-space: nowrap; }
+.seo-audit-priority, .seo-audit-resolution { padding: 4px 8px; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+.seo-audit-priority--high { color: var(--color-danger); background: #fff0f0; }.seo-audit-priority--medium { color: #8a5a00; background: #fff8e5; }.seo-audit-priority--low { color: var(--color-success); background: #effaf2; }
+.seo-audit-issues { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.seo-audit-issues div { display: grid; gap: 4px; padding: 10px; background: var(--color-surface); }
+.seo-audit-issues strong { font-size: .82rem; }.seo-audit-issues span { color: var(--color-text-muted); font-size: .78rem; line-height: 1.4; }
+.seo-audit-card-actions, .seo-resolution-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.seo-audit-resolution { margin-right: auto; color: var(--color-text-muted); background: var(--color-surface); }.seo-audit-resolution--verified { color: var(--color-success); background: #effaf2; }.seo-audit-resolution--published { color: #8a5a00; background: #fff8e5; }
+.seo-audit-resolution-panel { display: grid; gap: 14px; padding: 16px; border-top: 1px solid var(--color-surface-2); background: #fafafa; }
+.seo-audit-current { display: grid; gap: 4px; padding: 12px; border-left: 3px solid var(--color-text-muted); background: #fff; color: var(--color-text-muted); font-size: .82rem; }.seo-audit-current strong { color: var(--color-text); }
+.seo-audit-proposals { display: grid; gap: 10px; }.seo-audit-proposals h4 { margin: 0; }.seo-audit-proposals article { display: grid; gap: 8px; padding: 13px; border: 1px solid var(--color-surface-2); background: #fff; }.seo-audit-proposals article.is-approved { border-color: var(--color-success); box-shadow: 0 0 0 2px rgba(21, 128, 61, .08); }.seo-audit-proposals article > div { display: grid; gap: 3px; }.seo-audit-proposals article small, .seo-audit-proposals article p { color: var(--color-text-muted); font-size: .78rem; line-height: 1.4; }.seo-audit-proposals article p { margin: 0; }.seo-audit-proposals label { display: grid; gap: 5px; font-size: .78rem; font-weight: 700; }.seo-audit-proposals textarea { width: 100%; min-height: 58px; resize: vertical; border: 1px solid var(--color-surface-2); padding: 8px; font: inherit; line-height: 1.4; }
+.seo-audit-history { border-top: 1px solid var(--color-surface-2); padding-top: 10px; }.seo-audit-history summary { cursor: pointer; font-weight: 700; font-size: .82rem; }.seo-audit-history ol { display: grid; gap: 6px; margin: 10px 0 0; padding-left: 20px; }.seo-audit-history li { display: flex; justify-content: space-between; gap: 8px; align-items: center; color: var(--color-text-muted); font-size: .78rem; }
 
 @media (max-width: 600px) {
   .seo-audit-filters label,
   .seo-audit-filters select { width: 100%; }
   .seo-bulk-toolbar .btn { width: 100%; justify-content: center; }
   .seo-alt-proposal { min-width: 210px; }
+  .seo-audit-card > header { grid-template-columns: auto minmax(0, 1fr); }
+  .seo-audit-priority { grid-column: 2; justify-self: start; }
+  .seo-audit-issues { grid-template-columns: 1fr; }
+  .seo-audit-card-actions .btn, .seo-resolution-actions .btn, .seo-bulk-toolbar .btn { width: 100%; justify-content: center; }
+  .seo-audit-resolution { width: 100%; margin-right: 0; }
 }

@@ -55,7 +55,7 @@ async function request(method, body) {
   if (!isAnalyticsConnected()) throw new Error('La autorización de Analytics ha caducado. Vuelve a conectar la cuenta.')
   const response = await fetch(`${API_ROOT}:${method}`, { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   if (response.status === 401) { accessToken = null; tokenExpiresAt = 0; throw new Error('La autorización de Analytics ha caducado. Vuelve a conectar la cuenta.') }
-  if (!response.ok) { const detail = await response.text().catch(() => ''); throw new Error(`Analytics respondió HTTP ${response.status}${detail ? `: ${detail.slice(0, 180)}` : ''}`) }
+  if (!response.ok) { const detail = await response.text().catch(() => ''); const error = new Error(`Analytics respondió HTTP ${response.status}`); error.technical = detail ? detail.slice(0, 500) : `HTTP ${response.status}`; throw error }
   return response.json()
 }
 
@@ -65,12 +65,22 @@ const value = (row, index) => row?.metricValues?.[index]?.value == null ? 0 : Nu
 const text = (row, index) => row?.dimensionValues?.[index]?.value || '(sin datos)'
 
 async function checkCompatibility({ dimensions, metrics }) {
+  const requestedDimensions = new Set(dimensions)
+  const requestedMetrics = new Set(metrics)
   const data = await request('checkCompatibility', { dimensions: dimensions.map(dimension), metrics: metrics.map(metric) })
-  const incompatibleDimensions = (data.dimensionCompatibilities || []).filter((item) => item.compatibility !== 'COMPATIBLE').map((item) => item.dimensionMetadata?.apiName || 'dimensión')
-  const incompatibleMetrics = (data.metricCompatibilities || []).filter((item) => item.compatibility !== 'COMPATIBLE').map((item) => item.metricMetadata?.apiName || 'métrica')
+  // La respuesta puede contener metadatos adicionales. Solo los campos enviados
+  // en esta consulta pueden hacerla incompatible.
+  const incompatibleDimensions = (data.dimensionCompatibilities || [])
+    .filter((item) => requestedDimensions.has(item.dimensionMetadata?.apiName) && item.compatibility !== 'COMPATIBLE')
+    .map((item) => item.dimensionMetadata.apiName)
+  const incompatibleMetrics = (data.metricCompatibilities || [])
+    .filter((item) => requestedMetrics.has(item.metricMetadata?.apiName) && item.compatibility !== 'COMPATIBLE')
+    .map((item) => item.metricMetadata.apiName)
   if (incompatibleDimensions.length || incompatibleMetrics.length) {
     const fields = [...incompatibleDimensions.map((item) => `dimensión ${item}`), ...incompatibleMetrics.map((item) => `métrica ${item}`)]
-    throw new Error(`Combinación no compatible según checkCompatibility: ${fields.join(', ')}`)
+    const error = new Error(`Combinación incompatible: ${fields.join(', ')}`)
+    error.technical = JSON.stringify({ dimensions: incompatibleDimensions, metrics: incompatibleMetrics })
+    throw error
   }
 }
 
@@ -78,43 +88,75 @@ async function report({ startDate, endDate, dimensions, metrics, limit = 100, di
   try {
     await checkCompatibility({ dimensions, metrics })
     const data = await request('runReport', { dateRanges: [{ startDate, endDate }], dimensions: dimensions.map(dimension), metrics: metrics.map(metric), limit: String(limit), keepEmptyRows: true, ...(dimensionFilter ? { dimensionFilter } : {}) })
-    return { rows: (data.rows || []).map((row) => ({ dimensions: dimensions.map((_, index) => text(row, index)), metrics: metrics.map((_, index) => value(row, index)) })), error: null }
+    const rows = (data.rows || []).map((row) => ({ dimensions: dimensions.map((_, index) => text(row, index)), metrics: metrics.map((_, index) => value(row, index)) }))
+    return { rows, state: rows.length ? 'ready' : 'empty', error: null }
   } catch (error) {
-    return { rows: [], error: error instanceof Error ? error.message : 'No se pudo consultar este apartado.' }
+    return { rows: [], state: 'error', error: { message: error instanceof Error ? error.message : 'No se pudo consultar este apartado.', technical: error?.technical || error?.stack || String(error) } }
   }
 }
 
-export async function fetchAnalyticsReport({ startDate, endDate }) {
-  const viewItemFilter = { filter: { fieldName: 'eventName', stringFilter: { matchType: 'EXACT', value: 'view_item' } } }
-  const results = await Promise.all([
-    report({ startDate, endDate, metrics: ['activeUsers', 'newUsers', 'sessions', 'averageSessionDuration', 'screenPageViews', 'eventCount'], dimensions: ['date'], limit: 1000 }),
-    report({ startDate, endDate, metrics: ['activeUsers', 'sessions'], dimensions: ['date'], limit: 1000 }),
-    report({ startDate, endDate, metrics: ['eventCount'], dimensions: ['itemName'], limit: 25, dimensionFilter: viewItemFilter }),
-    report({ startDate, endDate, metrics: ['eventCount'], dimensions: ['itemCategory'], limit: 25, dimensionFilter: viewItemFilter }),
-    report({ startDate, endDate, metrics: ['eventCount'], dimensions: ['searchTerm'], limit: 25 }),
-    report({ startDate, endDate, metrics: ['activeUsers', 'sessions'], dimensions: ['sessionDefaultChannelGroup'], limit: 15 }),
-    report({ startDate, endDate, metrics: ['activeUsers', 'sessions'], dimensions: ['country', 'city'], limit: 25 }),
-    report({ startDate, endDate, metrics: ['activeUsers', 'sessions'], dimensions: ['deviceCategory'], limit: 10 }),
-    report({ startDate, endDate, metrics: ['sessions', 'activeUsers'], dimensions: ['landingPagePlusQueryString'], limit: 25 }),
-    report({ startDate, endDate, metrics: ['eventCount'], dimensions: ['eventName'], limit: 100 }),
+const viewItemFilter = { filter: { fieldName: 'eventName', stringFilter: { matchType: 'EXACT', value: 'view_item' } } }
+const reports = [
+  ['totals', { metrics: ['activeUsers', 'newUsers', 'sessions', 'averageSessionDuration', 'screenPageViews', 'eventCount'], dimensions: ['date'], limit: 1000 }],
+  ['timeline', { metrics: ['activeUsers', 'sessions'], dimensions: ['date'], limit: 1000 }],
+  ['products', { metrics: ['eventCount'], dimensions: ['itemId', 'itemName'], limit: 25, dimensionFilter: viewItemFilter }],
+  ['categories', { metrics: ['eventCount'], dimensions: ['itemCategory'], limit: 25, dimensionFilter: viewItemFilter }],
+  ['searches', { metrics: ['eventCount'], dimensions: ['searchTerm'], limit: 25 }],
+  ['sources', { metrics: ['activeUsers', 'sessions'], dimensions: ['sessionDefaultChannelGroup'], limit: 15 }],
+  ['geography', { metrics: ['activeUsers', 'sessions'], dimensions: ['country', 'city'], limit: 25 }],
+  ['devices', { metrics: ['activeUsers', 'sessions'], dimensions: ['deviceCategory'], limit: 10 }],
+  ['landing', { metrics: ['sessions', 'activeUsers'], dimensions: ['landingPagePlusQueryString'], limit: 25 }],
+  ['events', { metrics: ['eventCount'], dimensions: ['eventName'], limit: 100 }],
+]
+
+function rangeBefore({ startDate, endDate }) {
+  const start = new Date(`${startDate}T00:00:00Z`)
+  const end = new Date(`${endDate}T00:00:00Z`)
+  const duration = Math.max(0, end - start)
+  const previousEnd = new Date(start.getTime() - 86400000)
+  const previousStart = new Date(previousEnd.getTime() - duration)
+  return { startDate: previousStart.toISOString().slice(0, 10), endDate: previousEnd.toISOString().slice(0, 10) }
+}
+
+function totalFrom(result) {
+  if (result.error) return null
+  return result.rows.reduce((total, row) => {
+    total.activeUsers += row.metrics[0]; total.newUsers += row.metrics[1]; total.sessions += row.metrics[2]
+    total.engagement += row.metrics[3] * row.metrics[2]; total.views += row.metrics[4]; total.events += row.metrics[5]
+    return total
+  }, { activeUsers: 0, newUsers: 0, sessions: 0, engagement: 0, views: 0, events: 0 })
+}
+
+async function loadReports(range) {
+  const results = await Promise.all(reports.map(([, config]) => report({ ...config, ...range })))
+  return Object.fromEntries(results.map((result, index) => [reports[index][0], result]))
+}
+
+export async function fetchAnalyticsReport(range) {
+  const previousRange = rangeBefore(range)
+  const [current, previousTotals] = await Promise.all([
+    loadReports(range),
+    report({ ...reports[0][1], ...previousRange }),
   ])
-  const names = ['totals', 'timeline', 'products', 'categories', 'searches', 'sources', 'geography', 'devices', 'landing', 'events']
-  const rows = results.map((result) => result.rows)
-  const errors = Object.fromEntries(names.map((name, index) => [name, results[index].error]).filter(([, error]) => error))
-  const total = errors.totals ? null : rows[0].reduce((result, row) => { result.activeUsers += row.metrics[0]; result.newUsers += row.metrics[1]; result.sessions += row.metrics[2]; result.engagement += row.metrics[3] * row.metrics[2]; result.views += row.metrics[4]; result.events += row.metrics[5]; return result }, { activeUsers: 0, newUsers: 0, sessions: 0, engagement: 0, views: 0, events: 0 })
-  const eventMap = Object.fromEntries(rows[9].map((row) => [row.dimensions[0], row.metrics[0]]))
+  const eventRows = current.events.rows
+  const eventMap = Object.fromEntries(eventRows.map((row) => [row.dimensions[0], row.metrics[0]]))
+  const errors = Object.fromEntries(Object.entries(current).filter(([, result]) => result.error).map(([name, result]) => [name, result.error]))
+  const total = totalFrom(current.totals)
+  const previous = totalFrom(previousTotals)
   return { status: 'ready', data: {
     total: total ? { ...total, recurringUsers: Math.max(0, total.activeUsers - total.newUsers), averageSessionDuration: total.sessions ? total.engagement / total.sessions : 0 } : null,
+    previous: previous ? { ...previous, recurringUsers: Math.max(0, previous.activeUsers - previous.newUsers), averageSessionDuration: previous.sessions ? previous.engagement / previous.sessions : 0 } : null,
     errors,
-    timeline: rows[1].map((row) => ({ date: row.dimensions[0], activeUsers: row.metrics[0], sessions: row.metrics[1] })),
-    products: rows[2].map((row) => ({ name: row.dimensions[0], views: row.metrics[0], events: row.metrics[0] })),
-    categories: rows[3].map((row) => ({ name: row.dimensions[0], views: row.metrics[0] })),
-    searches: rows[4].map((row) => ({ term: row.dimensions[0], searches: row.metrics[0] })),
-    sources: rows[5].map((row) => ({ name: row.dimensions[0], users: row.metrics[0], sessions: row.metrics[1] })),
-    geography: rows[6].map((row) => ({ country: row.dimensions[0], city: row.dimensions[1], users: row.metrics[0], sessions: row.metrics[1] })),
-    devices: rows[7].map((row) => ({ name: row.dimensions[0], users: row.metrics[0], sessions: row.metrics[1] })),
-    landing: rows[8].map((row) => ({ page: row.dimensions[0], sessions: row.metrics[0], users: row.metrics[1] })),
-    funnel: { addToQuote: eventMap.add_to_quote || 0, started: eventMap.quote_request_start || 0, sent: eventMap.quote_request_success || 0, contactSent: eventMap.contact_form_success || 0, removed: eventMap.remove_from_quote || 0 },
+    states: Object.fromEntries(Object.entries(current).map(([name, result]) => [name, result.state])),
+    timeline: current.timeline.rows.map((row) => ({ date: row.dimensions[0], activeUsers: row.metrics[0], sessions: row.metrics[1] })),
+    products: current.products.rows.map((row) => ({ id: row.dimensions[0], name: row.dimensions[1], views: row.metrics[0] })),
+    categories: current.categories.rows.map((row) => ({ name: row.dimensions[0], views: row.metrics[0] })),
+    searches: current.searches.rows.map((row) => ({ term: row.dimensions[0], searches: row.metrics[0] })),
+    sources: current.sources.rows.map((row) => ({ name: row.dimensions[0], users: row.metrics[0], sessions: row.metrics[1] })),
+    geography: current.geography.rows.map((row) => ({ country: row.dimensions[0], city: row.dimensions[1], users: row.metrics[0], sessions: row.metrics[1] })),
+    devices: current.devices.rows.map((row) => ({ name: row.dimensions[0], users: row.metrics[0], sessions: row.metrics[1] })),
+    landing: current.landing.rows.map((row) => ({ page: row.dimensions[0], sessions: row.metrics[0], users: row.metrics[1] })),
+    funnel: { addToQuote: eventMap.add_to_quote, started: eventMap.quote_request_start, sent: eventMap.quote_request_success, contactSent: eventMap.contact_form_success, removed: eventMap.remove_from_quote },
     events: eventMap,
   } }
 }

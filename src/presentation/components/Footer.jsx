@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-export default function Footer() {
+export default function Footer({ analytics }) {
   return (
     <footer className="footer footer-minimal">
       <div className="container">
@@ -28,8 +28,8 @@ export default function Footer() {
           <div className="footer-contact-column">
             <h4>Contacto</h4>
             <p className="footer-contact">
-              <a href="mailto:boralba@boralba.es">boralba@boralba.es</a>
-              <a href="tel:+34918707113">(34) 91 870 71 13</a>
+               <a href="mailto:boralba@boralba.es" onClick={() => analytics?.track('click_email', { location: 'footer' })}>boralba@boralba.es</a>
+               <a href="tel:+34918707113" onClick={() => analytics?.track('click_phone', { location: 'footer' })}>(34) 91 870 71 13</a>
               <span>Getafe · Madrid</span>
               <a href="https://www.instagram.com/boralbalighting/" target="_blank" rel="noreferrer">
                 Instagram

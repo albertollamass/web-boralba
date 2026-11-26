@@ -4,7 +4,7 @@ import Footer from './Footer'
 import CookieBanner from './CookieBanner'
 import HomeHeader from './HomeHeader'
 
-export default function Layout() {
+export default function Layout({ analytics }) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const isHome = pathname === '/'
@@ -16,7 +16,8 @@ export default function Layout() {
   }, [navigate])
 
   const header = (
-    <HomeHeader
+       <HomeHeader
+       analytics={analytics}
       home={isHome}
       menuOpen={menuOpen}
       onMenuToggle={() => setMenuOpen((open) => !open)}
@@ -32,7 +33,7 @@ export default function Layout() {
         <main className={`site-main${isHome ? ' home-main' : ' internal-page-container'}`}>
           <Outlet />
         </main>
-        <Footer />
+        <Footer analytics={analytics} />
       </div>
       <CookieBanner />
     </>

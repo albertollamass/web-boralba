@@ -27,7 +27,7 @@ const HOME_PROJECT_SLUGS = [
   'torreon-consuegra-fachadas',
 ]
 
-export default function Home() {
+export default function Home({ analytics }) {
   const { categories, getCategory, getChildren } = useCategories()
   const flagged = categories.filter((category) => category.showInHome).sort((a, b) => (a.homeOrder ?? 999) - (b.homeOrder ?? 999))
   const source = flagged.length ? flagged : getChildren(ROOT.slug)
@@ -413,7 +413,7 @@ export default function Home() {
         <Reveal>
           <div className="home-cta-copy">
             <h2>¿Tienes un proyecto de iluminación?</h2>
-            <p>Hablemos. Respuesta en menos de 24h, sin compromiso. <a href="tel:+34918707113" style={{ color: 'inherit', fontWeight: 700 }}>(34) 91 870 71 13</a></p>
+            <p>Hablemos. Respuesta en menos de 24h, sin compromiso. <a href="tel:+34918707113" onClick={() => analytics?.track('click_phone', { location: 'home' })} style={{ color: 'inherit', fontWeight: 700 }}>(34) 91 870 71 13</a></p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to="/contacto" className="home-btn home-btn--red home-btn--light">Hablar con nosotros <span>→</span></Link>
               <Link to="/proyectos" className="home-btn home-btn--light">Ver proyectos <span>→</span></Link>
