@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { productPath } from '../src/domain/catalog/slug.js'
 
 async function loadLocalEnv() {
   try {
@@ -230,7 +231,7 @@ function renderStaticContent(route) {
     const category = categories.find((item) => item.slug === decodeURIComponent(categoryMatch[1]))
     if (!category) return ''
     const categoryProducts = products.filter((product) => [product.category, ...(product.categories || [])].includes(category.slug)).slice(0, 30)
-    const productLinks = categoryProducts.map((product) => `<li><a href="/producto/${encodeURIComponent(product.id)}/">${escapeHtml(product.name || product.id)}</a></li>`).join('')
+    const productLinks = categoryProducts.map((product) => `<li><a href="${productPath(product)}">${escapeHtml(product.name || product.id)}</a></li>`).join('')
     return `<main><h1>${escapeHtml(category.name || 'Categoría de iluminación LED')}</h1>${category.tagline ? `<p>${escapeHtml(category.tagline)}</p>` : ''}${category.description ? `<p>${escapeHtml(category.description)}</p>` : ''}<h2>Productos de ${escapeHtml(category.name || 'esta categoría')}</h2>${productLinks ? `<ul>${productLinks}</ul>` : '<p>Consulta las soluciones LED disponibles en esta categoría.</p>'}<p><a href="/productos/">Ver todo el catálogo LED</a></p></main>`
   }
 
@@ -258,6 +259,18 @@ function renderStaticHtml(html, route) {
   const content = renderStaticContent(route)
   if (!content) return html
   return html.replace(/<noscript>[\s\S]*?<\/noscript>/i, `<noscript>${content}</noscript>`)
+}
+
+// Las fichas antiguas se enlazaban como /producto/{id} y ya están rastreadas.
+// Generamos una página puente que canonicaliza y redirige a la URL con slug,
+// para no dejar 404s en los resultados de Google ni en enlaces externos.
+const siteUrl = (process.env.SITE_URL || 'https://boralba.es').replace(/\/$/, '')
+for (const product of products) {
+  if (!product?.id) continue
+  const target = productPath(product)
+  const bridgeDir = join('dist', 'producto', product.id)
+  await mkdir(bridgeDir, { recursive: true })
+  await writeFile(join(bridgeDir, 'index.html'), `<!doctype html>\n<html lang="es"><head><meta charset="utf-8"><title>${escapeHtml(product.name || 'Producto LED')}</title><link rel="canonical" href="${escapeHtml(`${siteUrl}${target}`)}"><meta name="robots" content="noindex, follow"><meta http-equiv="refresh" content="0; url=${escapeHtml(target)}"></head><body><a href="${escapeHtml(target)}">Ver ${escapeHtml(product.name || 'producto')}</a></body></html>\n`)
 }
 
 for (const route of publicRoutes) {

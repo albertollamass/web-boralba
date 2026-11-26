@@ -4,10 +4,11 @@ import { useProducts } from '../../application/catalog/ProductsContext'
 import Seo from '../components/Seo'
 import { canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
 import { seoFields } from '../../domain/site/seo.js'
+import { productPath } from '../../domain/catalog/slug.js'
 
 function CategoryProductCard({ product, categoryName }) {
   return (
-    <Link className="subcategory-product-card" to={`/producto/${product.id}`}>
+    <Link className="subcategory-product-card" to={productPath(product)}>
       <div className="subcategory-product-image">
         <img src={product.image || 'images/placeholder.svg'} alt={product.name || 'Producto Boralba'} loading="lazy" />
       </div>

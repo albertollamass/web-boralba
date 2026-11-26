@@ -6,6 +6,7 @@ import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import { normalizeText, searchProducts } from '../../domain/search/search'
 import Seo from '../components/Seo'
 import { canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
+import { productPath } from '../../domain/catalog/slug.js'
 import '../styles/catalog.css'
 
 /* Primer nivel de navegación: todo lo que cuelga de la raíz en Firebase.
@@ -68,7 +69,7 @@ const keySpecs = (product) => {
 function ProductTile({ product, label }) {
   const specs = keySpecs(product)
   return (
-    <Link className="pc-product" to={`/producto/${product.id}`}>
+    <Link className="pc-product" to={productPath(product)}>
       <span className="pc-product-media">
         <img src={product.image || 'images/placeholder.svg'} alt={product.name || 'Producto Boralba'} loading="lazy" />
       </span>
@@ -483,7 +484,7 @@ export default function Productos({ analytics }) {
                       <div className="pc-search-dd-group">
                         <span className="pc-search-dd-label">Productos</span>
                         {liveProducts.list.map((product) => (
-                          <Link key={product.id} className="pc-search-dd-item" to={`/producto/${product.id}`} onClick={() => setSuggestionsOpen(false)}>
+                          <Link key={product.id} className="pc-search-dd-item" to={productPath(product)} onClick={() => setSuggestionsOpen(false)}>
                             <img src={product.image || 'images/placeholder.svg'} alt="" />
                             <span className="pc-search-dd-info">
                               <strong>{product.name}</strong>

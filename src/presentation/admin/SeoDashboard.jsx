@@ -8,7 +8,7 @@ import SeoEditor from './SeoEditor'
 import { seoDraftRepository } from '../../infrastructure/seo/seoDraftRepository.js'
 import { canResumeSearchConsole, connectSearchConsole, disconnectSearchConsole, fetchSearchConsoleReport, inspectSearchConsoleUrl, isSearchConsoleConnected, searchConsoleConfig } from '../../infrastructure/seo/searchConsoleClient.js'
 import { seoFields } from '../../domain/site/seo.js'
-import { generateSlug } from '../../domain/catalog/slug.js'
+import { productPath } from '../../domain/catalog/slug.js'
 
 const EMPTY = null
 const periodOptions = [['7d', 'Últimos 7 días'], ['28d', 'Últimos 28 días'], ['90d', 'Últimos 90 días'], ['6m', 'Últimos 6 meses'], ['12m', 'Últimos 12 meses'], ['custom', 'Fechas personalizadas']]
@@ -221,7 +221,7 @@ function ProductIndexationTable({ products, inspections, onInspect, inspectionSt
   if (!products.length) return <p className="seo-empty">No hay productos cargados desde Firebase.</p>
   return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Producto</th><th>Publicación</th><th>Google</th><th>Indexación</th><th>Incidencias</th><th>Acción</th></tr></thead><tbody>{products.map((product) => {
     const seo = seoFields(product)
-    const url = `https://boralba.es/producto/${encodeURIComponent(product.id)}/${encodeURIComponent(generateSlug(product.name))}`
+    const url = `https://boralba.es${productPath(product)}`
     const inspection = inspections[url]
     const issues = [!seo.title && 'Título SEO', !seo.description && 'Metadescripción', product.image && !product.imageAlt && 'Texto alternativo'].filter(Boolean)
     const indexError = inspection && inspection.verdict && inspection.verdict !== 'PASS'

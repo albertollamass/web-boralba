@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { productPath } from '../../domain/catalog/slug.js'
 
 const DRAG_STEP = 190
 
@@ -86,7 +87,7 @@ export default function ProductCarousel({ products }) {
       moveTo(index)
       return
     }
-    navigate(`/producto/${products[index].id}`)
+    navigate(productPath(products[index]))
   }
 
   if (total === 0) return null

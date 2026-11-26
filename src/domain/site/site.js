@@ -13,8 +13,10 @@ export const SITE = {
 }
 
 export function canonicalFor(path = '/') {
-  const clean = path.startsWith('/') ? path : `/${path}`
-  return `${SITE.url}${clean === '/' ? '/' : clean}`
+  const [pathname, ...query] = (path.startsWith('/') ? path : `/${path}`).split('?')
+  const clean = pathname.replace(/\/+$/, '') || '/'
+  const suffix = query.length ? `?${query.join('?')}` : ''
+  return `${SITE.url}${clean === '/' ? '/' : `${clean}/`}${suffix}`
 }
 
 export function pageTitle(title) {

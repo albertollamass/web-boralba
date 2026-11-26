@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { productPath } from '../../domain/catalog/slug.js'
 
 export default function ProductCard({ product, variant = '' }) {
   const specs = (product.specs || []).filter((spec) => spec.value).slice(0, 3)
@@ -6,7 +7,7 @@ export default function ProductCard({ product, variant = '' }) {
   return (
     <div className={`card product-card${variant ? ` product-card--${variant}` : ''}`}>
       <div className="card-img">
-        <Link to={`/producto/${product.id}`}>
+        <Link to={productPath(product)}>
             <img
               src={product.image || 'images/placeholder.svg'}
               srcSet={product.imageSrcSet || undefined}
@@ -23,7 +24,7 @@ export default function ProductCard({ product, variant = '' }) {
           {product.featured && <span className="badge badge-featured">Destacado</span>}
         </div>
         <h3>
-          <Link to={`/producto/${product.id}`}>{product.name}</Link>
+          <Link to={productPath(product)}>{product.name}</Link>
         </h3>
         <div className="ref">{product.ref}</div>
         {variant === 'editorial' && <div className="product-card-meta">{specs.map((spec) => <span key={`${spec.label}-${spec.value}`}>{spec.label}: {spec.value}{spec.unit ? ` ${spec.unit}` : ''}</span>)}</div>}
@@ -34,7 +35,7 @@ export default function ProductCard({ product, variant = '' }) {
             {product.price != null ? `${product.price.toLocaleString('es-ES')} €` : 'Consultar'}
             {product.price != null && product.unit ? <small> / {product.unit}</small> : null}
           </span>
-          <Link to={`/producto/${product.id}`} className="btn btn-outline btn-sm">
+          <Link to={productPath(product)} className="btn btn-outline btn-sm">
             {variant === 'editorial' ? 'Ver producto' : 'Ver'}
           </Link>
         </div>
