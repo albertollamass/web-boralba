@@ -6,7 +6,6 @@ import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import { normalizeText, searchProducts } from '../../domain/search/search'
 import Seo from '../components/Seo'
 import { canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
-import { productPath } from '../../domain/catalog/slug.js'
 import '../styles/catalog.css'
 import { productPath } from '../../domain/catalog/slug'
 
