@@ -87,5 +87,14 @@ service cloud.firestore {
     match /seo_drafts/{draftId} {
       allow read, write: if isAdmin();
     }
+
+    // Último resultado por URL canónica. Nunca se expone a visitantes.
+    match /seo_inspections/{inspectionId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /seo_inspection_history/{historyId} {
+      allow read, write: if isAdmin();
+    }
   }
 }

@@ -8,9 +8,11 @@ const INSPECTION_API_ROOT = 'https://searchconsole.googleapis.com/v1'
 const cache = new Map()
 const CATALOG_INSPECTION_CACHE_KEY = 'boralba.search-console.catalog-inspections.v1'
 const CATALOG_INSPECTION_REQUESTS_KEY = 'boralba.search-console.catalog-inspection-requests.v1'
-const INSPECTION_CACHE_TTL = 6 * 60 * 60 * 1000
-const INSPECTION_DELAY = 1000
+const INSPECTION_CACHE_TTL = 24 * 60 * 60 * 1000
+const INSPECTION_CONCURRENCY = 4
+const INSPECTION_MINUTE_LIMIT = 550
 const INSPECTION_DAILY_LIMIT = 1900
+const INSPECTION_CACHE_ERROR_TTL = 15 * 60 * 1000
 const isCanonicalProductUrl = (url) => /^https:\/\/boralba\.es\/producto\/[^/]+\/[^/]+\/$/.test(url)
 
 let gisPromise
@@ -190,6 +192,22 @@ async function sitemap(site = activeProperty) {
   return { status, submitted, errors, warnings, submittedAt: item.submitted, lastRead: item.lastDownloaded }
 }
 
+const isRetryableInspectionError = (error) => !error.status || error.status === 408 || error.status === 429 || error.status >= 500
+
+async function inspectSearchConsoleUrlWithRetry(url, retries = 3) {
+  let lastError
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await inspectSearchConsoleUrl(url)
+    } catch (error) {
+      lastError = error
+      if (!isRetryableInspectionError(error) || attempt === retries) break
+      await wait(Math.min(30000, 750 * (2 ** attempt) + Math.round(Math.random() * 250)))
+    }
+  }
+  throw lastError
+}
+
 async function withWorkingProperty(run) {
   try {
     return await run(activeProperty)
@@ -258,6 +276,8 @@ export const translateSearchConsoleError = (value = '') => {
 
 export function classifyInspection(inspection) {
   if (!inspection) return 'unchecked'
+  if (inspection.updateError && !inspection.verdict && !inspection.coverageState) return 'error'
+  if (inspection.followUp && inspection.verdict !== 'PASS') return 'follow-up'
   if (inspection.error) return 'error'
   if (inspection.googleCanonical && inspection.userCanonical && inspection.googleCanonical !== inspection.userCanonical) return 'error'
   if (inspection.verdict === 'PASS') return 'indexed'
@@ -269,7 +289,9 @@ export function classifyInspection(inspection) {
 
 export function inspectionExplanation(inspection) {
   if (!inspection) return 'Todavía no se ha comprobado esta URL.'
+  if (inspection.updateError) return `Último resultado válido conservado. No se pudo actualizar: ${translateSearchConsoleError(inspection.updateError)}`
   if (inspection.error) return translateSearchConsoleError(inspection.error)
+  if (inspection.followUp && inspection.verdict !== 'PASS') return 'La corrección se ha publicado y estamos esperando una nueva comprobación de Google.'
   if (inspection.googleCanonical && inspection.userCanonical && inspection.googleCanonical !== inspection.userCanonical) return 'Google ha elegido otra URL como canónica. La ficha necesita revisión.'
   const state = classifyInspection(inspection)
   if (state === 'indexed') return 'Google ha confirmado que la URL canónica está indexada.'
@@ -287,6 +309,13 @@ export function inspectionAdvice(inspection) {
   if (coverage.includes('duplicate') || coverage.includes('alternate')) return 'Revisa la etiqueta canonical y confirma que coincide con la URL canónica del producto.'
   if (coverage.includes('server error')) return 'Revisa el servidor y vuelve a solicitar la indexación cuando responda correctamente.'
   return 'Revisa publicación, noindex, robots y la etiqueta canonical del producto.'
+}
+
+export function markInspectionForFollowUp(url) {
+  const stored = readCatalogInspectionCache()
+  if (!stored[url]) return
+  stored[url] = { ...stored[url], followUp: true, followUpAt: new Date().toISOString() }
+  writeCatalogInspectionCache(stored)
 }
 
 function readCatalogInspectionCache() {
@@ -322,15 +351,15 @@ function writeInspectionRequestLog(entries) {
 
 const wait = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds))
 
-export async function inspectSearchConsoleCatalog(urls, { onProgress } = {}) {
+export async function inspectSearchConsoleCatalog(urls, { onProgress, onResult, priorities = {} } = {}) {
   if (catalogInspectionPromise) return catalogInspectionPromise
-  catalogInspectionPromise = inspectSearchConsoleCatalogInternal(urls, { onProgress })
+  catalogInspectionPromise = inspectSearchConsoleCatalogInternal(urls, { onProgress, onResult, priorities })
   try { return await catalogInspectionPromise } finally { catalogInspectionPromise = null }
 }
 
 let catalogInspectionPromise = null
 
-async function inspectSearchConsoleCatalogInternal(urls, { onProgress } = {}) {
+async function inspectSearchConsoleCatalogInternal(urls, { onProgress, onResult, priorities = {} } = {}) {
   const uniqueUrls = [...new Set(urls.filter((url) => isCanonicalProductUrl(url)))]
   const stored = readCatalogInspectionCache()
   const results = {}
@@ -338,32 +367,51 @@ async function inspectSearchConsoleCatalogInternal(urls, { onProgress } = {}) {
 
   uniqueUrls.forEach((url) => {
     const item = stored[url]
-    if (item && item.checkedAt && now - new Date(item.checkedAt).getTime() < INSPECTION_CACHE_TTL) results[url] = item
+    const age = item?.checkedAt ? now - new Date(item.checkedAt).getTime() : Infinity
+    const cacheTtl = item?.error || item?.updateError ? INSPECTION_CACHE_ERROR_TTL : INSPECTION_CACHE_TTL
+    if (item && item.checkedAt && age < cacheTtl && !priorities[url]?.force && !item.updateError) results[url] = item
   })
 
-  const pending = uniqueUrls.filter((url) => !results[url])
+  const pending = uniqueUrls.filter((url) => !results[url]).sort((a, b) => (priorities[b]?.weight || 0) - (priorities[a]?.weight || 0))
   const requests = readInspectionRequestLog()
-  const available = Math.max(0, INSPECTION_DAILY_LIMIT - requests.length)
+  const minuteCutoff = now - 60 * 1000
+  const minuteRequests = requests.filter((timestamp) => timestamp > minuteCutoff).length
+  const available = Math.max(0, Math.min(INSPECTION_DAILY_LIMIT - requests.length, INSPECTION_MINUTE_LIMIT - minuteRequests))
   const limited = pending.slice(available)
   const requestLog = [...requests]
-  for (let index = 0; index < pending.length; index += 1) {
-    const url = pending[index]
-    if (index >= available) break
-    try {
-      results[url] = await inspectSearchConsoleUrl(url)
+  const runId = new Date(now).toISOString()
+  let cursor = 0
+  let completed = uniqueUrls.length - pending.length
+  onProgress?.({ completed, total: uniqueUrls.length, cached: completed, limited: limited.length, startedAt: now, etaMs: 0 })
+  const runWorker = async () => {
+    while (cursor < available) {
+      const index = cursor
+      cursor += 1
+      const url = pending[index]
+      let inspection
+      try {
+        inspection = { ...(await inspectSearchConsoleUrlWithRetry(url)), runId }
+      } catch (error) {
+        const previous = stored[url]
+        inspection = previous?.checkedAt
+          ? { ...previous, url, runId, lastAttemptAt: new Date().toISOString(), updateError: error.message, retryable: isRetryableInspectionError(error) }
+          : { url, runId, checkedAt: new Date().toISOString(), error: error.message, lastAttemptAt: new Date().toISOString(), retryable: isRetryableInspectionError(error) }
+      }
+      results[url] = inspection
       requestLog.push(Date.now())
-    } catch (error) {
-      results[url] = { url, checkedAt: new Date().toISOString(), error: error.message }
-      requestLog.push(Date.now())
+      writeCatalogInspectionCache({ ...stored, ...results })
+      writeInspectionRequestLog(requestLog)
+      completed += 1
+      await onResult?.(inspection)
+      const elapsed = Math.max(1, Date.now() - now)
+      const etaMs = completed > uniqueUrls.length - pending.length ? Math.round((elapsed / (completed - (uniqueUrls.length - pending.length))) * Math.max(0, uniqueUrls.length - completed)) : 0
+      onProgress?.({ completed, total: uniqueUrls.length, cached: uniqueUrls.length - pending.length, limited: limited.length, startedAt: now, etaMs })
     }
-    writeCatalogInspectionCache({ ...stored, ...results })
-    writeInspectionRequestLog(requestLog)
-    onProgress?.({ completed: index + 1, total: pending.length, cached: uniqueUrls.length - pending.length, limited: limited.length })
-    if (index < pending.length - 1) await wait(INSPECTION_DELAY)
   }
+  await Promise.all(Array.from({ length: Math.min(INSPECTION_CONCURRENCY, available) }, runWorker))
 
   const checkedAt = Object.values(results).map((item) => item.checkedAt).filter(Boolean).sort().at(-1) || null
-  return { results, checked: pending.length - limited.length, cached: uniqueUrls.length - pending.length, limited: limited.length, checkedAt }
+  return { results, checked: pending.length - limited.length, cached: uniqueUrls.length - pending.length, limited: limited.length, checkedAt, durationMs: Date.now() - now }
 }
 
 export async function fetchSearchConsoleReport({ period, startDate, endDate }) {

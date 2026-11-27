@@ -38,4 +38,6 @@ export const COLLECTIONS = {
   LOGS: 'logs',
   USAGE: 'usage', // un documento por día: `usage/YYYY-MM-DD`
   SEO_DRAFTS: 'seo_drafts', // borradores SEO privados del panel de administración
+  SEO_INSPECTIONS: 'seo_inspections', // último resultado de inspección por URL canónica
+  SEO_INSPECTION_HISTORY: 'seo_inspection_history', // evolución de cada respuesta válida
 }
