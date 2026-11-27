@@ -6,7 +6,7 @@ import { useCategories } from '../../application/catalog/CategoriesContext'
 import { useAuth } from '../../application/identity/AuthContext'
 import SeoEditor from './SeoEditor'
 import { seoDraftRepository } from '../../infrastructure/seo/seoDraftRepository.js'
-import { canResumeSearchConsole, classifyInspection, connectSearchConsole, disconnectSearchConsole, fetchSearchConsoleReport, inspectionAdvice, inspectionExplanation, inspectSearchConsoleCatalog, isSearchConsoleConnected, markInspectionForFollowUp, searchConsoleConfig, translateSearchConsoleError } from '../../infrastructure/seo/searchConsoleClient.js'
+import { canResumeSearchConsole, classifyInspection, connectSearchConsole, disconnectSearchConsole, fetchSearchConsoleReport, getCachedCatalogInspections, getInspectionRequestLog, inspectionAdvice, inspectionExplanation, inspectSearchConsoleCatalog, isSearchConsoleConnected, markInspectionForFollowUp, registerInspectionRequest, searchConsoleConfig, translateSearchConsoleError } from '../../infrastructure/seo/searchConsoleClient.js'
 import { seoFields } from '../../domain/site/seo.js'
 import { productPath } from '../../domain/catalog/slug.js'
 import { canonicalFor } from '../../domain/site/site.js'
@@ -49,6 +49,8 @@ export default function SeoDashboard({ target = null }) {
   const [catalogLastChecked, setCatalogLastChecked] = useState(null)
   const [catalogHistory, setCatalogHistory] = useState([])
   const [persistedReady, setPersistedReady] = useState(false)
+  const [persistenceStatus, setPersistenceStatus] = useState('loading')
+  const [manualRequests, setManualRequests] = useState(() => getInspectionRequestLog())
   const [catalogFilter, setCatalogFilter] = useState('all')
   const [catalogQuery, setCatalogQuery] = useState('')
   const [catalogCategory, setCatalogCategory] = useState('all')
@@ -58,6 +60,7 @@ export default function SeoDashboard({ target = null }) {
   const [drafts, setDrafts] = useState([])
   const [inspectionNow] = useState(() => Date.now())
   const resumeAttempted = useRef(false)
+  const persistenceFailed = useRef(false)
   const indexableProducts = useMemo(() => products.filter(Boolean).filter((product) => product.published !== false && !seoFields(product).noindex), [products])
   const catalogUrls = useMemo(() => indexableProducts.map((product) => canonicalFor(productPath(product))), [indexableProducts])
   const catalogPriorities = useMemo(() => Object.fromEntries(indexableProducts.map((product) => {
@@ -132,6 +135,8 @@ export default function SeoDashboard({ target = null }) {
   const inspectCatalog = async () => {
     if (!catalogUrls.length || !persistedReady || inspectionStatus === 'loading') return
     setInspectionStatus('loading')
+    setPersistenceStatus('saving')
+    persistenceFailed.current = false
     setCatalogProgress({ completed: 0, total: catalogUrls.length, cached: 0, startedAt: Date.now(), etaMs: 0 })
     try {
       const result = await inspectSearchConsoleCatalog(catalogUrls, {
@@ -142,21 +147,27 @@ export default function SeoDashboard({ target = null }) {
           setProductInspections((current) => ({ ...current, [inspection.url]: inspection }))
           let saved = null
           let saveFailed = false
-          try {
-            saved = await seoInspectionRepository.save(inspection)
+           try {
+             saved = await seoInspectionRepository.save(inspection)
           } catch (saveError) {
             saveFailed = true
             setError(`Firebase no pudo guardar ${inspection.url}: ${saveError.code || saveError.message}`)
-          }
+           }
           if (saved?.history) setCatalogHistory((current) => [...current, saved.history])
           if (saved?.historyError) setError(`Firebase guardó el resultado actual, pero no pudo guardar el historial: ${saved.historyError.code || saved.historyError.message}`)
-          if (!saved && !saveFailed) setError('No se pudo guardar esta respuesta en Firebase; se conserva el resultado anterior.')
+           if (!saved && !saveFailed) setError('No se pudo guardar esta respuesta en Firebase; se conserva el resultado anterior.')
+           if (saved && !saveFailed) setPersistenceStatus('saved')
+           if (saveFailed) {
+             persistenceFailed.current = true
+             setPersistenceStatus('error')
+           }
         },
       })
       setProductInspections((current) => ({ ...current, ...result.results }))
       setCatalogLastChecked(result.checkedAt || catalogLastChecked)
       setCatalogProgress((current) => ({ ...current, completed: result.checked + result.cached, total: catalogUrls.length, cached: result.cached, limited: result.limited, etaMs: 0, durationMs: result.durationMs, timings: result.timings }))
       setInspectionStatus('ready')
+      if (!persistenceFailed.current) setPersistenceStatus('saved')
     } catch (inspectionError) {
       setInspectionStatus('error')
       setError(inspectionError.message)
@@ -172,18 +183,30 @@ export default function SeoDashboard({ target = null }) {
 
   useEffect(() => {
     setPersistedReady(false)
-    Promise.allSettled([seoInspectionRepository.list(), seoInspectionRepository.listHistory()]).then(([savedResult, historyResult]) => {
-      const saved = savedResult.status === 'fulfilled' ? savedResult.value : []
-      const history = historyResult.status === 'fulfilled' ? historyResult.value : []
+    setPersistenceStatus('loading')
+    const cached = getCachedCatalogInspections()
+    if (Object.keys(cached).length) {
+      setProductInspections((current) => ({ ...cached, ...current }))
+      setCatalogLastChecked(Object.values(cached).map((item) => item.checkedAt).filter(Boolean).sort().at(-1) || null)
+    }
+    seoInspectionRepository.list().then((saved) => {
       const valid = saved.filter((item) => catalogUrls.includes(item.url))
-      if (valid.length) {
-        setProductInspections((current) => ({ ...current, ...Object.fromEntries(valid.map((item) => [item.url, item])) }))
-      }
-      setCatalogHistory(history.filter((item) => catalogUrls.includes(item.url)))
-      setCatalogLastChecked([...valid, ...history].map((item) => item.checkedAt).filter(Boolean).sort().at(-1) || null)
-      const failures = [savedResult, historyResult].filter((result) => result.status === 'rejected')
-      if (failures.length) setError(`No se pudieron recuperar todos los datos SEO de Firebase: ${failures.map((failure) => failure.reason?.code || failure.reason?.message || 'error desconocido').join(', ')}`)
+      if (valid.length) setProductInspections((current) => Object.fromEntries([...Object.entries(current), ...valid.map((item) => [item.url, !current[item.url] || String(item.checkedAt || '') >= String(current[item.url].checkedAt || '') ? item : current[item.url]])]))
+      setCatalogLastChecked((current) => [...valid.map((item) => item.checkedAt), current].filter(Boolean).sort().at(-1) || null)
+      setPersistenceStatus('saved')
       setPersistedReady(true)
+    }).catch((loadError) => {
+      setPersistenceStatus('error')
+      setError(`No se pudieron recuperar los resultados de Firebase: ${loadError.code || loadError.message}`)
+      setPersistedReady(true)
+    })
+    seoInspectionRepository.listHistory().then((history) => {
+      const validHistory = history.filter((item) => catalogUrls.includes(item.url))
+      setCatalogHistory(validHistory)
+      setCatalogLastChecked((current) => [...validHistory.map((item) => item.checkedAt), current].filter(Boolean).sort().at(-1) || null)
+    }).catch((historyError) => {
+      setPersistenceStatus('error')
+      setError(`No se pudo recuperar el historial de Firebase: ${historyError.code || historyError.message}`)
     })
   }, [catalogUrls, user?.uid])
 
@@ -299,7 +322,7 @@ export default function SeoDashboard({ target = null }) {
      <SeoDecisionSummary auditCount={audit.length} errors={catalogSummary.errors} pending={catalogSummary.pending} indexed={catalogSummary.indexed} /></Panel>
      <Panel title="2. Problemas que requieren atención" note="Aquí aparecen primero los problemas que sí necesitan una decisión o una revisión tuya."><AuditFilters auditFilter={auditFilter} setAuditFilter={setAuditFilter} auditFamily={auditFamily} setAuditFamily={setAuditFamily} auditSubfamily={auditSubfamily} setAuditSubfamily={setAuditSubfamily} auditPriority={auditPriority} setAuditPriority={setAuditPriority} auditResolution={auditResolution} setAuditResolution={setAuditResolution} families={auditFamilies} subfamilies={auditSubfamilies} /><ActiveAuditSection audit={audit} updateProduct={updateProduct} /></Panel>
      <Panel title="3. Soluciones y mejoras preparadas" note="Las recomendaciones se basan en datos reales. Aplicar cambios, publicarlos o esperar siempre queda bajo tu control."><Recommendations report={report} /></Panel>
-     <Panel title="4. Estado de indexación" note="La indexación puede tardar después de publicar. Solo los errores reales requieren intervención inmediata."><CatalogInspectionToolbar total={indexableProducts.length} progress={catalogProgress} lastChecked={catalogLastChecked} status={inspectionStatus} onInspect={inspectCatalog} summary={catalogSummary} /><CatalogEvolution history={catalogHistory} products={indexableProducts} /><CatalogFilter value={catalogFilter} onChange={setCatalogFilter} summary={catalogSummary} query={catalogQuery} setQuery={setCatalogQuery} category={catalogCategory} setCategory={setCatalogCategory} priority={catalogPriority} setPriority={setCatalogPriority} categories={[...new Set(indexableProducts.map((item) => item.category).filter(Boolean))].sort()} /><ProductIndexationTable products={indexableProducts} inspections={productInspections} filter={catalogFilter} query={catalogQuery} category={catalogCategory} priority={catalogPriority} copiedUrl={copiedUrl} onCopy={copyUrl} /></Panel>
+      <Panel title="4. Estado de indexación" note="Google puede tardar en incluir un producto. Solo los errores necesitan que hagas algo."><CatalogInspectionToolbar total={indexableProducts.length} progress={catalogProgress} lastChecked={catalogLastChecked} status={inspectionStatus} onInspect={inspectCatalog} summary={catalogSummary} persistenceStatus={persistenceStatus} /><AttentionSection products={indexableProducts} inspections={productInspections} summary={catalogSummary} /><CatalogEvolution history={catalogHistory} products={indexableProducts} /><CatalogFilter value={catalogFilter} onChange={setCatalogFilter} summary={catalogSummary} query={catalogQuery} setQuery={setCatalogQuery} category={catalogCategory} setCategory={setCatalogCategory} priority={catalogPriority} setPriority={setCatalogPriority} categories={[...new Set(indexableProducts.map((item) => item.category).filter(Boolean))].sort()} /><ProductIndexationTable products={indexableProducts} inspections={productInspections} filter={catalogFilter} query={catalogQuery} category={catalogCategory} priority={catalogPriority} copiedUrl={copiedUrl} onCopy={copyUrl} onInspect={inspectCatalog} manualRequests={manualRequests} onRegisterRequest={(url) => { registerInspectionRequest(url); setManualRequests(getInspectionRequestLog()) }} /></Panel>
      <Panel title="5. Evolución del posicionamiento" note="Las barras comparan el periodo elegido. La explicación acompaña a los datos para evitar interpretaciones ambiguas."><div className="seo-chart-grid">{[['clicks', 'Clics'], ['impressions', 'Impresiones'], ['ctr', 'CTR'], ['position', 'Posición media'], ['indexed', 'Indexación']].map(([key, label]) => <Chart key={key} data={report?.timeline} metric={key} label={label} />)}</div></Panel>
      <Panel title="6. Palabras clave" note="Ordena y busca las consultas que ya están llevando visitas o mostrando oportunidades.">
       <div className="seo-table-tools"><input placeholder="Buscar consulta..." value={query} onChange={(event) => setQuery(event.target.value)} /><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="clicks">Ordenar por clics</option><option value="impressions">Ordenar por impresiones</option><option value="position">Ordenar por posición</option></select><button className="btn btn-outline btn-sm" onClick={exportCsv} disabled={!queries.length}>Exportar CSV</button></div>
@@ -314,13 +337,23 @@ function Panel({ title, note, action, children }) { return <section className="s
 function SeoDecisionSummary({ auditCount, errors, pending, indexed }) { const attention = auditCount + errors; return <div className="seo-decision-summary"><div><strong>{attention ? 'Qué necesita mejorar' : 'Qué está funcionando bien'}</strong><span>{attention ? `${attention} asunto${attention === 1 ? '' : 's'} requiere${attention === 1 ? '' : 'n'} revisión entre la auditoría y la indexación.` : 'No hay incidencias internas ni errores de indexación detectados.'}</span></div><div><strong>Cómo mejorarlo</strong><span>{auditCount ? 'Completa los campos SEO y textos alternativos desde los problemas destacados.' : 'Mantén títulos, descripciones y textos alternativos completos.'}</span></div><div><strong>Qué no requiere intervención</strong><span>{indexed ? `${indexed} producto${indexed === 1 ? '' : 's'} ya está${indexed === 1 ? '' : 'n'} indexado${indexed === 1 ? '' : 's'}.` : pending ? 'Las páginas pendientes pueden necesitar tiempo para ser rastreadas.' : 'Los datos pendientes se actualizarán cuando Google responda.'}</span></div></div> }
 function Chart({ data, metric, label }) { if (!data?.length) return <div className="seo-chart"><strong>{label}</strong><p className="seo-empty">Sin datos suficientes para interpretarlo.</p></div>; const max = Math.max(...data.map((point) => Number(point[metric] ?? 0)), 1); const first = Number(data[0][metric] ?? 0); const last = Number(data[data.length - 1][metric] ?? 0); const direction = last === first ? 'se mantiene estable' : last > first ? 'sube' : 'baja'; const display = (value) => format(metric === 'ctr' ? value * 100 : value, metric === 'ctr' ? 2 : 1); return <div className="seo-chart" role="img" aria-label={`Evolución de ${label}`}><strong>{label}</strong><p className="seo-chart-reading">{label} {direction} respecto al inicio del periodo ({display(first)}{metric === 'ctr' ? '%' : ''} → {display(last)}{metric === 'ctr' ? '%' : ''}).</p><div className="seo-chart-bars">{data.map((point) => <div className="seo-chart-point" style={{ height: `${Math.max(4, (Number(point[metric] ?? 0) / max) * 100)}%` }} title={`${point.date}: ${point[metric] ?? '—'}`} key={point.date} />)}</div><div className="seo-chart-labels"><span>{data[0].date}</span><span>{data[data.length - 1].date}</span></div></div> }
 function DataTable({ rows }) { if (!rows.length) return <p className="seo-empty">No hay consultas disponibles para este periodo.</p>; return <div className="seo-table-wrap"><table className="admin-table seo-keywords-table"><thead><tr><th>Palabra clave</th><th>Clics</th><th>Impresiones</th><th>CTR</th><th>Posición</th><th>Variación</th><th>URL</th></tr></thead><tbody>{rows.map((row) => <tr key={`${row.query}-${row.url}`}><td><strong>{row.query}</strong></td><td>{format(row.clicks)}</td><td>{format(row.impressions)}</td><td>{percent(row.ctr)}</td><td>{format(row.position, 1)}</td><td>{row.variation == null ? '—' : format(row.variation, 1)}</td><td>{row.url ? <a href={row.url} target="_blank" rel="noreferrer">Ver ↗</a> : '—'}</td></tr>)}</tbody></table></div> }
-function CatalogInspectionToolbar({ total, progress, lastChecked, status, onInspect, summary }) {
+function CatalogInspectionToolbar({ total, progress, lastChecked, status, onInspect, summary, persistenceStatus }) {
   const completed = Math.min(total, progress?.completed || 0)
   const percentage = total ? Math.round((completed / total) * 100) : 0
   const eta = progress?.etaMs > 0 ? ` · Quedan aprox. ${Math.max(1, Math.ceil(progress.etaMs / 60000))} min` : ''
   const duration = progress?.durationMs ? ` · Duración: ${(progress.durationMs / 1000).toFixed(1)} s` : ''
   const timings = progress?.timings ? ` · Search Console: ${(progress.timings.searchConsoleMs / 1000).toFixed(1)} s · Firebase: ${(progress.timings.persistenceMs / 1000).toFixed(1)} s` : ''
-  return <div className="seo-catalog-inspection"><div><strong>Comprobación automática del catálogo</strong><span>{total} productos indexables · {summary.indexed} indexados · {summary.pending} pendientes · {summary.errors} errores · {summary.followUp} en seguimiento · {summary.unchecked} sin comprobar</span><small>Se comprueban solo las URLs canónicas con slug. Las nuevas pueden tardar en aparecer en Google sin que eso sea un error.</small>{summary.errors > 0 && <small>Hay errores reales. Abre la ficha SEO del producto, corrige lo indicado y vuelve a publicar.</small>}{lastChecked && <small>Última comprobación general: {new Date(lastChecked).toLocaleString('es-ES')}</small>}{progress && <><progress value={completed} max={total} aria-label="Progreso de comprobación del catálogo" /><small>{completed}/{total} URLs · {percentage}%{status === 'loading' ? `${eta} · los resultados se guardan al llegar` : `${duration}${timings}`}{progress.cached ? ` · ${progress.cached} reutilizadas` : ''}{progress.limited ? ` · ${progress.limited} esperan al siguiente ciclo por límite de Google` : ''}</small></>}{progress?.limited > 0 && status !== 'loading' && <small>Google ha limitado {progress.limited} consultas de este ciclo para respetar la cuota diaria. Se comprobarán automáticamente más adelante.</small>}</div><button type="button" className="btn btn-primary btn-sm" onClick={onInspect} disabled={status === 'loading' || !total}>{status === 'loading' ? 'Comprobando catálogo…' : 'Comprobar catálogo pendiente'}</button></div>
+  const persistenceLabel = persistenceStatus === 'error' ? 'No se pudo guardar en Firebase' : persistenceStatus === 'saved' ? 'Resultados guardados en Firebase' : persistenceStatus === 'saving' ? 'Guardando resultados en Firebase…' : 'Recuperando resultados guardados…'
+  return <div className="seo-catalog-inspection"><div><strong>Estado de tus productos en Google</strong><span>{total} productos · {summary.indexed} aparecen en Google · {summary.pending} esperan · {summary.errors} necesitan tu intervención · {summary.unchecked} todavía no comprobados</span><small>Los resultados anteriores se conservan mientras se comprueba el catálogo. La comprobación automática se repite cada día.</small>{lastChecked && <small>Actualizado: {new Date(lastChecked).toLocaleString('es-ES')} · {persistenceLabel}</small>}{persistenceStatus === 'error' && <small className="seo-inline-error">Hay resultados nuevos que no se han podido guardar. No cierres esta pantalla hasta revisar la conexión.</small>}{progress && <><progress value={completed} max={total} aria-label="Progreso de comprobación del catálogo" /><small>{completed}/{total} URLs · {percentage}%{status === 'loading' ? `${eta} · los resultados se guardan al llegar` : `${duration}${timings}`}{progress.cached ? ` · ${progress.cached} ya guardadas` : ''}{progress.limited ? ` · ${progress.limited} esperan al siguiente ciclo por límite de Google` : ''}</small></>}{progress?.limited > 0 && status !== 'loading' && <small>Google ha limitado {progress.limited} consultas de este ciclo. Se reintentará automáticamente más adelante.</small>}</div><button type="button" className="btn btn-primary btn-sm" onClick={onInspect} disabled={status === 'loading' || !total}>{status === 'loading' ? 'Comprobando…' : 'Comprobar ahora'}</button></div>
+}
+
+function AttentionSection({ products, inspections, summary }) {
+  const attention = products.map((product) => {
+    const inspection = inspections[canonicalFor(productPath(product))]
+    return { product, state: classifyInspection(inspection), inspection }
+  }).filter(({ state }) => state === 'error')
+  if (!attention.length) return <div className="seo-attention seo-attention--ok"><strong>Qué necesita mi atención</strong><span>{summary.unchecked ? 'No hay errores confirmados. Comprueba primero los productos que todavía no tienen resultado.' : 'Nada urgente: Google no ha detectado errores que requieran una solución.'}</span></div>
+  return <div className="seo-attention"><strong>Qué necesita mi atención</strong><span>{attention.length} producto{attention.length === 1 ? '' : 's'} tiene{attention.length === 1 ? '' : 'n'} un problema que sí conviene resolver.</span><div>{attention.slice(0, 5).map(({ product, inspection }) => <span key={product.id}><b>{product.name || product.id}</b> {inspectionAdvice(inspection)}</span>)}</div></div>
 }
 function CatalogEvolution({ history, products }) {
   const runs = [...history.reduce((groups, item) => {
@@ -343,7 +376,7 @@ function CatalogFilter({ value, onChange, summary, query, setQuery, category, se
   return <div className="seo-table-tools seo-catalog-filter"><input aria-label="Buscar producto" placeholder="Buscar producto o referencia..." value={query} onChange={(event) => setQuery(event.target.value)} /><label>Categoría<select value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">Todas</option>{categories.map((item) => <option key={item}>{item}</option>)}</select></label><label>Prioridad<select value={priority} onChange={(event) => setPriority(event.target.value)}><option value="all">Todas</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Baja</option></select></label><label>Estado<select value={value} onChange={(event) => onChange(event.target.value)}><option value="all">Todos los productos</option><option value="attention">Necesitan atención</option><option value="error">Errores reales ({summary.errors})</option><option value="pending">Pendientes de indexación ({summary.pending})</option><option value="follow-up">En seguimiento ({summary.followUp})</option><option value="unchecked">Sin comprobar ({summary.unchecked})</option><option value="indexed">Indexados ({summary.indexed})</option></select></label></div>
 }
 
-function ProductIndexationTable({ products, inspections, filter, query, category, priority, copiedUrl, onCopy }) {
+function ProductIndexationTable({ products, inspections, filter, query, category, priority, copiedUrl, onCopy, onInspect, manualRequests, onRegisterRequest }) {
   const visible = products.map((product) => {
     const seo = seoFields(product)
     const url = canonicalFor(productPath(product))
@@ -359,12 +392,15 @@ function ProductIndexationTable({ products, inspections, filter, query, category
   })
   if (!products.length) return <p className="seo-empty">No hay productos indexables cargados desde Firebase.</p>
   if (!visible.length) return <p className="seo-empty">No hay productos con este filtro.</p>
-   return <div className="seo-table-wrap"><table className="admin-table seo-indexation-table"><thead><tr><th>Producto</th><th>URL canónica</th><th>Estado Google</th><th>Diagnóstico</th><th>Prioridad</th><th>Última comprobación</th><th>Acciones</th></tr></thead><tbody>{visible.map(({ product, url, inspection, state, issues, attention, rowPriority }) => {
-     const label = state === 'indexed' ? 'Indexado' : state === 'pending' ? 'Pendiente de indexación' : state === 'follow-up' ? 'En seguimiento' : state === 'error' ? 'Error de indexación' : 'Sin comprobar'
-     const tone = state === 'indexed' ? 'ok' : state === 'error' ? 'error' : 'pending'
-     const explanation = inspectionExplanation(inspection)
-     const advice = inspectionAdvice(inspection)
-     return <tr key={product.id}><td><strong>{product.name || product.id}</strong><small>{product.ref || 'Sin referencia'}</small></td><td><span className="seo-url-actions"><button type="button" className="btn btn-ghost btn-sm" onClick={() => onCopy(url)}>{copiedUrl === url ? 'Copiada' : 'Copiar'}</button><a className="btn btn-ghost btn-sm" href={url} target="_blank" rel="noreferrer">Abrir ↗</a><a className="btn btn-ghost btn-sm" href={`https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent('https://boralba.es/')}&url=${encodeURIComponent(url)}`} target="_blank" rel="noreferrer">Search Console</a></span></td><td><Status value={label} tone={tone} /></td><td><span>{explanation}</span>{issues.length > 0 && <small className="seo-inline-error">{issues.join(' · ')}</small>}{advice && <small className="seo-indexation-advice">{advice}</small>}{inspection && <small className="seo-diagnostic">Canonical declarada: {inspection.userCanonical === url ? 'correcta' : 'revisar'} · Rastreo: {inspection.pageFetchState || 'sin dato'}</small>}</td><td><Status value={rowPriority === 'high' ? 'Alta' : rowPriority === 'medium' ? 'Media' : 'Baja'} tone={rowPriority === 'high' ? 'error' : 'pending'} /></td><td>{inspection?.checkedAt ? new Date(inspection.checkedAt).toLocaleString('es-ES') : 'Todavía no comprobada'}</td><td><div className="seo-row-actions">{attention && <a className="btn btn-ghost btn-sm" href={`/admin?editar=${encodeURIComponent(product.id)}&volver=seo`}>Preparar solución</a>}</div></td></tr>
+   return <div className="seo-table-wrap"><table className="admin-table seo-indexation-table"><thead><tr><th>Producto</th><th>Estado y explicación</th><th>Qué hacer</th><th>Actualizado</th><th /></tr></thead><tbody>{visible.map(({ product, url, inspection, state, issues }) => {
+      const label = state === 'indexed' ? 'Indexado' : state === 'pending' ? 'Pendiente de indexación' : state === 'follow-up' ? 'En seguimiento' : state === 'error' ? 'Error de indexación' : 'Sin comprobar'
+      const tone = state === 'indexed' ? 'ok' : state === 'error' ? 'error' : 'pending'
+      const explanation = inspectionExplanation(inspection)
+      const advice = inspectionAdvice(inspection)
+      const action = state === 'indexed' ? 'Ver producto' : state === 'follow-up' ? 'Ver seguimiento' : state === 'error' ? 'Ayudarme a solucionarlo' : state === 'pending' ? 'Ver seguimiento' : 'Comprobar ahora'
+      const searchConsoleUrl = `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent('https://boralba.es/')}&url=${encodeURIComponent(url)}`
+      const actionHref = state === 'error' ? `/admin?editar=${encodeURIComponent(product.id)}&volver=seo` : state === 'pending' || state === 'follow-up' ? searchConsoleUrl : url
+      return <tr key={product.id}><td><strong>{product.name || product.id}</strong><small>{product.ref || 'Sin referencia'}</small></td><td><Status value={label} tone={tone} /><span className="seo-indexation-explanation">{explanation}</span>{issues.length > 0 && <small className="seo-inline-error">{issues.join(' · ')}</small>}{advice && <small className="seo-indexation-advice">{advice}</small>}</td><td>{state === 'unchecked' ? <button type="button" className="btn btn-primary btn-sm" onClick={onInspect}>{action}</button> : <a className={`btn ${state === 'error' ? 'btn-primary' : 'btn-outline'} btn-sm`} href={actionHref} target={state === 'error' ? undefined : '_blank'} rel={state === 'error' ? undefined : 'noreferrer'}>{action}</a>}</td><td>{inspection?.checkedAt ? new Date(inspection.checkedAt).toLocaleString('es-ES') : 'Todavía no comprobada'}{manualRequests[url] && <small className="seo-diagnostic">Solicitud manual registrada: {new Date(manualRequests[url]).toLocaleDateString('es-ES')}</small>}</td><td><details className="seo-secondary-actions"><summary>Más acciones</summary><div><button type="button" className="btn btn-ghost btn-sm" onClick={() => onCopy(url)}>{copiedUrl === url ? 'URL copiada' : 'Copiar URL'}</button><a className="btn btn-ghost btn-sm" href={url} target="_blank" rel="noreferrer">Abrir producto</a><a className="btn btn-ghost btn-sm" href={searchConsoleUrl} target="_blank" rel="noreferrer">Abrir Search Console</a><button type="button" className="btn btn-ghost btn-sm" onClick={() => onRegisterRequest(url)}>Registrar solicitud realizada</button>{inspection && <small className="seo-diagnostic">Canonical: {inspection.userCanonical === url ? 'correcta' : 'revisar'} · Rastreo: {inspection.pageFetchState || 'sin dato'}</small>}</div></details></td></tr>
   })}</tbody></table></div>
 }
 function Status({ value, tone }) { return <span className={`seo-status seo-status--${tone}`}>{value}</span> }

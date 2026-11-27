@@ -8,8 +8,9 @@ const INSPECTION_API_ROOT = 'https://searchconsole.googleapis.com/v1'
 const cache = new Map()
 const CATALOG_INSPECTION_CACHE_KEY = 'boralba.search-console.catalog-inspections.v1'
 const CATALOG_INSPECTION_REQUESTS_KEY = 'boralba.search-console.catalog-inspection-requests.v1'
+const MANUAL_INSPECTION_REQUESTS_KEY = 'boralba.search-console.manual-inspection-requests.v1'
 const INSPECTION_CACHE_TTL = 24 * 60 * 60 * 1000
-const INSPECTION_CONCURRENCY = 4
+const INSPECTION_CONCURRENCY = 8
 const INSPECTION_MINUTE_LIMIT = 550
 const INSPECTION_DAILY_LIMIT = 1900
 const INSPECTION_CACHE_ERROR_TTL = 15 * 60 * 1000
@@ -194,7 +195,7 @@ async function sitemap(site = activeProperty) {
 
 const isRetryableInspectionError = (error) => !error.status || error.status === 408 || error.status === 429 || error.status >= 500
 
-async function inspectSearchConsoleUrlWithRetry(url, retries = 3) {
+async function inspectSearchConsoleUrlWithRetry(url, retries = 1) {
   let lastError
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     try {
@@ -202,7 +203,7 @@ async function inspectSearchConsoleUrlWithRetry(url, retries = 3) {
     } catch (error) {
       lastError = error
       if (!isRetryableInspectionError(error) || attempt === retries) break
-      await wait(Math.min(30000, 750 * (2 ** attempt) + Math.round(Math.random() * 250)))
+      await wait(Math.min(5000, 500 * (2 ** attempt) + Math.round(Math.random() * 150)))
     }
   }
   throw lastError
@@ -318,6 +319,26 @@ export function markInspectionForFollowUp(url) {
   writeCatalogInspectionCache(stored)
 }
 
+export function getCachedCatalogInspections() {
+  return readCatalogInspectionCache()
+}
+
+export function getInspectionRequestLog() {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(MANUAL_INSPECTION_REQUESTS_KEY) || '{}')
+    return stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {}
+  } catch {
+    return {}
+  }
+}
+
+export function registerInspectionRequest(url) {
+  const current = getInspectionRequestLog()
+  const next = { ...current, [url]: new Date().toISOString() }
+  try { window.localStorage.setItem(MANUAL_INSPECTION_REQUESTS_KEY, JSON.stringify(next)) } catch { /* Registro opcional. */ }
+  return next[url]
+}
+
 function readCatalogInspectionCache() {
   try {
     const stored = JSON.parse(window.localStorage.getItem(CATALOG_INSPECTION_CACHE_KEY) || '{}')
@@ -337,7 +358,8 @@ function writeCatalogInspectionCache(entries) {
 
 function readInspectionRequestLog() {
   try {
-    const stored = JSON.parse(window.localStorage.getItem(CATALOG_INSPECTION_REQUESTS_KEY) || '[]')
+    const raw = JSON.parse(window.localStorage.getItem(CATALOG_INSPECTION_REQUESTS_KEY) || '[]')
+    const stored = Array.isArray(raw) ? raw : Object.values(raw).map((value) => new Date(value).getTime())
     const cutoff = Date.now() - 24 * 60 * 60 * 1000
     return Array.isArray(stored) ? stored.filter((timestamp) => Number(timestamp) > cutoff) : []
   } catch {
