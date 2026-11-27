@@ -1,0 +1,53 @@
+/* Shared administration table contract. Keep content readable before shrinking it. */
+.admin-layout .admin-table {
+  table-layout: auto;
+  overflow: visible;
+}
+
+.admin-layout .admin-table th,
+.admin-layout .admin-table td {
+  padding: 9px 12px;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.admin-layout .admin-table th {
+  white-space: nowrap;
+}
+
+.admin-layout .admin-table td strong,
+.admin-layout .admin-table td small,
+.admin-layout .admin-table td .btn,
+.admin-layout .admin-table td .badge,
+.admin-layout .admin-table td .seo-status {
+  white-space: nowrap;
+}
+
+.admin-layout .admin-table td small {
+  display: block;
+}
+
+.admin-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-gutter: stable;
+}
+
+.admin-table-subtext {
+  margin-top: 1px;
+  color: var(--color-text-muted);
+  font-size: .72rem;
+  line-height: 1.25;
+}
+
+.admin-layout .admin-table .actions {
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* The final responsive rules must not split ordinary admin copy by character. */
+.admin-layout :where(h1, h2, h3, h4, p, a, button, td, th, dt, dd, span, small) {
+  overflow-wrap: normal;
+  word-break: normal;
+}

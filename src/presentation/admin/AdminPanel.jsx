@@ -277,7 +277,6 @@ export default function AdminPanel({ telemetry, documentStorage }) {
                     <tr>
                       <th>Imagen</th>
                       <th>Producto</th>
-                      <th>Ref.</th>
                       <th>Categoría</th>
                       <th>Precio</th>
                       <th>Etiquetas</th>
@@ -292,9 +291,9 @@ export default function AdminPanel({ telemetry, documentStorage }) {
                         </td>
                         <td>
                           <strong>{p.name}</strong>
-                          <div className="ref">{p.description?.slice(0, 60)}...</div>
+                          <small className="admin-table-subtext">{p.ref || 'Sin referencia'}</small>
+                          {p.description && <div className="ref">{p.description.slice(0, 60)}...</div>}
                         </td>
-                        <td>{p.ref}</td>
                         <td>{catName(p.category)}</td>
                         <td>
                           {p.price != null ? `${p.price.toLocaleString('es-ES')} €` : '—'}
@@ -452,7 +451,7 @@ function CategoriesView({ ctx, onNew, onEdit }) {
 
 function CategoryList({ nodes, getChildren, getCategoryPathLabel, countByCat, onEdit, onDelete }) {
   return (
-    <table className="admin-table">
+    <div className="admin-table-scroll"><table className="admin-table">
       <thead>
         <tr>
           <th>Categoría</th>
@@ -477,7 +476,7 @@ function CategoryList({ nodes, getChildren, getCategoryPathLabel, countByCat, on
           />
         ))}
       </tbody>
-    </table>
+    </table></div>
   )
 }
 
