@@ -16,7 +16,7 @@ export const seoDraftRepository = {
     return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
   },
 
-  async save(type, id, fields) {
+  async save(type, id, fields, status = 'draft-saved', metadata = {}) {
     if (!db || !auth?.currentUser) throw new Error('La sesión de administración no está disponible.')
     const user = auth.currentUser
     const reference = doc(db, COLLECTIONS.SEO_DRAFTS, draftId(type, id))
@@ -26,7 +26,7 @@ export const seoDraftRepository = {
       const nextFields = { ...(previous.exists() ? previous.data().fields || {} : {}), ...fields }
       const entry = {
         fields: nextFields,
-        status: 'draft',
+        status,
         savedAt: new Date().toISOString(),
         savedBy: { uid: user.uid, email: user.email || '' },
       }
@@ -34,15 +34,20 @@ export const seoDraftRepository = {
         entityType: type,
         entityId: id,
         fields: nextFields,
-        status: 'draft',
-        history: [...history, entry].slice(-20),
+        status,
+        ...metadata,
+        history: [...history, entry],
         updatedAt: serverTimestamp(),
         updatedBy: { uid: user.uid, email: user.email || '' },
       }, { merge: true })
     })
   },
 
-  async setStatus(type, id, status) {
+  async saveAnalysis(type, id, fields, status = 'proposal-pending', metadata = {}) {
+    return this.save(type, id, fields, status, metadata)
+  },
+
+  async setStatus(type, id, status, metadata = {}) {
     if (!db || !auth?.currentUser) throw new Error('La sesión de administración no está disponible.')
     const reference = doc(db, COLLECTIONS.SEO_DRAFTS, draftId(type, id))
     await runTransaction(db, async (transaction) => {
@@ -52,7 +57,26 @@ export const seoDraftRepository = {
       const history = Array.isArray(data.history) ? data.history : []
       transaction.set(reference, {
         status,
-        history: [...history, { fields: data.fields || {}, status, savedAt: new Date().toISOString(), savedBy: { uid: auth.currentUser.uid, email: auth.currentUser.email || '' } }].slice(-20),
+        ...metadata,
+        history: [...history, { fields: data.fields || {}, status, savedAt: new Date().toISOString(), savedBy: { uid: auth.currentUser.uid, email: auth.currentUser.email || '' } }],
+        updatedAt: serverTimestamp(),
+        updatedBy: { uid: auth.currentUser.uid, email: auth.currentUser.email || '' },
+      }, { merge: true })
+    })
+  },
+
+  async recordProposalDecision(type, id, proposalKey, decision, recommended) {
+    if (!db || !auth?.currentUser) throw new Error('La sesión de administración no está disponible.')
+    const reference = doc(db, COLLECTIONS.SEO_DRAFTS, draftId(type, id))
+    await runTransaction(db, async (transaction) => {
+      const previous = await transaction.get(reference)
+      if (!previous.exists()) throw new Error('No existe un análisis guardado para esta entidad.')
+      const data = previous.data()
+      const decisions = { ...(data.proposalDecisions || {}), [proposalKey]: { decision, recommended, decidedAt: new Date().toISOString() } }
+      const history = Array.isArray(data.history) ? data.history : []
+      transaction.set(reference, {
+        proposalDecisions: decisions,
+        history: [...history, { fields: data.fields || {}, status: data.status || 'proposal-pending', proposalKey, decision, savedAt: new Date().toISOString(), savedBy: { uid: auth.currentUser.uid, email: auth.currentUser.email || '' } }],
         updatedAt: serverTimestamp(),
         updatedBy: { uid: auth.currentUser.uid, email: auth.currentUser.email || '' },
       }, { merge: true })
