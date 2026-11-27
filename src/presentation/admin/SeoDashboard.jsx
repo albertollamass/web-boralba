@@ -48,6 +48,7 @@ export default function SeoDashboard({ target = null }) {
   const [catalogProgress, setCatalogProgress] = useState(null)
   const [catalogLastChecked, setCatalogLastChecked] = useState(null)
   const [catalogHistory, setCatalogHistory] = useState([])
+  const [persistedReady, setPersistedReady] = useState(false)
   const [catalogFilter, setCatalogFilter] = useState('all')
   const [catalogQuery, setCatalogQuery] = useState('')
   const [catalogCategory, setCatalogCategory] = useState('all')
@@ -65,9 +66,9 @@ export default function SeoDashboard({ target = null }) {
     const age = inspection?.checkedAt ? inspectionNow - new Date(inspection.checkedAt).getTime() : Infinity
     const state = classifyInspection(inspection)
     const changedAt = product.updatedAt || product.modifiedAt || product.createdAt
-    const modifiedRecently = changedAt && inspectionNow - new Date(changedAt).getTime() < 7 * 24 * 60 * 60 * 1000
-    const weight = !inspection ? 100 : state === 'error' ? 90 : state === 'follow-up' ? 85 : state === 'pending' ? 80 : modifiedRecently ? 70 : age > 12 * 60 * 60 * 1000 ? 30 : 0
-    return [url, { weight, force: state === 'follow-up' || state === 'error' || modifiedRecently }]
+    const modifiedSinceCheck = changedAt && (!inspection?.checkedAt || new Date(changedAt).getTime() > new Date(inspection.checkedAt).getTime())
+    const weight = !inspection ? 100 : state === 'error' ? 90 : state === 'follow-up' ? 85 : state === 'pending' ? 80 : modifiedSinceCheck ? 70 : age > 12 * 60 * 60 * 1000 ? 30 : 0
+    return [url, { weight, force: state === 'follow-up' || state === 'error' || modifiedSinceCheck }]
   })), [indexableProducts, productInspections, inspectionNow])
 
   const load = async (force = false) => {
@@ -129,12 +130,13 @@ export default function SeoDashboard({ target = null }) {
   }
 
   const inspectCatalog = async () => {
-    if (!catalogUrls.length || inspectionStatus === 'loading') return
+    if (!catalogUrls.length || !persistedReady || inspectionStatus === 'loading') return
     setInspectionStatus('loading')
     setCatalogProgress({ completed: 0, total: catalogUrls.length, cached: 0, startedAt: Date.now(), etaMs: 0 })
     try {
       const result = await inspectSearchConsoleCatalog(catalogUrls, {
         priorities: catalogPriorities,
+        storedResults: productInspections,
         onProgress: setCatalogProgress,
         onResult: async (inspection) => {
           setProductInspections((current) => ({ ...current, [inspection.url]: inspection }))
@@ -153,7 +155,7 @@ export default function SeoDashboard({ target = null }) {
       })
       setProductInspections((current) => ({ ...current, ...result.results }))
       setCatalogLastChecked(result.checkedAt || catalogLastChecked)
-      setCatalogProgress((current) => ({ ...current, completed: result.checked + result.cached, total: catalogUrls.length, cached: result.cached, limited: result.limited, etaMs: 0, durationMs: result.durationMs }))
+      setCatalogProgress((current) => ({ ...current, completed: result.checked + result.cached, total: catalogUrls.length, cached: result.cached, limited: result.limited, etaMs: 0, durationMs: result.durationMs, timings: result.timings }))
       setInspectionStatus('ready')
     } catch (inspectionError) {
       setInspectionStatus('error')
@@ -162,13 +164,14 @@ export default function SeoDashboard({ target = null }) {
   }
 
   useEffect(() => {
-    if (!connected || !catalogUrls.length) return undefined
+    if (!connected || !persistedReady || !catalogUrls.length) return undefined
     inspectCatalog()
      const timer = window.setInterval(inspectCatalog, 24 * 60 * 60 * 1000)
     return () => window.clearInterval(timer)
-  }, [connected, catalogUrls])
+  }, [connected, persistedReady, catalogUrls])
 
   useEffect(() => {
+    setPersistedReady(false)
     Promise.allSettled([seoInspectionRepository.list(), seoInspectionRepository.listHistory()]).then(([savedResult, historyResult]) => {
       const saved = savedResult.status === 'fulfilled' ? savedResult.value : []
       const history = historyResult.status === 'fulfilled' ? historyResult.value : []
@@ -180,6 +183,7 @@ export default function SeoDashboard({ target = null }) {
       setCatalogLastChecked([...valid, ...history].map((item) => item.checkedAt).filter(Boolean).sort().at(-1) || null)
       const failures = [savedResult, historyResult].filter((result) => result.status === 'rejected')
       if (failures.length) setError(`No se pudieron recuperar todos los datos SEO de Firebase: ${failures.map((failure) => failure.reason?.code || failure.reason?.message || 'error desconocido').join(', ')}`)
+      setPersistedReady(true)
     })
   }, [catalogUrls, user?.uid])
 
@@ -315,7 +319,8 @@ function CatalogInspectionToolbar({ total, progress, lastChecked, status, onInsp
   const percentage = total ? Math.round((completed / total) * 100) : 0
   const eta = progress?.etaMs > 0 ? ` · Quedan aprox. ${Math.max(1, Math.ceil(progress.etaMs / 60000))} min` : ''
   const duration = progress?.durationMs ? ` · Duración: ${(progress.durationMs / 1000).toFixed(1)} s` : ''
-  return <div className="seo-catalog-inspection"><div><strong>Comprobación automática del catálogo</strong><span>{total} productos indexables · {summary.indexed} indexados · {summary.pending} pendientes · {summary.errors} errores · {summary.followUp} en seguimiento · {summary.unchecked} sin comprobar</span><small>Se comprueban solo las URLs canónicas con slug. Las nuevas pueden tardar en aparecer en Google sin que eso sea un error.</small>{summary.errors > 0 && <small>Hay errores reales. Abre la ficha SEO del producto, corrige lo indicado y vuelve a publicar.</small>}{lastChecked && <small>Última comprobación general: {new Date(lastChecked).toLocaleString('es-ES')}</small>}{progress && <><progress value={completed} max={total} aria-label="Progreso de comprobación del catálogo" /><small>{completed}/{total} URLs · {percentage}%{status === 'loading' ? `${eta} · los resultados se guardan al llegar` : `${duration}`}{progress.cached ? ` · ${progress.cached} reutilizadas` : ''}{progress.limited ? ` · ${progress.limited} esperan al siguiente ciclo por límite de Google` : ''}</small></>}{progress?.limited > 0 && status !== 'loading' && <small>Google ha limitado {progress.limited} consultas de este ciclo para respetar la cuota diaria. Se comprobarán automáticamente más adelante.</small>}</div><button type="button" className="btn btn-primary btn-sm" onClick={onInspect} disabled={status === 'loading' || !total}>{status === 'loading' ? 'Comprobando catálogo…' : 'Comprobar catálogo pendiente'}</button></div>
+  const timings = progress?.timings ? ` · Search Console: ${(progress.timings.searchConsoleMs / 1000).toFixed(1)} s · Firebase: ${(progress.timings.persistenceMs / 1000).toFixed(1)} s` : ''
+  return <div className="seo-catalog-inspection"><div><strong>Comprobación automática del catálogo</strong><span>{total} productos indexables · {summary.indexed} indexados · {summary.pending} pendientes · {summary.errors} errores · {summary.followUp} en seguimiento · {summary.unchecked} sin comprobar</span><small>Se comprueban solo las URLs canónicas con slug. Las nuevas pueden tardar en aparecer en Google sin que eso sea un error.</small>{summary.errors > 0 && <small>Hay errores reales. Abre la ficha SEO del producto, corrige lo indicado y vuelve a publicar.</small>}{lastChecked && <small>Última comprobación general: {new Date(lastChecked).toLocaleString('es-ES')}</small>}{progress && <><progress value={completed} max={total} aria-label="Progreso de comprobación del catálogo" /><small>{completed}/{total} URLs · {percentage}%{status === 'loading' ? `${eta} · los resultados se guardan al llegar` : `${duration}${timings}`}{progress.cached ? ` · ${progress.cached} reutilizadas` : ''}{progress.limited ? ` · ${progress.limited} esperan al siguiente ciclo por límite de Google` : ''}</small></>}{progress?.limited > 0 && status !== 'loading' && <small>Google ha limitado {progress.limited} consultas de este ciclo para respetar la cuota diaria. Se comprobarán automáticamente más adelante.</small>}</div><button type="button" className="btn btn-primary btn-sm" onClick={onInspect} disabled={status === 'loading' || !total}>{status === 'loading' ? 'Comprobando catálogo…' : 'Comprobar catálogo pendiente'}</button></div>
 }
 function CatalogEvolution({ history, products }) {
   const runs = [...history.reduce((groups, item) => {
