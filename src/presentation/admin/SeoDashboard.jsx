@@ -138,9 +138,17 @@ export default function SeoDashboard({ target = null }) {
         onProgress: setCatalogProgress,
         onResult: async (inspection) => {
           setProductInspections((current) => ({ ...current, [inspection.url]: inspection }))
-          const saved = await seoInspectionRepository.save(inspection).catch(() => null)
+          let saved = null
+          let saveFailed = false
+          try {
+            saved = await seoInspectionRepository.save(inspection)
+          } catch (saveError) {
+            saveFailed = true
+            setError(`Firebase no pudo guardar ${inspection.url}: ${saveError.code || saveError.message}`)
+          }
           if (saved?.history) setCatalogHistory((current) => [...current, saved.history])
-          if (!saved) setError('No se pudo guardar esta respuesta en Firebase; se conserva el resultado anterior.')
+          if (saved?.historyError) setError(`Firebase guardó el resultado actual, pero no pudo guardar el historial: ${saved.historyError.code || saved.historyError.message}`)
+          if (!saved && !saveFailed) setError('No se pudo guardar esta respuesta en Firebase; se conserva el resultado anterior.')
         },
       })
       setProductInspections((current) => ({ ...current, ...result.results }))
@@ -161,14 +169,18 @@ export default function SeoDashboard({ target = null }) {
   }, [connected, catalogUrls])
 
   useEffect(() => {
-    Promise.all([seoInspectionRepository.list(), seoInspectionRepository.listHistory()]).then(([saved, history]) => {
+    Promise.allSettled([seoInspectionRepository.list(), seoInspectionRepository.listHistory()]).then(([savedResult, historyResult]) => {
+      const saved = savedResult.status === 'fulfilled' ? savedResult.value : []
+      const history = historyResult.status === 'fulfilled' ? historyResult.value : []
       const valid = saved.filter((item) => catalogUrls.includes(item.url))
       if (valid.length) {
         setProductInspections((current) => ({ ...current, ...Object.fromEntries(valid.map((item) => [item.url, item])) }))
       }
       setCatalogHistory(history.filter((item) => catalogUrls.includes(item.url)))
       setCatalogLastChecked([...valid, ...history].map((item) => item.checkedAt).filter(Boolean).sort().at(-1) || null)
-    }).catch(() => {})
+      const failures = [savedResult, historyResult].filter((result) => result.status === 'rejected')
+      if (failures.length) setError(`No se pudieron recuperar todos los datos SEO de Firebase: ${failures.map((failure) => failure.reason?.code || failure.reason?.message || 'error desconocido').join(', ')}`)
+    })
   }, [catalogUrls, user?.uid])
 
   const catalogSummary = useMemo(() => {

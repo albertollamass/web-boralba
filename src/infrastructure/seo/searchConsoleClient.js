@@ -380,6 +380,7 @@ async function inspectSearchConsoleCatalogInternal(urls, { onProgress, onResult,
   const limited = pending.slice(available)
   const requestLog = [...requests]
   const runId = new Date(now).toISOString()
+  const pendingWrites = []
   let cursor = 0
   let completed = uniqueUrls.length - pending.length
   onProgress?.({ completed, total: uniqueUrls.length, cached: completed, limited: limited.length, startedAt: now, etaMs: 0 })
@@ -402,13 +403,14 @@ async function inspectSearchConsoleCatalogInternal(urls, { onProgress, onResult,
       writeCatalogInspectionCache({ ...stored, ...results })
       writeInspectionRequestLog(requestLog)
       completed += 1
-      await onResult?.(inspection)
+      if (onResult) pendingWrites.push(Promise.resolve(onResult(inspection)))
       const elapsed = Math.max(1, Date.now() - now)
       const etaMs = completed > uniqueUrls.length - pending.length ? Math.round((elapsed / (completed - (uniqueUrls.length - pending.length))) * Math.max(0, uniqueUrls.length - completed)) : 0
       onProgress?.({ completed, total: uniqueUrls.length, cached: uniqueUrls.length - pending.length, limited: limited.length, startedAt: now, etaMs })
     }
   }
   await Promise.all(Array.from({ length: Math.min(INSPECTION_CONCURRENCY, available) }, runWorker))
+  await Promise.allSettled(pendingWrites)
 
   const checkedAt = Object.values(results).map((item) => item.checkedAt).filter(Boolean).sort().at(-1) || null
   return { results, checked: pending.length - limited.length, cached: uniqueUrls.length - pending.length, limited: limited.length, checkedAt, durationMs: Date.now() - now }
