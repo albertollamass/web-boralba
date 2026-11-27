@@ -83,47 +83,40 @@ function absoluteAssetUrl(value) {
 
 function productProperties(product) {
   const specs = Array.isArray(product.specs) ? product.specs : []
-  return specs
-    .filter((spec) => spec?.label && spec?.value !== undefined && spec?.value !== null && String(spec.value).trim())
-    .map((spec) => ({
-      '@type': 'PropertyValue',
-      name: String(spec.label),
-      value: `${spec.value}${spec.unit ? ` ${spec.unit}` : ''}`,
-    }))
+  const variants = [...(Array.isArray(product.variants) ? product.variants : []), ...(Array.isArray(product.technicalInfo?.codes) ? product.technicalInfo.codes : [])]
+  return [
+    ...specs
+      .filter((spec) => spec?.label && spec?.value !== undefined && spec?.value !== null && String(spec.value).trim())
+      .map((spec) => ({ name: String(spec.label), value: `${spec.value}${spec.unit ? ` ${spec.unit}` : ''}` })),
+    ...variants
+      .map((variant) => variant?.sku || variant?.ref || variant?.reference || variant?.code)
+      .filter(Boolean)
+      .map((reference) => ({ name: 'Referencia de variante', value: String(reference) })),
+  ].map((property) => ({ '@type': 'PropertyValue', ...property }))
 }
 
-export function productJsonLd(product) {
-  const variants = Array.isArray(product.variants) ? product.variants : []
-  const codes = Array.isArray(product.technicalInfo?.codes) ? product.technicalInfo.codes : []
-  const variantItems = [...variants, ...codes]
-    .map((variant) => {
-      const sku = variant?.sku || variant?.ref || variant?.reference || variant?.code
-      if (!sku) return null
-      return {
-        '@type': 'Product',
-        name: product.name,
-        sku: String(sku),
-        brand: { '@type': 'Brand', name: 'Boralba Lighting' },
-        isVariantOf: { '@type': 'ProductGroup', name: product.name },
-        additionalProperty: Object.entries(variant)
-          .filter(([key, value]) => !['sku', 'ref', 'reference', 'code', 'image'].includes(key) && (typeof value === 'string' || typeof value === 'number'))
-          .map(([name, value]) => ({ '@type': 'PropertyValue', name, value: String(value) })),
-      }
-    })
-    .filter(Boolean)
-
+// Boralba es un catálogo B2B: no se publica precio, oferta ni valoración.
+// WebPage/Thing conserva contexto descriptivo sin activar requisitos de
+// resultados enriquecidos comerciales de Product que no podemos cumplir.
+export function productPageJsonLd(product) {
+  const url = canonicalFor(productPath(product))
   return {
     '@context': 'https://schema.org',
-    '@type': variantItems.length > 0 ? 'ProductGroup' : 'Product',
-    name: product.name,
-    url: canonicalFor(productPath(product)),
+    '@type': 'WebPage',
+    '@id': `${url}#webpage`,
+    url,
+    name: `${product.name} — Boralba Lighting`,
     description: product.description || undefined,
-    sku: variantItems.length > 0 ? undefined : product.ref || undefined,
-    productGroupID: variantItems.length > 0 ? product.id : undefined,
-    image: [product.image, ...(Array.isArray(product.gallery) ? product.gallery : [])].map(absoluteAssetUrl).filter(Boolean),
-    brand: { '@type': 'Brand', name: 'Boralba Lighting' },
-    additionalProperty: productProperties(product),
-    hasVariant: variantItems.length > 0 ? variantItems : undefined,
+    inLanguage: SITE.language,
+    primaryImageOfPage: product.image ? { '@type': 'ImageObject', url: absoluteAssetUrl(product.image) } : undefined,
+    about: {
+      '@type': 'Thing',
+      name: product.name,
+      description: product.description || undefined,
+      identifier: product.ref || product.id || undefined,
+      image: product.image ? absoluteAssetUrl(product.image) : undefined,
+    },
+    mentions: productProperties(product),
   }
 }
 

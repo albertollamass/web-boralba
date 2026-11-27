@@ -5,7 +5,7 @@ import { useProducts } from '../../application/catalog/ProductsContext'
 import { useCategories } from '../../application/catalog/CategoriesContext'
 import Carousel from '../components/Carousel'
 import Seo from '../components/Seo'
-import { SITE, canonicalFor, breadcrumbJsonLd, productJsonLd } from '../../domain/site/site'
+import { SITE, canonicalFor, breadcrumbJsonLd, productPageJsonLd } from '../../domain/site/site'
 import { openPdfDataUrl } from '../utils/pdf'
 import { publicUrl } from '../utils/assets'
 import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
@@ -306,7 +306,7 @@ export default function ProductoDetalle({ analytics }) {
           { name: 'Productos', url: canonicalFor('/productos') },
              { name: product.name, url: canonicalFor(canonicalPath) },
         ]),
-        productJsonLd(product),
+         productPageJsonLd(product),
       ]}
     />
      <main className="product-page" inert={Boolean(zoomImage)} aria-hidden={zoomImage ? 'true' : undefined}><div className="container product-container">
