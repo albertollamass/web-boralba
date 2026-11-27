@@ -4,7 +4,7 @@ import { useProducts } from '../../application/catalog/ProductsContext'
 import Seo from '../components/Seo'
 import { canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
 import { seoFields } from '../../domain/site/seo.js'
-import { productPath } from '../../domain/catalog/slug.js'
+import { productPath } from '../../domain/catalog/slug'
 
 function CategoryProductCard({ product, categoryName }) {
   return (

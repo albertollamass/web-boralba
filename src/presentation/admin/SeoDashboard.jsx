@@ -6,9 +6,10 @@ import { useCategories } from '../../application/catalog/CategoriesContext'
 import { useAuth } from '../../application/identity/AuthContext'
 import SeoEditor from './SeoEditor'
 import { seoDraftRepository } from '../../infrastructure/seo/seoDraftRepository.js'
-import { canResumeSearchConsole, connectSearchConsole, disconnectSearchConsole, fetchSearchConsoleReport, inspectSearchConsoleUrl, isSearchConsoleConnected, searchConsoleConfig } from '../../infrastructure/seo/searchConsoleClient.js'
+import { canResumeSearchConsole, classifyInspection, connectSearchConsole, disconnectSearchConsole, fetchSearchConsoleReport, inspectionAdvice, inspectionExplanation, inspectSearchConsoleCatalog, isSearchConsoleConnected, searchConsoleConfig, translateSearchConsoleError } from '../../infrastructure/seo/searchConsoleClient.js'
 import { seoFields } from '../../domain/site/seo.js'
 import { productPath } from '../../domain/catalog/slug.js'
+import { canonicalFor } from '../../domain/site/site.js'
 
 const EMPTY = null
 const periodOptions = [['7d', 'Últimos 7 días'], ['28d', 'Últimos 28 días'], ['90d', 'Últimos 90 días'], ['6m', 'Últimos 6 meses'], ['12m', 'Últimos 12 meses'], ['custom', 'Fechas personalizadas']]
@@ -41,12 +42,17 @@ export default function SeoDashboard({ target = null }) {
   const [auditSubfamily, setAuditSubfamily] = useState('all')
   const [auditPriority, setAuditPriority] = useState('all')
   const [auditResolution, setAuditResolution] = useState('all')
-  const [inspection, setInspection] = useState(null)
   const [productInspections, setProductInspections] = useState({})
   const [inspectionStatus, setInspectionStatus] = useState('idle')
+  const [catalogProgress, setCatalogProgress] = useState(null)
+  const [catalogLastChecked, setCatalogLastChecked] = useState(null)
+  const [catalogFilter, setCatalogFilter] = useState('all')
+  const [copiedUrl, setCopiedUrl] = useState('')
   const [section, setSection] = useState(target ? 'optimizacion' : 'resumen')
   const [drafts, setDrafts] = useState([])
   const resumeAttempted = useRef(false)
+  const indexableProducts = useMemo(() => products.filter(Boolean).filter((product) => product.published !== false && !seoFields(product).noindex), [products])
+  const catalogUrls = useMemo(() => indexableProducts.map((product) => canonicalFor(productPath(product))), [indexableProducts])
 
   const load = async (force = false) => {
     if (!connected && !force) {
@@ -62,7 +68,7 @@ export default function SeoDashboard({ target = null }) {
     } catch (loadError) {
       setStatus('error')
       setReport(null)
-      setError(loadError.message)
+      setError(translateSearchConsoleError(loadError.message))
     }
   }
 
@@ -94,7 +100,7 @@ export default function SeoDashboard({ target = null }) {
     } catch (connectError) {
       const needsConsent = connectError.code === 'interaction_required' || connectError.code === 'consent_required'
       setStatus(needsConsent ? 'requires-consent' : 'error')
-      setError(needsConsent ? 'Google necesita confirmar de nuevo el permiso de lectura para Search Console.' : connectError.message)
+      setError(needsConsent ? 'Google necesita confirmar de nuevo el permiso de lectura para Search Console.' : translateSearchConsoleError(connectError.message))
     }
   }
 
@@ -106,17 +112,53 @@ export default function SeoDashboard({ target = null }) {
     setStatus('disconnected')
   }
 
-  const inspect = async (url) => {
+  const inspectCatalog = async () => {
+    if (!catalogUrls.length || inspectionStatus === 'loading') return
     setInspectionStatus('loading')
+    setCatalogProgress({ completed: 0, total: catalogUrls.length, cached: 0 })
     try {
-       const result = await inspectSearchConsoleUrl(url)
-       setInspection(result)
-       setProductInspections((current) => ({ ...current, [url]: result }))
-      setInspectionStatus('ready')
+      const result = await inspectSearchConsoleCatalog(catalogUrls, { onProgress: setCatalogProgress })
+       setProductInspections((current) => ({ ...current, ...result.results }))
+       setCatalogLastChecked(result.checkedAt || catalogLastChecked)
+       setCatalogProgress({ completed: result.checked, total: result.checked + result.cached + result.limited, cached: result.cached, limited: result.limited })
+       setInspectionStatus('ready')
     } catch (inspectionError) {
-      setInspection({ error: inspectionError.message })
       setInspectionStatus('error')
+      setError(inspectionError.message)
     }
+  }
+
+  useEffect(() => {
+    if (!connected || !catalogUrls.length) return undefined
+    inspectCatalog()
+    const timer = window.setInterval(inspectCatalog, 30 * 60 * 1000)
+    return () => window.clearInterval(timer)
+  }, [connected, catalogUrls])
+
+  const catalogSummary = useMemo(() => {
+    const values = catalogUrls.map((url) => productInspections[url]).filter(Boolean)
+    const states = values.map(classifyInspection)
+    return {
+      indexed: states.filter((state) => state === 'indexed').length,
+      errors: states.filter((state) => state === 'error').length,
+      pending: states.filter((state) => state === 'pending').length,
+      unchecked: states.filter((state) => state === 'unchecked').length + catalogUrls.length - values.length,
+    }
+  }, [catalogUrls, productInspections])
+
+  const copyUrl = async (url) => {
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      const input = document.createElement('input')
+      input.value = url
+      document.body.appendChild(input)
+      input.select()
+      document.execCommand('copy')
+      input.remove()
+    }
+    setCopiedUrl(url)
+    window.setTimeout(() => setCopiedUrl((current) => current === url ? '' : current), 1800)
   }
 
   const queries = useMemo(() => {
@@ -124,7 +166,7 @@ export default function SeoDashboard({ target = null }) {
     return [...rows].filter((row) => (row.query || '').toLowerCase().includes(query.toLowerCase())).sort((a, b) => Number(b[sort] || 0) - Number(a[sort] || 0))
   }, [report, query, sort])
 
-  const audit = useMemo(() => products.map((product) => {
+  const audit = useMemo(() => products.filter(Boolean).map((product) => {
     const seo = seoFields(product)
     const path = getCategoryPathLabel(product.category) || ''
     const pathParts = path.split(' › ')
@@ -188,6 +230,7 @@ export default function SeoDashboard({ target = null }) {
     ['Clics totales', format(report?.summary?.clicks), 'Visitas que han llegado a Boralba desde un resultado de Google.'], ['Impresiones', format(report?.summary?.impressions), 'Veces que una página de Boralba se ha mostrado en los resultados.'], ['CTR medio', percent(report?.summary?.ctr), 'Porcentaje de impresiones que han terminado en un clic.'], ['Posición media', format(report?.summary?.position, 1), 'Posición media registrada para los resultados de Boralba.'],
     ['Páginas en sitemap', format(report?.sitemap?.submitted), 'URLs que Google reconoce dentro del sitemap enviado.'], ['Indexadas comprobadas', format(report?.inspection?.indexed), 'URLs inspeccionadas individualmente que Google considera indexadas.'], ['No indexadas comprobadas', format(report?.inspection?.notIndexed), 'URLs inspeccionadas individualmente que no están indexadas.'], ['Pendientes de inspección', format(report?.inspection?.pending), 'URLs que todavía no han sido comprobadas individualmente.'],
   ]
+  const displayMetricCards = [...metricCards.slice(0, 5), ['Indexadas comprobadas', format(catalogSummary.indexed), 'Fichas canónicas que Search Console considera indexadas.'], ['Pendientes', format(catalogSummary.pending), 'Fichas comprobadas que todavía no tienen un estado definitivo.'], ['Errores', format(catalogSummary.errors), 'Fichas canónicas con un problema real en Search Console.'], ['Sin comprobar', format(catalogSummary.unchecked), 'Productos públicos indexables sin una inspección guardada.']]
 
   return <section className="seo-dashboard">
     <header className="seo-heading">
@@ -198,15 +241,14 @@ export default function SeoDashboard({ target = null }) {
       {section !== 'resumen' ? <section className="seo-section-placeholder"><h3>{section === 'optimizacion' ? 'Optimización SEO' : section === 'auditoria' ? 'Auditoría y mejoras' : section === 'keywords' ? 'Palabras clave' : section === 'competencia' ? 'Competencia' : 'Publicaciones e historial'}</h3>{section === 'optimizacion' ? <SeoEditor initialType="product" initialId={target?.id || ''} focusField={target?.field || ''} /> : section === 'auditoria' ? <AuditSection audit={audit} updateProduct={updateProduct} /> : section === 'keywords' ? <KeywordOpportunities opportunities={opportunities} /> : section === 'historial' ? <HistorySection drafts={drafts} setDrafts={setDrafts} /> : <p className="seo-empty">No hay una fuente de competencia configurada. No se muestran datos ficticios.</p>}</section> : <>
     <div className="seo-toolbar"><label>Periodo<select value={period} onChange={(event) => setPeriod(event.target.value)}>{periodOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>{period === 'custom' && <><label>Desde<input type="date" value={dates.startDate} onChange={(event) => setDates({ ...dates, startDate: event.target.value })} /></label><label>Hasta<input type="date" value={dates.endDate} onChange={(event) => setDates({ ...dates, endDate: event.target.value })} /></label></>}<button className="btn btn-primary btn-sm" onClick={load}>Actualizar</button></div>
     <ConnectionStatus status={status} error={error} lastSync={report?.lastSync} onConnect={connect} onDisconnect={disconnect} />
-    <div className="seo-stats">{metricCards.map(([label, value, explanation]) => <div className="seo-stat" key={label} title={explanation} tabIndex="0"><span>{label} <small aria-hidden="true">ⓘ</small></span><strong>{value}</strong></div>)}</div>
+     <div className="seo-stats">{displayMetricCards.map(([label, value, explanation]) => <div className="seo-stat" key={label} title={explanation} tabIndex="0"><span>{label} <small aria-hidden="true">ⓘ</small></span><strong>{value}</strong></div>)}</div>
     <div className="seo-meta-row"><span>Última sincronización: <strong>{report?.lastSync ? new Date(report.lastSync).toLocaleString('es-ES') : 'Pendiente'}</strong></span><span>Sitemap: <strong>{report?.sitemap?.status || 'Pendiente de sincronización'}</strong></span><span>Errores de sitemap: <strong>{report?.sitemap?.errors == null ? 'Pendiente' : report.sitemap.errors}</strong></span></div>
     <Panel title="Evolución" note="Las series se muestran únicamente cuando la API devuelve datos del periodo seleccionado."><div className="seo-chart-grid">{[['clicks', 'Clics'], ['impressions', 'Impresiones'], ['ctr', 'CTR'], ['position', 'Posición media'], ['indexed', 'Indexación']].map(([key, label]) => <Chart key={key} data={report?.timeline} metric={key} label={label} />)}</div></Panel>
     <Panel title="Palabras clave" action={<button className="btn btn-outline btn-sm" onClick={exportCsv} disabled={!queries.length}>Exportar CSV</button>}>
       <div className="seo-table-tools"><input placeholder="Buscar consulta..." value={query} onChange={(event) => setQuery(event.target.value)} /><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="clicks">Ordenar por clics</option><option value="impressions">Ordenar por impresiones</option><option value="position">Ordenar por posición</option></select></div>
       <DataTable rows={queries} /></Panel>
     <Panel title="Posicionamiento de productos" note="La relación se hace con las URLs devueltas por Search Console; no se asignan métricas por aproximación."><ProductTable products={products} rows={report?.pages || []} getCategoryPathLabel={getCategoryPathLabel} /></Panel>
-     <Panel title="Estado SEO por producto" note="Publicado y accesible no significa indexado. Solo mostramos como indexado lo que devuelve la inspección individual de Search Console."><ProductIndexationTable products={products} inspections={productInspections} onInspect={inspect} inspectionStatus={inspectionStatus} /></Panel>
-     <Panel title="Control de indexación" note="Recuentos de inspecciones individuales. No representan el informe global de cobertura de Google."><Inspection inspection={inspection} onInspect={inspect} status={inspectionStatus} /></Panel>
+      <Panel title="Estado SEO por producto" note="Solo se comprueban las URLs canónicas definitivas con slug. Las rutas antiguas por ID nunca se consultan."><CatalogInspectionToolbar total={indexableProducts.length} progress={catalogProgress} lastChecked={catalogLastChecked} status={inspectionStatus} onInspect={inspectCatalog} summary={catalogSummary} /><CatalogFilter value={catalogFilter} onChange={setCatalogFilter} summary={catalogSummary} /><ProductIndexationTable products={indexableProducts} inspections={productInspections} filter={catalogFilter} copiedUrl={copiedUrl} onCopy={copyUrl} /></Panel>
       <Panel title="Auditoría SEO interna" note="Resuelve las incidencias aquí. Guardar crea un borrador; publicar actualiza el producto; verificar vuelve a comprobar los datos."><AuditFilters auditFilter={auditFilter} setAuditFilter={setAuditFilter} auditFamily={auditFamily} setAuditFamily={setAuditFamily} auditSubfamily={auditSubfamily} setAuditSubfamily={setAuditSubfamily} auditPriority={auditPriority} setAuditPriority={setAuditPriority} auditResolution={auditResolution} setAuditResolution={setAuditResolution} families={auditFamilies} subfamilies={auditSubfamilies} /><ActiveAuditSection audit={audit} updateProduct={updateProduct} /></Panel>
     <Recommendations report={report} />
     </>}
@@ -217,20 +259,36 @@ function ConnectionStatus({ status, error, lastSync, onConnect, onDisconnect }) 
 function Panel({ title, note, action, children }) { return <section className="seo-panel"><div className="seo-panel-heading"><div><h3>{title}</h3>{note && <p>{note}</p>}</div>{action}</div>{children}</section> }
 function Chart({ data, metric, label }) { if (!data?.length) return <div className="seo-chart"><strong>{label}</strong><p className="seo-empty">Sin datos</p></div>; const max = Math.max(...data.map((point) => Number(point[metric] ?? 0)), 1); return <div className="seo-chart" role="img" aria-label={`Evolución de ${label}`}><strong>{label}</strong><div className="seo-chart-bars">{data.map((point) => <div className="seo-chart-point" style={{ height: `${Math.max(4, (Number(point[metric] ?? 0) / max) * 100)}%` }} title={`${point.date}: ${point[metric] ?? '—'}`} key={point.date} />)}</div><div className="seo-chart-labels"><span>{data[0].date}</span><span>{data[data.length - 1].date}</span></div></div> }
 function DataTable({ rows }) { if (!rows.length) return <p className="seo-empty">No hay consultas disponibles para este periodo.</p>; return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Palabra clave</th><th>Clics</th><th>Impresiones</th><th>CTR</th><th>Posición</th><th>Variación</th><th>URL</th></tr></thead><tbody>{rows.map((row) => <tr key={`${row.query}-${row.url}`}><td><strong>{row.query}</strong></td><td>{format(row.clicks)}</td><td>{format(row.impressions)}</td><td>{percent(row.ctr)}</td><td>{format(row.position, 1)}</td><td>{row.variation == null ? '—' : format(row.variation, 1)}</td><td>{row.url ? <a href={row.url} target="_blank" rel="noreferrer">Ver ↗</a> : '—'}</td></tr>)}</tbody></table></div> }
-function ProductIndexationTable({ products, inspections, onInspect, inspectionStatus }) {
-  if (!products.length) return <p className="seo-empty">No hay productos cargados desde Firebase.</p>
-  return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Producto</th><th>Publicación</th><th>Google</th><th>Indexación</th><th>Incidencias</th><th>Acción</th></tr></thead><tbody>{products.map((product) => {
+function CatalogInspectionToolbar({ total, progress, lastChecked, status, onInspect, summary }) {
+  return <div className="seo-catalog-inspection"><div><strong>Comprobación automática del catálogo</strong><span>{total} productos indexables · {summary.indexed} indexados · {summary.pending} pendientes · {summary.errors} errores · {summary.unchecked} sin comprobar</span><small>Se comprueban solo las URLs canónicas con slug. Las nuevas pueden tardar en aparecer en Google sin que eso sea un error.</small>{summary.errors > 0 && <small>Hay errores reales. Abre la ficha SEO del producto, corrige lo indicado y vuelve a publicar.</small>}{lastChecked && <small>Última comprobación: {new Date(lastChecked).toLocaleString('es-ES')}</small>}{progress && status === 'loading' && <small>Consultando {progress.completed}/{progress.total} URLs. {progress.cached} recuperadas de caché{progress.limited ? ` · ${progress.limited} esperan al siguiente ciclo por límite de Google` : ''}.</small>}{progress?.limited > 0 && status !== 'loading' && <small>Google ha limitado {progress.limited} consultas de este ciclo para respetar la cuota diaria. Se comprobarán automáticamente más adelante.</small>}</div><button type="button" className="btn btn-primary btn-sm" onClick={onInspect} disabled={status === 'loading' || !total}>{status === 'loading' ? 'Comprobando catálogo…' : 'Comprobar todos los productos'}</button></div>
+}
+
+function CatalogFilter({ value, onChange, summary }) {
+  return <div className="seo-table-tools seo-catalog-filter"><label>Mostrar<select value={value} onChange={(event) => onChange(event.target.value)}><option value="all">Todos los productos</option><option value="attention">Necesitan atención</option><option value="error">Errores reales ({summary.errors})</option><option value="pending">Pendientes de indexación ({summary.pending})</option><option value="unchecked">Sin comprobar ({summary.unchecked})</option><option value="indexed">Indexados ({summary.indexed})</option></select></label></div>
+}
+
+function ProductIndexationTable({ products, inspections, filter, copiedUrl, onCopy }) {
+  const visible = products.map((product) => {
     const seo = seoFields(product)
-    const url = `https://boralba.es${productPath(product)}`
+    const url = canonicalFor(productPath(product))
     const inspection = inspections[url]
-    const issues = [!seo.title && 'Título SEO', !seo.description && 'Metadescripción', product.image && !product.imageAlt && 'Texto alternativo'].filter(Boolean)
-    const indexError = inspection && inspection.verdict && inspection.verdict !== 'PASS'
-    return <tr key={product.id}><td><strong>{product.name || product.id}</strong><small>{product.ref || url}</small></td><td><Status value={product.published === false ? 'No publicado' : 'Publicado correctamente'} tone={product.published === false ? 'error' : 'ok'} /></td><td><Status value={product.published === false || seo.noindex ? 'No disponible' : 'Disponible para Google'} tone={product.published === false || seo.noindex ? 'error' : 'ok'} /></td><td><Status value={inspection?.verdict === 'PASS' ? 'Indexado según Search Console' : 'Pendiente de indexación'} tone={inspection?.verdict === 'PASS' ? 'ok' : 'pending'} /></td><td>{issues.length || indexError ? <span className="seo-inline-error">{indexError ? inspection.coverageState || 'Error de Search Console' : issues.join(', ')}</span> : '—'}</td><td><button className="btn btn-outline btn-sm" onClick={() => onInspect(url)} disabled={inspectionStatus === 'loading'}>Comprobar URL</button></td></tr>
+    const state = classifyInspection(inspection)
+    const issues = [!seo.title && 'Falta título SEO', !seo.description && 'Falta metadescripción', product.image && !product.imageAlt && 'Falta texto alternativo'].filter(Boolean)
+    const attention = state === 'error' || issues.length > 0
+    return { product, url, inspection, state, issues, attention }
+  }).filter(({ state, attention }) => filter === 'all' || filter === 'attention' && attention || filter === state)
+  if (!products.length) return <p className="seo-empty">No hay productos indexables cargados desde Firebase.</p>
+  if (!visible.length) return <p className="seo-empty">No hay productos con este filtro.</p>
+  return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Producto</th><th>URL canónica definitiva</th><th>Publicación</th><th>Estado Google</th><th>Qué significa</th><th>Última comprobación</th><th>Acciones</th></tr></thead><tbody>{visible.map(({ product, url, inspection, state, issues, attention }) => {
+    const label = state === 'indexed' ? 'Indexado' : state === 'pending' ? 'Pendiente de indexación' : state === 'error' ? 'Error real' : 'Sin comprobar'
+    const tone = state === 'indexed' ? 'ok' : state === 'error' ? 'error' : 'pending'
+    const explanation = inspectionExplanation(inspection)
+    const advice = inspectionAdvice(inspection)
+    return <tr key={product.id}><td><strong>{product.name || product.id}</strong><small>{product.ref || 'Sin referencia'}</small></td><td><code className="seo-canonical-url">{url}</code></td><td><Status value="Publicado e indexable" tone="ok" /></td><td><Status value={label} tone={tone} /></td><td><span>{explanation}</span>{issues.length > 0 && <small className="seo-inline-error">{issues.join(' · ')}</small>}{advice && <small className="seo-indexation-advice">{advice}</small>}</td><td>{inspection?.checkedAt ? new Date(inspection.checkedAt).toLocaleString('es-ES') : 'Todavía no comprobada'}</td><td><div className="seo-row-actions"><a className="btn btn-ghost btn-sm" href={url} target="_blank" rel="noreferrer">Abrir ↗</a><button type="button" className="btn btn-outline btn-sm" onClick={() => onCopy(url)}>{copiedUrl === url ? 'Copiada' : 'Copiar URL'}</button>{attention && <a className="btn btn-ghost btn-sm" href={`/admin?editar=${encodeURIComponent(product.id)}&volver=seo`}>Revisar ficha</a>}</div></td></tr>
   })}</tbody></table></div>
 }
 function Status({ value, tone }) { return <span className={`seo-status seo-status--${tone}`}>{value}</span> }
-function ProductTable({ products, rows, getCategoryPathLabel }) { const byUrl = new Map(rows.map((row) => [row.url, row])); const visible = products.map((product) => ({ product, row: rows.find((item) => item.url?.includes(`/producto/${product.id}`)) || byUrl.get(product.publicUrl) })).filter(({ row }) => row); if (!visible.length) return <p className="seo-empty">No hay páginas de producto devueltas por la API en este periodo.</p>; return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Producto</th><th>Referencia</th><th>Familia</th><th>Clics</th><th>Impresiones</th><th>CTR</th><th>Posición</th><th>Indexación</th></tr></thead><tbody>{visible.map(({ product, row }) => <tr key={product.id}><td><div className="seo-product"><img src={product.image || 'images/placeholder.svg'} alt={product.imageAlt || product.name} /><strong>{product.name}</strong></div></td><td>{product.ref || '—'}</td><td>{getCategoryPathLabel(product.category)}</td><td>{format(row.clicks)}</td><td>{format(row.impressions)}</td><td>{percent(row.ctr)}</td><td>{format(row.position, 1)}</td><td>{row.indexingStatus || 'Pendiente de inspección'}</td></tr>)}</tbody></table></div> }
-function Inspection({ inspection, onInspect, status }) { const [url, setUrl] = useState('https://boralba.es/'); return <div className="seo-inspection"><form className="seo-inspection-form" onSubmit={(event) => { event.preventDefault(); onInspect(url) }}><label>Inspeccionar URL<input type="url" value={url} onChange={(event) => setUrl(event.target.value)} /></label><button className="btn btn-primary btn-sm" disabled={status === 'loading'}>{status === 'loading' ? 'Comprobando…' : 'Comprobar URL'}</button></form>{inspection?.error && <p className="seo-inline-error">{inspection.error}</p>}{inspection && !inspection.error && <div className="seo-inspection-result"><strong>{inspection.verdict || 'Sin veredicto'}</strong><span>{inspection.coverageState || 'Estado de cobertura no disponible'}</span><span>Indexación: {inspection.indexingState || '—'}</span><span>Último rastreo: {inspection.lastCrawlTime ? new Date(inspection.lastCrawlTime).toLocaleString('es-ES') : '—'}</span><span>Canónica Google: {inspection.googleCanonical || '—'}</span></div>}<a href="https://search.google.com/search-console?resource_id=https%3A%2F%2Fboralba.es%2F" target="_blank" rel="noreferrer">Abrir informes y solicitar indexación en Search Console ↗</a></div> }
+function ProductTable({ products, rows, getCategoryPathLabel }) { const byUrl = new Map(rows.map((row) => [row.url, row])); const visible = products.map((product) => ({ product, row: byUrl.get(canonicalFor(productPath(product))) })).filter(({ row }) => row); if (!visible.length) return <p className="seo-empty">No hay páginas canónicas de producto devueltas por la API en este periodo.</p>; return <div className="seo-table-wrap"><table className="admin-table"><thead><tr><th>Producto</th><th>Referencia</th><th>Familia</th><th>Clics</th><th>Impresiones</th><th>CTR</th><th>Posición</th><th>Indexación</th></tr></thead><tbody>{visible.map(({ product, row }) => <tr key={product.id}><td><div className="seo-product"><img src={product.image || 'images/placeholder.svg'} alt={product.imageAlt || product.name} /><strong>{product.name}</strong></div></td><td>{product.ref || '—'}</td><td>{getCategoryPathLabel(product.category)}</td><td>{format(row.clicks)}</td><td>{format(row.impressions)}</td><td>{percent(row.ctr)}</td><td>{format(row.position, 1)}</td><td>{row.indexingStatus || 'Pendiente de inspección'}</td></tr>)}</tbody></table></div> }
 function Recommendations({ report }) { const recommendations = report?.recommendations || []; return <Panel title="Recomendaciones de mejora" note="Solo se muestran recomendaciones calculadas por el backend a partir de datos reales.">{recommendations.length ? <div className="seo-recommendations">{recommendations.map((item) => <article className={`seo-recommendation seo-recommendation--${item.priority}`} key={`${item.url}-${item.title}`}><span>{item.priority}</span><h4>{item.title}</h4><p>{item.problem}</p><small>{item.url} · Métrica: {item.metric}</small></article>)}</div> : <p className="seo-empty">No hay recomendaciones disponibles sin datos reales suficientes.</p>}</Panel> }
 function AuditFilters({ auditFilter, setAuditFilter, auditFamily, setAuditFamily, auditSubfamily, setAuditSubfamily, auditPriority, setAuditPriority, auditResolution, setAuditResolution, families, subfamilies }) {
   return <div className="seo-table-tools seo-audit-filters"><label>Incidencia<select value={auditFilter} onChange={(event) => setAuditFilter(event.target.value)}><option value="all">Todas</option><option>Sin título SEO</option><option>Sin metadescripción</option><option>Imagen sin texto alternativo</option></select></label><label>Familia<select value={auditFamily} onChange={(event) => { setAuditFamily(event.target.value); setAuditSubfamily('all') }}><option value="all">Todas</option>{families.map((family) => <option key={family}>{family}</option>)}</select></label><label>Subfamilia<select value={auditSubfamily} onChange={(event) => setAuditSubfamily(event.target.value)}><option value="all">Todas</option>{subfamilies.map((family) => <option key={family}>{family}</option>)}</select></label><label>Prioridad<select value={auditPriority} onChange={(event) => setAuditPriority(event.target.value)}><option value="all">Todas</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Baja</option></select></label><label>Estado<select value={auditResolution} onChange={(event) => setAuditResolution(event.target.value)}><option value="all">Todos</option><option value="pending">Pendiente</option><option value="draft">Borrador guardado</option><option value="published">Publicado</option><option value="verified">Verificado</option></select></label></div>

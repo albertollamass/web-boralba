@@ -44,6 +44,7 @@ const firestoreDecode = (value) => {
   if (value.arrayValue) return (value.arrayValue.values || []).map(firestoreDecode)
   return firestoreValue(value)
 }
+const productPath = (product) => `/producto/${encodeURIComponent(product.id)}/${encodeURIComponent(String(product.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''))}/`
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds))
 
 async function fetchFirestorePage(collection, params) {

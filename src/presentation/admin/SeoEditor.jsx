@@ -3,7 +3,7 @@ import { PROJECTS } from '../../domain/showcase/proyectos.js'
 import { seoDraftRepository } from '../../infrastructure/seo/seoDraftRepository.js'
 import { useProducts } from '../../application/catalog/ProductsContext'
 import { useCategories } from '../../application/catalog/CategoriesContext'
-import { productPath } from '../../domain/catalog/slug.js'
+import { productPath } from '../../domain/catalog/slug'
 
 const PAGES = [
   ['home', '/', 'Página principal'], ['productos', '/productos', 'Catálogo de productos'],

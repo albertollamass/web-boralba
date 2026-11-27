@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { Component, useEffect, useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { DAILY_READ_LIMIT, READ_ALERT_AT, useDailyReads } from '../../application/telemetry/usage'
 import { useProducts } from '../../application/catalog/ProductsContext'
 import { useCategories } from '../../application/catalog/CategoriesContext'
 import { useAuth } from '../../application/identity/AuthContext'
 import { ROOT } from '../../domain/catalog/categoryTree'
-import { generateSlug } from '../../domain/catalog/slug'
+import { generateSlug, productPath } from '../../domain/catalog/slug'
 import { fileToDataUrl } from '../utils/images'
 import ProductForm from './ProductForm'
 import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
@@ -168,7 +168,7 @@ export default function AdminPanel({ telemetry, documentStorage }) {
           <button type="button" className={view === 'optimization' ? 'active' : ''} onClick={() => setView('optimization')}>Asistente de mejora web</button>
         </div>
 
-          {view === 'seo' ? <SeoDashboard target={seoTarget} /> : view === 'analytics' ? <AnalyticsDashboard /> : view === 'optimization' ? <OptimizationDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
+          {view === 'seo' ? <SeoDashboardBoundary target={seoTarget} /> : view === 'analytics' ? <AnalyticsDashboard /> : view === 'optimization' ? <OptimizationDashboard /> : view === 'configuracion' ? <SettingsView settings={settings} onSave={updateSettings} /> : view === 'categorias' ? (
           catForm.open ? (
             <CategoryForm
               initial={catForm.editing}
@@ -314,6 +314,9 @@ export default function AdminPanel({ telemetry, documentStorage }) {
                             >
                               Editar
                             </button>
+                            <Link className="btn-edit" to={productPath(p)} target="_blank" rel="noreferrer">
+                              Ver ficha
+                            </Link>
                             <button
                               className="btn-del"
                               onClick={() => {
@@ -335,6 +338,21 @@ export default function AdminPanel({ telemetry, documentStorage }) {
       </div>
     </div>
   )
+}
+
+class SeoDashboardBoundary extends Component {
+  state = { error: null }
+
+  static getDerivedStateFromError(error) {
+    return { error }
+  }
+
+  render() {
+    if (this.state.error) {
+      return <section className="seo-section-placeholder"><h3>No se pudo cargar el panel SEO</h3><p className="seo-inline-error">{this.state.error.message || 'Error desconocido de la aplicación.'}</p><p>Recarga la página. Si el problema continúa, copia este mensaje para poder corregir la causa exacta.</p></section>
+    }
+    return <SeoDashboard target={this.props.target} />
+  }
 }
 
 function useDeploymentHealth() {

@@ -20,6 +20,12 @@ export function AuthProvider({ children, authService }) {
       return
     }
     let cancelled = false
+    const authTimeout = window.setTimeout(() => {
+      if (!cancelled) {
+        logError('auth/initialization', new Error('Firebase Auth no respondió durante el arranque'))
+        setLoading(false)
+      }
+    }, 8000)
 
     const loadRole = async (u) => {
       if (!u) {
@@ -39,10 +45,15 @@ export function AuthProvider({ children, authService }) {
       setUser(u)
       await loadRole(u)
       if (!cancelled) setLoading(false)
+    }, (error) => {
+      if (cancelled) return
+      logError('auth/observer', error)
+      setLoading(false)
     })
 
     return () => {
       cancelled = true
+      window.clearTimeout(authTimeout)
       unsubscribe()
     }
   }, [authService])

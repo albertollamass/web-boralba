@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useProducts } from '../../application/catalog/ProductsContext'
 import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import { searchProducts } from '../../domain/search/search'
-import { productPath } from '../../domain/catalog/slug.js'
+import { productPath } from '../../domain/catalog/slug'
 
 const QUICK_TAGS = ['24V', 'COB', 'CRI90', '4000K', 'Perfiles', 'RGB', 'IP65', 'CCT', 'Neón', 'Casambi']
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useParams, Navigate } from 'react-router-dom'
+import { Link, useLocation, useParams, Navigate } from 'react-router-dom'
 import { useProducts } from '../../application/catalog/ProductsContext'
 import { useCategories } from '../../application/catalog/CategoriesContext'
 import Carousel from '../components/Carousel'
@@ -12,7 +12,7 @@ import { useSiteSettings } from '../../application/catalog/SiteSettingsContext'
 import { resolveTechnicalKey } from '../../domain/catalog/technicalFeatures'
 import { useQuote } from '../../application/quote/QuoteContext'
 import { variantCandidates, variantGroups, variantLabelRows, variantValue } from '../../domain/catalog/quoteVariants'
-import { generateSlug, productPath } from '../../domain/catalog/slug'
+import { productPath } from '../../domain/catalog/slug'
 import { seoFields } from '../../domain/site/seo.js'
 
 const isDataUrl = (value) => typeof value === 'string' && value.startsWith('data:')
@@ -162,6 +162,7 @@ const asFeatureRows = (product, info, family) => {
 
 export default function ProductoDetalle({ analytics }) {
   const { id } = useParams()
+  const location = useLocation()
   const { getProduct, products, hydrated } = useProducts()
   const { getCategory, getBreadcrumb } = useCategories()
   const { settings } = useSiteSettings()
@@ -211,6 +212,12 @@ export default function ProductoDetalle({ analytics }) {
 
   if (!hydrated) return <div className="container section"><div className="empty-state"><h3>Cargando producto...</h3></div></div>
   if (!product) return <Navigate to="/productos" replace />
+
+  const canonicalPath = productPath(product)
+  const normalizePath = (path) => path.replace(/\/+$/, '') || '/'
+  if (normalizePath(location.pathname) !== normalizePath(canonicalPath)) {
+    return <Navigate to={canonicalPath} replace />
+  }
 
   const category = getCategory(product.category)
   const productSeo = seoFields(product)
@@ -290,14 +297,14 @@ export default function ProductoDetalle({ analytics }) {
     <Seo
       title={`${product.name}${product.ref ? ` ${product.ref}` : ''} — Producto LED`}
       description={product.description || `Ficha técnica de ${product.name}${product.ref ? ` (${product.ref})` : ''}: especificaciones, aplicaciones y soluciones compatibles Boralba Lighting.`}
-       path={`/producto/${product.id}/${generateSlug(product.name)}`}
+        path={canonicalPath}
        image={product.image ? `${SITE.url}/${String(product.image).replace(/^\//, '')}` : undefined}
-       seo={productSeo}
+       seo={{ ...productSeo, canonical: canonicalPath }}
       jsonLd={[
         breadcrumbJsonLd([
           { name: 'Home', url: canonicalFor('/') },
           { name: 'Productos', url: canonicalFor('/productos') },
-           { name: product.name, url: canonicalFor(`/producto/${product.id}/${generateSlug(product.name)}`) },
+             { name: product.name, url: canonicalFor(canonicalPath) },
         ]),
         productJsonLd(product),
       ]}
@@ -310,7 +317,7 @@ export default function ProductoDetalle({ analytics }) {
        </div>
         {example.image && !legacyExampleIsIntegrated && <section className="application-example product-section"><img src={example.image} alt={example.title || 'Ejemplo de aplicación'} role="button" tabIndex={0} onClick={(event) => openLightbox(example.image, event)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') openLightbox(example.image, event) }} /><div><p className="product-kicker">Ejemplo de aplicación</p><h2>{example.title}</h2>{example.description && <p>{example.description}</p>}{example.spaceType && <span className="space-label">{example.spaceType}</span>}{example.inspiration && <small>Imagen de inspiración</small>}</div></section>}
           {compatible.length > 0 && <section className="product-section solution-section"><SectionHeading title="Completa la solución" text="Productos compatibles para configurar la instalación." /><div className={`solution-list solution-count-${Math.min(compatible.length, 4)}`}>{compatible.map(({ product: item, function: relationFunction, reason, recommended }) => <CompatibleSolutionItem key={item.id} item={item} relationFunction={relationFunction} reason={reason} recommended={recommended} analytics={analytics} />)}</div></section>}
-      {similar.length > 0 && <section className="product-section related-products"><SectionHeading title="También te puede interesar" /><div className="grid grid-4">{similar.map((item) => <article className="similar-card" key={item.id}><Link to={productPath(item)}><div className="card-img"><img src={item.image || 'images/placeholder.svg'} alt={item.name} loading="lazy" /></div><div className="card-body"><h3>{item.name}</h3><div className="ref">{item.ref}</div></div></Link><label className="check"><input type="checkbox" checked={compareIds.includes(item.id)} onChange={() => toggleCompare(item.id)} /> Comparar</label></article>)}</div>{similar.length >= 2 && <button className="btn btn-outline compare-button" disabled={compareIds.length < 2} onClick={() => setShowComparison(true)}>Comparar seleccionados</button>}{showComparison && comparisonProducts.length >= 2 && <div className="comparison-wrap"><button className="comparison-close" onClick={() => setShowComparison(false)}>Cerrar</button><div className="comparison-scroll"><table className="comparison-table"><thead><tr><th>Especificación</th>{comparisonProducts.map((item) => <th key={item.id}>{item.name}</th>)}</tr></thead><tbody>{sharedSpecs.map((row) => <tr key={row.label}><th>{row.label}</th>{row.values.map((value, i) => <td key={i}>{value?.value ? `${value.value}${value.unit ? ` ${value.unit}` : ''}` : '—'}</td>)}</tr>)}</tbody></table></div></div>}</section>}
+       {similar.length > 0 && <section className="product-section related-products"><SectionHeading title="También te puede interesar" /><div className="grid grid-4">{similar.map((item) => <article className="similar-card" key={item.id}><Link to={productPath(item)}><div className="card-img"><img src={item.image || 'images/placeholder.svg'} alt={item.name} loading="lazy" /></div><div className="card-body"><h3>{item.name}</h3><div className="ref">{item.ref}</div></div></Link><label className="check"><input type="checkbox" checked={compareIds.includes(item.id)} onChange={() => toggleCompare(item.id)} /> Comparar</label></article>)}</div>{similar.length >= 2 && <button className="btn btn-outline compare-button" disabled={compareIds.length < 2} onClick={() => setShowComparison(true)}>Comparar seleccionados</button>}{showComparison && comparisonProducts.length >= 2 && <div className="comparison-wrap"><button className="comparison-close" onClick={() => setShowComparison(false)}>Cerrar</button><div className="comparison-scroll"><table className="comparison-table"><thead><tr><th>Especificación</th>{comparisonProducts.map((item) => <th key={item.id}>{item.name}</th>)}</tr></thead><tbody>{sharedSpecs.map((row) => <tr key={row.label}><th>{row.label}</th>{row.values.map((value, i) => <td key={i}>{value?.value ? `${value.value}${value.unit ? ` ${value.unit}` : ''}` : '—'}</td>)}</tr>)}</tbody></table></div></div>}</section>}
          <section className="technical-advice advisory-content"><div><h2>¿Necesitas ayuda para configurar tu instalación?</h2><p>Indícanos los metros, el tipo de espacio y el efecto de luz que buscas. Nuestro equipo técnico te ayudará a seleccionar el perfil, la tira LED y el sistema de alimentación adecuados.</p></div><div className="advice-contact"><Link to={`/contacto?productos=${product.ref || ''}`} className="btn btn-primary">Solicitar asesoramiento</Link><a href={`tel:${settings.phone}`} onClick={() => analytics?.track('click_phone', { location: 'product_advice' })}>{settings.phone}</a><a href={`mailto:${settings.email}`} onClick={() => analytics?.track('click_email', { location: 'product_advice' })}>{settings.email}</a>{settings.hours && <span>{settings.hours}</span>}</div></section>
      </div></main>{zoomImage && createPortal(<div className="image-lightbox" role="dialog" aria-modal="true" aria-label="Imagen ampliada" onClick={(event) => { if (event.target === event.currentTarget) closeLightbox() }}><button ref={lightboxCloseRef} type="button" aria-label="Cerrar imagen ampliada" onClick={(event) => { event.preventDefault(); event.stopPropagation(); closeLightbox() }}>×</button><img src={zoomImage} alt={`Imagen ampliada de ${product.name}`} /></div>, document.body)}
   </>

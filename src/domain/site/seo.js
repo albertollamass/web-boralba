@@ -15,6 +15,9 @@ export function seoFields(entity = {}) {
 }
 
 export function seoCanonical(value, fallback = '/') {
-  if (!value) return `${SITE.url}${fallback.startsWith('/') ? fallback : `/${fallback}`}`
-  return /^https?:\/\//i.test(value) ? value : `${SITE.url}/${String(value).replace(/^\//, '')}`
+  const source = value || fallback
+  const absolute = /^https?:\/\//i.test(source) ? source : `${SITE.url}/${String(source).replace(/^\//, '')}`
+  const url = new URL(absolute)
+  url.pathname = `${url.pathname.replace(/\/+$/, '')}/`
+  return url.toString()
 }

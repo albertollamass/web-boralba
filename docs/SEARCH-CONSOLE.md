@@ -21,7 +21,8 @@ de cinco minutos para evitar consultas repetidas durante la sesión.
 - Search Analytics aporta clics, impresiones, CTR, posición, consultas, páginas y fechas.
 - La API de Sitemaps aporta el estado del sitemap, fechas y errores disponibles para Google.
 - URL Inspection permite inspeccionar URLs individualmente, pero no solicitar indexaciones.
-- Las inspecciones individuales no se presentan como cobertura global.
+- El panel inspecciona únicamente las URLs canónicas definitivas `/producto/{id}/{slug}/` de los productos públicos indexables. Las rutas antiguas `/producto/{id}/` no se consultan ni se consideran errores.
+- «Comprobar indexación del catálogo» revisa todos los productos, conserva los resultados seis horas en el navegador y separa indexados, pendientes, errores y sin comprobar. Las peticiones se espacian para no agotar la cuota de URL Inspection.
 - Search Console puede retrasar los datos varios días.
 
 No se requiere Firebase Functions, Cloud Run ni activar facturación para esta

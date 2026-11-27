@@ -1,4 +1,4 @@
-// Dominio · Catálogo — generación de slugs (identidad pública de la categoría).
+// Dominio · Catálogo — generación de slugs para las URLs públicas.
 // Puro: minúsculas, sin tildes, separados por guiones.
 
 export const generateSlug = (name) =>
@@ -9,8 +9,8 @@ export const generateSlug = (name) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
 
-// Ruta pública canónica de una ficha. Debe coincidir con la que genera el
-// sitemap y con el HTML estático; si no, Google ve dos URLs para el mismo
-// producto y las enlaces internos acaban en una ruta que no existe.
-export const productPath = (product) =>
-  `/producto/${encodeURIComponent(product?.id || '')}/${generateSlug(product?.name)}/`
+export const productSlug = (product) => generateSlug(product?.name)
+
+// La ruta se deriva del producto en un único punto para que ningún consumidor
+// tenga que conocer o guardar manualmente su URL pública.
+export const productPath = (product) => `/producto/${encodeURIComponent(product.id)}/${encodeURIComponent(productSlug(product))}/`

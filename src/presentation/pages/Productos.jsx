@@ -8,6 +8,7 @@ import Seo from '../components/Seo'
 import { canonicalFor, breadcrumbJsonLd } from '../../domain/site/site'
 import { productPath } from '../../domain/catalog/slug.js'
 import '../styles/catalog.css'
+import { productPath } from '../../domain/catalog/slug'
 
 /* Primer nivel de navegación: todo lo que cuelga de la raíz en Firebase.
    Las categorías nuevas aparecen solas, sin tocar código. */

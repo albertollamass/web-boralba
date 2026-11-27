@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { productPath } from '../../domain/catalog/slug.js'
+import { productPath } from '../../domain/catalog/slug'
 
 export default function ProductCard({ product, variant = '' }) {
   const specs = (product.specs || []).filter((spec) => spec.value).slice(0, 3)

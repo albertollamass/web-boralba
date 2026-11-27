@@ -7,7 +7,7 @@ import { logError } from '../../application/logging/logger.js'
 export const firebaseAuthService = {
   isConfigured: () => Boolean(auth),
 
-  observeAuth: (onChange) => onAuthStateChanged(auth, onChange),
+  observeAuth: (onChange, onError) => onAuthStateChanged(auth, onChange, onError),
 
   async signIn(email, password) {
     if (!auth) throw new Error('Firebase no está configurado')

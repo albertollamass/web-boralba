@@ -1,19 +1,22 @@
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
-const SITE_URL = 'https://boralba.es/'
-const PROPERTY = SITE_URL // propiedad de prefijo de URL (la que usaba el panel)
-const DOMAIN_PROPERTY = 'sc-domain:boralba.es' // propiedad de dominio (la que verifica el usuario)
+const PROPERTY = 'https://boralba.es/'
+const DOMAIN_PROPERTY = 'sc-domain:boralba.es'
 const READONLY_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly'
 const GIS_URL = 'https://accounts.google.com/gsi/client'
 const API_ROOT = 'https://searchconsole.googleapis.com/webmasters/v3'
 const INSPECTION_API_ROOT = 'https://searchconsole.googleapis.com/v1'
 const cache = new Map()
+const CATALOG_INSPECTION_CACHE_KEY = 'boralba.search-console.catalog-inspections.v1'
+const CATALOG_INSPECTION_REQUESTS_KEY = 'boralba.search-console.catalog-inspection-requests.v1'
+const INSPECTION_CACHE_TTL = 6 * 60 * 60 * 1000
+const INSPECTION_DELAY = 1000
+const INSPECTION_DAILY_LIMIT = 1900
+const isCanonicalProductUrl = (url) => /^https:\/\/boralba\.es\/producto\/[^/]+\/[^/]+\/$/.test(url)
 
 let gisPromise
 let accessToken = null
 let tokenExpiresAt = 0
 let resumeBlocked = false
-// Google trata las dos propiedades como sitios distintos: si la cuenta no
-// tiene acceso a una, se usa la otra sin obligar al usuario a cambiar nada.
 let activeProperty = PROPERTY
 
 export const searchConsoleConfig = {
@@ -106,6 +109,7 @@ async function request(path, options = {}, base = API_ROOT) {
   return response.json()
 }
 
+const sitePathFor = (site) => encodeURIComponent(site)
 const daysBetween = (period) => period === '7d' ? 7 : period === '90d' ? 90 : period === '6m' ? 183 : period === '12m' ? 365 : 28
 const isoDate = (date) => date.toISOString().slice(0, 10)
 function rangeFor(period, startDate, endDate, previous = false) {
@@ -129,7 +133,7 @@ function rangeFor(period, startDate, endDate, previous = false) {
 }
 
 async function performance(range, site = activeProperty) {
-  return request(`/sites/${encodeURIComponent(site)}/searchAnalytics/query`, {
+  return request(`/sites/${sitePathFor(site)}/searchAnalytics/query`, {
     method: 'POST',
     body: JSON.stringify({ ...range, dimensions: ['date', 'query', 'page'], rowLimit: 25000, dataState: 'final' }),
   })
@@ -170,8 +174,8 @@ function toRow(item, type) {
 }
 
 async function sitemap(site = activeProperty) {
-  const data = await request(`/sites/${encodeURIComponent(site)}/sitemaps`)
-  const item = (data.sitemap || []).find((entry) => entry.path === `${SITE_URL}sitemap.xml`) || data.sitemap?.[0]
+  const data = await request(`/sites/${sitePathFor(site)}/sitemaps`)
+  const item = (data.sitemap || []).find((entry) => entry.path === `${PROPERTY}sitemap.xml`) || data.sitemap?.[0]
   if (!item) return null
   const errors = item.errors == null ? null : Number(item.errors)
   const warnings = item.warnings == null ? null : Number(item.warnings)
@@ -186,9 +190,6 @@ async function sitemap(site = activeProperty) {
   return { status, submitted, errors, warnings, submittedAt: item.submitted, lastRead: item.lastDownloaded }
 }
 
-// Un mismo usuario puede tener acceso solo a la propiedad de prefijo o solo
-// a la de dominio. Si la activa devuelve 403, probamos la otra una sola vez
-// y recordamos cuál funciona para el resto de la sesión.
 async function withWorkingProperty(run) {
   try {
     return await run(activeProperty)
@@ -202,7 +203,7 @@ async function withWorkingProperty(run) {
 }
 
 export async function inspectSearchConsoleUrl(url) {
-  if (!url || !url.startsWith(SITE_URL)) throw new Error('La URL debe pertenecer a https://boralba.es/')
+  if (!isCanonicalProductUrl(url)) throw new Error('La inspección del catálogo solo admite la URL canónica de producto con slug.')
   const payload = await withWorkingProperty((site) => request('/urlInspection/index:inspect', {
     method: 'POST',
     body: JSON.stringify({ inspectionUrl: url, siteUrl: site }),
@@ -211,6 +212,7 @@ export async function inspectSearchConsoleUrl(url) {
   const indexStatus = result.indexStatusResult || {}
   return {
     url,
+    checkedAt: new Date().toISOString(),
     verdict: indexStatus.verdict || null,
     coverageState: indexStatus.coverageState || null,
     indexingState: indexStatus.indexingState || null,
@@ -222,6 +224,148 @@ export async function inspectSearchConsoleUrl(url) {
   }
 }
 
+const translatedCoverage = (value = '') => {
+  const text = String(value).toLowerCase()
+  if (text.includes('submitted and indexed')) return 'La URL está enviada e indexada.'
+  if (text.includes('discovered') && text.includes('not indexed')) return 'Google ha descubierto la URL, pero todavía no la ha rastreado.'
+  if (text.includes('crawled') && text.includes('not indexed')) return 'Google ha rastreado la URL, pero aún no la ha incluido en el índice.'
+  if (text.includes('not found')) return 'Google no encuentra esta página.'
+  if (text.includes('redirect')) return 'Google detecta una redirección en esta URL.'
+  if (text.includes('robots')) return 'El archivo robots.txt impide el acceso de Google.'
+  if (text.includes('duplicate')) return 'Google considera que esta página es duplicada.'
+  if (text.includes('alternate')) return 'Google ha elegido otra URL como canónica.'
+  if (text.includes('server error')) return 'El servidor devolvió un error al rastrear la página.'
+  return value || 'Google todavía no ha indicado un estado detallado.'
+}
+
+const translatedIndexing = (value = '') => {
+  const text = String(value).toLowerCase()
+  if (text.includes('indexable')) return 'La página puede indexarse.'
+  if (text.includes('blocked')) return 'La página está bloqueada para Google.'
+  if (text.includes('not indexable')) return 'La página no puede indexarse.'
+  return value || 'No hay información suficiente sobre la indexación.'
+}
+
+export const translateSearchConsoleError = (value = '') => {
+  const text = String(value)
+  if (/quota|rate limit|resource exhausted/i.test(text)) return 'Google ha alcanzado el límite temporal de comprobaciones. Se reintentará en el siguiente ciclo.'
+  if (/401|unauthoriz|caducad/i.test(text)) return 'La autorización de Google ha caducado. Vuelve a conectar Search Console.'
+  if (/403|forbidden|permission/i.test(text)) return 'La cuenta no tiene permiso para inspeccionar esta propiedad de Search Console.'
+  if (/404|not found/i.test(text)) return 'Google no encuentra la URL o la propiedad configurada.'
+  if (/429/i.test(text)) return 'Google ha limitado temporalmente las peticiones. Se reintentará más adelante.'
+  return 'Google no pudo completar la comprobación. Revisa la conexión y vuelve a intentarlo más adelante.'
+}
+
+export function classifyInspection(inspection) {
+  if (!inspection) return 'unchecked'
+  if (inspection.error) return 'error'
+  if (inspection.googleCanonical && inspection.userCanonical && inspection.googleCanonical !== inspection.userCanonical) return 'error'
+  if (inspection.verdict === 'PASS') return 'indexed'
+  const coverage = String(inspection.coverageState || '').toLowerCase()
+  const indexing = String(inspection.indexingState || '').toLowerCase()
+  const realError = coverage.includes('robots') || coverage.includes('server error') || coverage.includes('not found') || coverage.includes('redirect') || coverage.includes('duplicate') || coverage.includes('alternate') || indexing.includes('blocked') || indexing.includes('not indexable')
+  return realError ? 'error' : 'pending'
+}
+
+export function inspectionExplanation(inspection) {
+  if (!inspection) return 'Todavía no se ha comprobado esta URL.'
+  if (inspection.error) return translateSearchConsoleError(inspection.error)
+  if (inspection.googleCanonical && inspection.userCanonical && inspection.googleCanonical !== inspection.userCanonical) return 'Google ha elegido otra URL como canónica. La ficha necesita revisión.'
+  const state = classifyInspection(inspection)
+  if (state === 'indexed') return 'Google ha confirmado que la URL canónica está indexada.'
+  if (state === 'error') return `${translatedCoverage(inspection.coverageState)} ${translatedIndexing(inspection.indexingState)}`
+  return `${translatedCoverage(inspection.coverageState)} ${translatedIndexing(inspection.indexingState)} Que todavía no esté indexada no es un error si el producto está publicado y puede indexarse.`
+}
+
+export function inspectionAdvice(inspection) {
+  if (!inspection || inspection.error || classifyInspection(inspection) !== 'error') return ''
+  if (inspection.googleCanonical && inspection.userCanonical && inspection.googleCanonical !== inspection.userCanonical) return 'Comprueba que la etiqueta canonical y los enlaces internos usan esta URL con slug.'
+  const coverage = String(inspection.coverageState || '').toLowerCase()
+  if (coverage.includes('robots')) return 'Revisa robots.txt y permite el rastreo de la URL canónica.'
+  if (coverage.includes('redirect')) return 'Comprueba que la URL canónica no redirige y que las rutas antiguas apuntan a ella.'
+  if (coverage.includes('not found')) return 'Comprueba que el producto está publicado y que la URL devuelve una ficha válida.'
+  if (coverage.includes('duplicate') || coverage.includes('alternate')) return 'Revisa la etiqueta canonical y confirma que coincide con la URL canónica del producto.'
+  if (coverage.includes('server error')) return 'Revisa el servidor y vuelve a solicitar la indexación cuando responda correctamente.'
+  return 'Revisa publicación, noindex, robots y la etiqueta canonical del producto.'
+}
+
+function readCatalogInspectionCache() {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(CATALOG_INSPECTION_CACHE_KEY) || '{}')
+    return stored && typeof stored === 'object' ? stored : {}
+  } catch {
+    return {}
+  }
+}
+
+function writeCatalogInspectionCache(entries) {
+  try {
+    window.localStorage.setItem(CATALOG_INSPECTION_CACHE_KEY, JSON.stringify(entries))
+  } catch {
+    // La caché es opcional; la inspección no debe fallar si el navegador la bloquea.
+  }
+}
+
+function readInspectionRequestLog() {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(CATALOG_INSPECTION_REQUESTS_KEY) || '[]')
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000
+    return Array.isArray(stored) ? stored.filter((timestamp) => Number(timestamp) > cutoff) : []
+  } catch {
+    return []
+  }
+}
+
+function writeInspectionRequestLog(entries) {
+  try { window.localStorage.setItem(CATALOG_INSPECTION_REQUESTS_KEY, JSON.stringify(entries.slice(-INSPECTION_DAILY_LIMIT))) } catch { /* Caché opcional. */ }
+}
+
+const wait = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds))
+
+export async function inspectSearchConsoleCatalog(urls, { onProgress } = {}) {
+  if (catalogInspectionPromise) return catalogInspectionPromise
+  catalogInspectionPromise = inspectSearchConsoleCatalogInternal(urls, { onProgress })
+  try { return await catalogInspectionPromise } finally { catalogInspectionPromise = null }
+}
+
+let catalogInspectionPromise = null
+
+async function inspectSearchConsoleCatalogInternal(urls, { onProgress } = {}) {
+  const uniqueUrls = [...new Set(urls.filter((url) => isCanonicalProductUrl(url)))]
+  const stored = readCatalogInspectionCache()
+  const results = {}
+  const now = Date.now()
+
+  uniqueUrls.forEach((url) => {
+    const item = stored[url]
+    if (item && item.checkedAt && now - new Date(item.checkedAt).getTime() < INSPECTION_CACHE_TTL) results[url] = item
+  })
+
+  const pending = uniqueUrls.filter((url) => !results[url])
+  const requests = readInspectionRequestLog()
+  const available = Math.max(0, INSPECTION_DAILY_LIMIT - requests.length)
+  const limited = pending.slice(available)
+  const requestLog = [...requests]
+  for (let index = 0; index < pending.length; index += 1) {
+    const url = pending[index]
+    if (index >= available) break
+    try {
+      results[url] = await inspectSearchConsoleUrl(url)
+      requestLog.push(Date.now())
+    } catch (error) {
+      results[url] = { url, checkedAt: new Date().toISOString(), error: error.message }
+      requestLog.push(Date.now())
+    }
+    writeCatalogInspectionCache({ ...stored, ...results })
+    writeInspectionRequestLog(requestLog)
+    onProgress?.({ completed: index + 1, total: pending.length, cached: uniqueUrls.length - pending.length, limited: limited.length })
+    if (index < pending.length - 1) await wait(INSPECTION_DELAY)
+  }
+
+  const checkedAt = Object.values(results).map((item) => item.checkedAt).filter(Boolean).sort().at(-1) || null
+  return { results, checked: pending.length - limited.length, cached: uniqueUrls.length - pending.length, limited: limited.length, checkedAt }
+}
+
 export async function fetchSearchConsoleReport({ period, startDate, endDate }) {
   if (!CLIENT_ID) return { status: 'not-configured', data: null }
   requireToken()
@@ -230,16 +374,12 @@ export async function fetchSearchConsoleReport({ period, startDate, endDate }) {
   if (cached && cached.expiresAt > Date.now()) return { status: 'connected', data: cached.data }
   const currentRange = rangeFor(period, startDate, endDate)
   const previousRange = rangeFor(period, startDate, endDate, true)
-  const [current, previous, sitemapData] = await withWorkingProperty((site) => Promise.all([
-    performance(currentRange, site),
-    performance(previousRange, site),
-    sitemap(site),
-  ]))
+  const [current, previous, sitemapData] = await withWorkingProperty((site) => Promise.all([performance(currentRange, site), performance(previousRange, site), sitemap(site)]))
   const currentData = aggregate(current.rows)
   const previousData = aggregate(previous.rows)
   const previousQueries = new Map(previousData.queries.map((row) => [row.query, row]))
   currentData.queries = currentData.queries.map((row) => ({ ...row, variation: row.position == null || previousQueries.get(row.query)?.position == null ? null : row.position - previousQueries.get(row.query).position }))
   const data = { ...currentData, previous: previousData.summary, lastSync: new Date().toISOString(), sitemap: sitemapData, inspection: null, recommendations: [] }
-  cache.set(`${activeProperty}:${period}:${startDate || ''}:${endDate || ''}`, { data, expiresAt: Date.now() + 5 * 60 * 1000 })
+  cache.set(key, { data, expiresAt: Date.now() + 5 * 60 * 1000 })
   return { status: 'connected', data }
 }

@@ -1,3 +1,5 @@
+import { productPath } from '../catalog/slug.js'
+
 export const SITE = {
   name: 'Boralba Lighting',
   legalName: 'BORALBA LIGHTING, S.L.',
@@ -13,10 +15,11 @@ export const SITE = {
 }
 
 export function canonicalFor(path = '/') {
-  const [pathname, ...query] = (path.startsWith('/') ? path : `/${path}`).split('?')
-  const clean = pathname.replace(/\/+$/, '') || '/'
-  const suffix = query.length ? `?${query.join('?')}` : ''
-  return `${SITE.url}${clean === '/' ? '/' : `${clean}/`}${suffix}`
+  const clean = path.startsWith('/') ? path : `/${path}`
+  const url = new URL(clean, SITE.url)
+  url.pathname = url.pathname.replace(/\/+$/, '') || '/'
+  if (url.pathname !== '/') url.pathname += '/'
+  return url.toString()
 }
 
 export function pageTitle(title) {
@@ -113,6 +116,7 @@ export function productJsonLd(product) {
     '@context': 'https://schema.org',
     '@type': variantItems.length > 0 ? 'ProductGroup' : 'Product',
     name: product.name,
+    url: canonicalFor(productPath(product)),
     description: product.description || undefined,
     sku: variantItems.length > 0 ? undefined : product.ref || undefined,
     productGroupID: variantItems.length > 0 ? product.id : undefined,
