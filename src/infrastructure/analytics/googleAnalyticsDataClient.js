@@ -99,8 +99,10 @@ const viewItemFilter = { filter: { fieldName: 'eventName', stringFilter: { match
 const reports = [
   ['totals', { metrics: ['activeUsers', 'newUsers', 'sessions', 'averageSessionDuration', 'screenPageViews', 'eventCount'], dimensions: ['date'], limit: 1000 }],
   ['timeline', { metrics: ['activeUsers', 'sessions'], dimensions: ['date'], limit: 1000 }],
-  ['products', { metrics: ['eventCount'], dimensions: ['itemId', 'itemName'], limit: 25, dimensionFilter: viewItemFilter }],
-  ['categories', { metrics: ['eventCount'], dimensions: ['itemCategory'], limit: 25, dimensionFilter: viewItemFilter }],
+  // Las métricas de artículos son las compatibles con dimensiones de artículo.
+  // eventCount provoca errores de compatibilidad en estas dos consultas.
+  ['products', { metrics: ['itemViews'], dimensions: ['itemId', 'itemName'], limit: 25, dimensionFilter: viewItemFilter }],
+  ['categories', { metrics: ['itemViews'], dimensions: ['itemCategory'], limit: 25, dimensionFilter: viewItemFilter }],
   ['searches', { metrics: ['eventCount'], dimensions: ['searchTerm'], limit: 25 }],
   ['sources', { metrics: ['activeUsers', 'sessions'], dimensions: ['sessionDefaultChannelGroup'], limit: 15 }],
   ['geography', { metrics: ['activeUsers', 'sessions'], dimensions: ['country', 'city'], limit: 25 }],
